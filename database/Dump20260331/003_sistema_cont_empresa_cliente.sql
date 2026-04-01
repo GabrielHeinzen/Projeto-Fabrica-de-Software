@@ -3,6 +3,7 @@
 -- Host: 127.0.0.1    Database: sistema_cont
 -- ------------------------------------------------------
 -- Server version	5.5.5-10.4.32-MariaDB
+USE sistema_cont;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,31 +17,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `contador`
+-- Table structure for table `empresa_cliente`
 --
 
-DROP TABLE IF EXISTS `contador`;
+DROP TABLE IF EXISTS `empresa_cliente`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `contador` (
-  `id_contador` int(11) NOT NULL,
-  `Nome` varchar(75) DEFAULT NULL,
-  `cpf` varchar(11) DEFAULT NULL,
-  `crc` varchar(6) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `senha_login` varchar(50) DEFAULT NULL,
-  `telefone` varchar(11) DEFAULT NULL,
-  PRIMARY KEY (`id_contador`)
+CREATE TABLE `empresa_cliente` (
+  `id_cliente` int(11) NOT NULL,
+  `cnpj` varchar(14) DEFAULT NULL,
+  `razao_social` varchar(100) DEFAULT NULL,
+  `possui_funcionarios` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id_cliente`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `contador`
+-- Dumping data for table `empresa_cliente`
 --
 
-LOCK TABLES `contador` WRITE;
-/*!40000 ALTER TABLE `contador` DISABLE KEYS */;
-/*!40000 ALTER TABLE `contador` ENABLE KEYS */;
+LOCK TABLES `empresa_cliente` WRITE;
+/*!40000 ALTER TABLE `empresa_cliente` DISABLE KEYS */;
+/*!40000 ALTER TABLE `empresa_cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
