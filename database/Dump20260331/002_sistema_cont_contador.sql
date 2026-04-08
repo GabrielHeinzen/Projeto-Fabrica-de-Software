@@ -25,10 +25,8 @@ DROP TABLE IF EXISTS `contador`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contador` (
-  `id_contador` int(11) NOT NULL,
+  `id_contador` int(11) AUTO_INCREMENT,
   `Nome` varchar(75) DEFAULT NULL,
-  `cpf` varchar(11) DEFAULT NULL,
-  `crc` varchar(6) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `senha_login` varchar(50) DEFAULT NULL,
   `telefone` varchar(11) DEFAULT NULL,

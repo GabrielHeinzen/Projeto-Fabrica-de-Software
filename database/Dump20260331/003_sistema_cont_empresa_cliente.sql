@@ -24,11 +24,19 @@ DROP TABLE IF EXISTS `empresa_cliente`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `empresa_cliente` (
-  `id_cliente` int(11) NOT NULL,
-  `cnpj` varchar(14) DEFAULT NULL,
-  `razao_social` varchar(100) DEFAULT NULL,
-  `possui_funcionarios` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id_cliente`)
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    cnpj VARCHAR(18) NOT NULL,
+    razao_social VARCHAR(150) NOT NULL,
+    regime_tributario VARCHAR(50) NOT NULL,
+    possui_funcionarios BOOLEAN,
+    possui_notas_venda BOOLEAN,
+    presta_servicos BOOLEAN,
+
+    id_contador INT NOT NULL,
+
+    CONSTRAINT fk_cliente_contador
+        FOREIGN KEY (id_contador)
+        REFERENCES contador(id_contador)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
