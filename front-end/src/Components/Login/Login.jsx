@@ -15,9 +15,9 @@ function Login() {
   return (
     <div className="container">
         <form onSubmit={handleSubmit}>
-            <h1>Bem Vindo!</h1>
-            <p>Acesse o sistema: </p>
+            <h1>Bem Vindo! </h1>
             <br />
+            <h6>Acesse o sistema: </h6>
             <div className="input-field">
                 <FaUser className='icon' />
                 <input type="email" placeholder="Email" 
@@ -36,8 +36,9 @@ function Login() {
                 <a href="#">Esqueceu a senha?</a>
             </div>
             <button type="submit">Entrar</button>
+
             <div className="register">
-                <p>Não tem uma conta? <a href="#">Cadastre-se</a></p>
+                <p>Não tem uma conta? <a href="./register">Cadastre-se</a></p>
             </div>
         </form>
     </div>
