@@ -7,9 +7,9 @@ CREATE TABLE cliente_documento (
 
     CONSTRAINT fk_cd_cliente
         FOREIGN KEY (id_cliente)
-        REFERENCES cliente(id_cliente),
+        REFERENCES empresa_cliente(id_cliente),
 
     CONSTRAINT fk_cd_tipo_doc
         FOREIGN KEY (id_tipo_documento)
         REFERENCES tipo_documento(id_tipo_documento)
-);
+) ENGINE=InnoDB;

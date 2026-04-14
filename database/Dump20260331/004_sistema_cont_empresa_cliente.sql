@@ -23,7 +23,7 @@ USE sistema_cont;
 DROP TABLE IF EXISTS `empresa_cliente`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `empresa_cliente` (
+CREATE TABLE empresa_cliente (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
     cnpj VARCHAR(18) NOT NULL,
     razao_social VARCHAR(150) NOT NULL,
@@ -31,13 +31,12 @@ CREATE TABLE `empresa_cliente` (
     possui_funcionarios BOOLEAN,
     possui_notas_venda BOOLEAN,
     presta_servicos BOOLEAN,
-
     id_contador INT NOT NULL,
 
     CONSTRAINT fk_cliente_contador
         FOREIGN KEY (id_contador)
         REFERENCES contador(id_contador)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -58,4 +57,3 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-31 23:43:25
