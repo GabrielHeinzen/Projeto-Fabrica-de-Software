@@ -15,13 +15,15 @@ function Login() {
   return (
     <div className="container">
         <form onSubmit={handleSubmit}>
-            <h1>Acesse o sistema</h1>
-            <div>
+            <h1>Bem Vindo!</h1>
+            <p>Acesse o sistema: </p>
+            <br />
+            <div className="input-field">
                 <FaUser className='icon' />
                 <input type="email" placeholder="Email" 
                 onChange={(e) => setUsername(e.target.value)} />
             </div>
-            <div>
+            <div className="input-field">
                 <FaLock className='icon' />
                 <input type="password" placeholder="Senha"
                 onChange={(e) => setPassword(e.target.value)} />
