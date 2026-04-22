@@ -7,19 +7,54 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'sistema_cont'
+});
+
+db.connect((erro) => {
+  if (erro) {
+    console.log('Erro ao conectar no banco');
+    console.log(erro);
+  } else {
+    console.log('Banco conectado 🚀');
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('API rodando 🚀');
 });
 
-app.listen(3001, () => {
-  console.log('Servidor rodando na porta 3001');
-});
+app.post('/login', (req, res) => {
+  const { email, senha } = req.body;
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '1234',
-  database: 'sistema_cont'
+  const sql = `
+    SELECT * FROM contador
+    WHERE email = ? AND senha_login = ?
+  `;
+
+  db.query(sql, [email, senha], (erro, resultado) => {
+    if (erro) {
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro no servidor'
+      });
+    }
+
+    if (resultado.length > 0) {
+      res.json({
+        sucesso: true,
+        usuario: resultado[0].Nome
+      });
+    } else {
+      res.status(401).json({
+        sucesso: false,
+        mensagem: 'Email ou senha inválidos'
+      });
+    }
+  });
 });
 
 app.post('/empresa', (req, res) => {
@@ -36,3 +71,11 @@ app.post('/empresa', (req, res) => {
     res.send('Empresa cadastrada com sucesso!');
   });
 });
+
+app.listen(3001, () => {
+  console.log('Servidor rodando na porta 3001');
+});
+
+//docker start mysql-contabilidade
+//cd backend
+//npx nodemon index.js

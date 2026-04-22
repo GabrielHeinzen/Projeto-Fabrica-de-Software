@@ -32,6 +32,14 @@ CREATE TABLE `contador` (
   `telefone` varchar(11) DEFAULT NULL,
   PRIMARY KEY (`id_contador`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO contador (Nome, email, senha_login, telefone)
+VALUES (
+  'Gustavo',
+  'gustavobertimatos@gmail.com',
+  '057175',
+  '47997704620'
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
