@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: '127.0.0.1',
   user: 'root',
   password: 'root',
   database: 'sistema_cont'
@@ -58,17 +58,118 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/empresa', (req, res) => {
-  const { cnpj, razao_social } = req.body;
+   const {
+    cnpj,
+    razao_social,
+    regime_tributario,
+    possui_funcionarios,
+    possui_notas_venda,
+    presta_servicos,
+    id_contador
+  } = req.body;
 
-  const sql = 'INSERT INTO empresa (cnpj, razao_social) VALUES (?, ?)';
+  // validação básica
+  if (!cnpj || !razao_social || !regime_tributario || !id_contador) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Preencha os campos obrigatórios'
+    });
+  }
 
-  db.query(sql, [cnpj, razao_social], (err, result) => {
+  const sql = `
+    INSERT INTO empresa_cliente
+    (cnpj, razao_social, regime_tributario,
+     possui_funcionarios, possui_notas_venda,
+     presta_servicos, id_contador)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    sql,
+    [
+      cnpj,
+      razao_social,
+      regime_tributario,
+      possui_funcionarios,
+      possui_notas_venda,
+      presta_servicos,
+      id_contador
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao cadastrar empresa'
+        });
+      }
+
+      res.json({
+        sucesso: true,
+        mensagem: 'Empresa cadastrada com sucesso',
+        id_empresa: result.insertId
+      });
+    }
+  );
+});
+
+app.get('/empresa', (req, res) => {
+  const sql = 'SELECT * FROM empresa_cliente';
+
+  db.query(sql, (err, result) => {
     if (err) {
       console.error(err);
-      return res.status(500).send('Erro ao cadastrar empresa');
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar empresas'
+      });
     }
 
-    res.send('Empresa cadastrada com sucesso!');
+    res.json(result);
+  });
+});
+
+app.get('/empresa', (req, res) => {
+  const sql = 'SELECT * FROM empresa_cliente';
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar empresas'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+app.delete('/empresa/:id', (req, res) => {
+  const { id } = req.params;
+
+  const sql = 'DELETE FROM empresa_cliente WHERE id_cliente = ?';
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao deletar empresa'
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: 'Empresa não encontrada'
+      });
+    }
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Empresa deletada com sucesso'
+    });
   });
 });
 
