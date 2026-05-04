@@ -4,7 +4,9 @@ const mysql = require('mysql2');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 app.use(express.json());
 
 const db = mysql.createConnection({
