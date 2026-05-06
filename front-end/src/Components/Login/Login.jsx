@@ -63,14 +63,6 @@ const handleSubmit = async (event) => {
           />
         </div>
 
-        <div className="recall-forget">
-          <label>
-            <input type="checkbox" />
-            Lembre de mim
-          </label>
-
-          <a href="#">Esqueceu a senha?</a>
-        </div>
 
         <button type="submit">Entrar</button>
 
