@@ -175,10 +175,79 @@ app.delete('/empresa/:id', (req, res) => {
   });
 });
 
+app.put('/empresa/:id', (req, res) => {
+  const { id } = req.params;
+
+  const {
+    cnpj,
+    razao_social,
+    regime_tributario,
+    possui_funcionarios,
+    possui_notas_venda,
+    presta_servicos,
+    id_contador
+  } = req.body;
+
+  if (!cnpj || !razao_social || !regime_tributario || !id_contador) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Preencha os campos obrigatórios'
+    });
+  }
+
+  const sql = `
+    UPDATE empresa_cliente
+    SET 
+      cnpj = ?,
+      razao_social = ?,
+      regime_tributario = ?,
+      possui_funcionarios = ?,
+      possui_notas_venda = ?,
+      presta_servicos = ?,
+      id_contador = ?
+    WHERE id_cliente = ?
+  `;
+
+  db.query(
+    sql,
+    [
+      cnpj,
+      razao_social,
+      regime_tributario,
+      possui_funcionarios,
+      possui_notas_venda,
+      presta_servicos,
+      id_contador,
+      id
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao atualizar empresa'
+        });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          sucesso: false,
+          mensagem: 'Empresa não encontrada'
+        });
+      }
+
+      res.json({
+        sucesso: true,
+        mensagem: 'Empresa atualizada com sucesso'
+      });
+    }
+  );
+});
+
 app.listen(3001, () => {
   console.log('Servidor rodando na porta 3001');
 });
 
 //docker start mysql-contabilidade
 //cd backend
-//npx nodemon index.js
+//npx nodemon index.js  
