@@ -5,38 +5,40 @@ import './Login.css';
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-const handleSubmit = async (event) => {
-  event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  try {
-    const resposta = await fetch('https://fantastic-journey-x5r4qjjw4rvv3v4r4-3001.app.github.dev/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: username,
-        senha: password
-      })
-    });
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-    console.log(resposta);
+    try {
+      const resposta = await fetch(`${apiBaseUrl}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: username,
+          senha: password
+        })
+      });
 
-    const dados = await resposta.json();
+      console.log(resposta);
 
-    console.log(dados);
+      const dados = await resposta.json();
 
-    if (dados.sucesso) {
-      alert("Bem-vindo " + dados.usuario);
-    } else {
-      alert(dados.mensagem);
+      console.log(dados);
+
+      if (dados.sucesso) {
+        alert("Bem-vindo " + dados.usuario);
+      } else {
+        alert(dados.mensagem);
+      }
+
+    } catch (erro) {
+      console.log(erro);
+      alert("Erro ao conectar com backend");
     }
-
-  } catch (erro) {
-    console.log(erro);
-    alert("Erro ao conectar com backend");
-  }
-};
+  };
 
   return (
     <div className="container">
