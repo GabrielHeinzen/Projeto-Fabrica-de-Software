@@ -2,7 +2,7 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import { useState } from 'react';
 import './Login.css';
 
-function Login() {
+function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const handleSubmit = async (event) => {
@@ -29,7 +29,11 @@ function Login() {
       console.log(dados);
 
       if (dados.sucesso) {
-        alert("Bem-vindo " + dados.usuario);
+        const nomeUsuario = dados.usuario || username;
+        alert("Bem-vindo " + nomeUsuario);
+        if (onLoginSuccess) {
+          onLoginSuccess({ name: nomeUsuario, email: username });
+        }
       } else {
         alert(dados.mensagem);
       }

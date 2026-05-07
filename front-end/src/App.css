@@ -5,14 +5,22 @@
     box-sizing: border-box;
     text-shadow: #000 0px 0.5px;
     font-family:Georgia, 'Times New Roman', Times, serif;
- }
+}
 
-.App {
+.app-root {
+    min-height: 100vh;
+}
+
+.app-root--login {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     background-image: url("./assets/Cidade_fundo.png");
     background-size: cover;
     background-position: center;
+}
+
+.app-root--authed {
+    display: block;
+    background-color: #eef2f6;
 }
