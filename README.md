@@ -13,6 +13,11 @@ for file in database/*.sql; do
   docker exec -i mysql_contabil mysql -u root -proot sistema_cont < "$file"
 done
 ```
+LISTA CONTADORES DO BANCO: 
+
+```
+docker exec -it mysql_contabil mysql -u root -proot -e "USE sistema_cont; SELECT * FROM contador;"
+```
 
 ---
 

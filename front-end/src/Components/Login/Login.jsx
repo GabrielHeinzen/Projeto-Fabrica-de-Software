@@ -2,7 +2,7 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import { useState } from 'react';
 import './Login.css';
 
-function Login({ onLoginSuccess }) {
+function Login({ onLoginSuccess, onShowRegister }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const handleSubmit = async (event) => {
@@ -74,7 +74,18 @@ function Login({ onLoginSuccess }) {
 
         <div className="register">
           <p>
-            Não tem uma conta? <a href="./register">Cadastre-se</a>
+            Nao tem uma conta?{' '}
+            <a
+              href="#"
+              onClick={(event) => {
+                event.preventDefault();
+                if (onShowRegister) {
+                  onShowRegister();
+                }
+              }}
+            >
+              Cadastre-se
+            </a>
           </p>
         </div>
       </form>

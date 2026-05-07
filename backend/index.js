@@ -59,6 +59,63 @@ app.post('/login', (req, res) => {
   });
 });
 
+app.post('/register', (req, res) => {
+  const { nome, email, senha, telefone } = req.body;
+
+  if (!nome || !email || !senha) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Preencha os campos obrigatorios'
+    });
+  }
+
+  const emailNormalizado = email.trim().toLowerCase();
+
+  const checkSql = 'SELECT id_contador FROM contador WHERE email = ? LIMIT 1';
+
+  db.query(checkSql, [emailNormalizado], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro no servidor'
+      });
+    }
+
+    if (checkResult.length > 0) {
+      return res.status(409).json({
+        sucesso: false,
+        mensagem: 'Email ja cadastrado'
+      });
+    }
+
+    const insertSql = `
+      INSERT INTO contador (Nome, email, senha_login, telefone)
+      VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(
+      insertSql,
+      [nome.trim(), emailNormalizado, senha, telefone || null],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            sucesso: false,
+            mensagem: 'Erro ao cadastrar usuario'
+          });
+        }
+
+        res.status(201).json({
+          sucesso: true,
+          mensagem: 'Cadastro realizado com sucesso',
+          id_contador: result.insertId
+        });
+      }
+    );
+  });
+});
+
 app.post('/empresa', (req, res) => {
    const {
     cnpj,
