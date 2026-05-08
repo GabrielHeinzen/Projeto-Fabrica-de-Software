@@ -48,7 +48,8 @@ app.post('/login', (req, res) => {
     if (resultado.length > 0) {
       res.json({
         sucesso: true,
-        usuario: resultado[0].Nome
+        usuario: resultado[0].Nome,
+        id_contador: resultado[0].id_contador
       });
     } else {
       res.status(401).json({

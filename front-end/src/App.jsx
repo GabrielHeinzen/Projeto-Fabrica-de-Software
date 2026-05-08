@@ -28,7 +28,11 @@ function App() {
   return (
     <div className={`app-root ${authUser ? 'app-root--authed' : 'app-root--login'}`}>
       {authUser ? (
-        <CadastroEmpresa userName={authUser.name} onLogout={handleLogout} />
+        <CadastroEmpresa
+          userName={authUser.name}
+          userId={authUser.id}
+          onLogout={handleLogout}
+        />
       ) : authView === 'register' ? (
         <Register onShowLogin={handleShowLogin} />
       ) : (
