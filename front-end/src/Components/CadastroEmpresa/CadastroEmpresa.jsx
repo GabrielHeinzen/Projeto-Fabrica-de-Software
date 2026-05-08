@@ -12,6 +12,7 @@ const initialForm = {
 
 function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
   const [formData, setFormData] = useState(initialForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field) => (event) => {
     setFormData((prev) => ({
@@ -20,9 +21,47 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    alert('Cadastro salvo (template).');
+
+    if (isSubmitting) {
+      return;
+    }
+
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+    setIsSubmitting(true);
+
+    try {
+      const resposta = await fetch(`${apiBaseUrl}/empresa`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cnpj: formData.cnpj,
+          razao_social: formData.razaoSocial,
+          regime_tributario: formData.regimeTributario,
+          possui_funcionarios: formData.possuiFuncionarios === 'sim',
+          possui_notas_venda: formData.possuiNotasVenda === 'sim',
+          presta_servicos: formData.prestaServicos === 'sim'
+        })
+      });
+
+      const dados = await resposta.json();
+
+      if (resposta.ok && dados.sucesso) {
+        alert('Empresa cadastrada com sucesso.');
+        setFormData(initialForm);
+      } else {
+        alert(dados.mensagem || 'Erro ao cadastrar empresa');
+      }
+    } catch (erro) {
+      console.log(erro);
+      alert('Erro ao conectar com backend');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -240,7 +279,9 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
             </div>
 
             <div className="empresa-actions">
-              <button type="submit" className="empresa-primary">Salvar e continuar</button>
+              <button type="submit" className="empresa-primary" disabled={isSubmitting}>
+                {isSubmitting ? 'Salvando...' : 'Salvar e continuar'}
+              </button>
               <button type="button" className="empresa-secondary">Cancelar</button>
             </div>
           </form>

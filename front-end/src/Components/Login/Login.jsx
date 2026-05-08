@@ -31,11 +31,7 @@ function Login({ onLoginSuccess, onShowRegister }) {
       if (dados.sucesso) {
         const nomeUsuario = dados.usuario || username;
         if (onLoginSuccess) {
-          onLoginSuccess({
-            name: nomeUsuario,
-            email: username,
-            id: dados.id_contador
-          });
+          onLoginSuccess({ name: nomeUsuario, email: username });
         }
       } else {
         alert(dados.mensagem);

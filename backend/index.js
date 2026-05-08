@@ -48,8 +48,7 @@ app.post('/login', (req, res) => {
     if (resultado.length > 0) {
       res.json({
         sucesso: true,
-        usuario: resultado[0].Nome,
-        id_contador: resultado[0].id_contador
+        usuario: resultado[0].Nome
       });
     } else {
       res.status(401).json({
@@ -124,12 +123,11 @@ app.post('/empresa', (req, res) => {
     regime_tributario,
     possui_funcionarios,
     possui_notas_venda,
-    presta_servicos,
-    id_contador
+    presta_servicos
   } = req.body;
 
   // validação básica
-  if (!cnpj || !razao_social || !regime_tributario || !id_contador) {
+  if (!cnpj || !razao_social || !regime_tributario) {
     return res.status(400).json({
       sucesso: false,
       mensagem: 'Preencha os campos obrigatórios'
@@ -140,8 +138,8 @@ app.post('/empresa', (req, res) => {
     INSERT INTO empresa_cliente
     (cnpj, razao_social, regime_tributario,
      possui_funcionarios, possui_notas_venda,
-     presta_servicos, id_contador)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+     presta_servicos)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -152,8 +150,7 @@ app.post('/empresa', (req, res) => {
       regime_tributario,
       possui_funcionarios,
       possui_notas_venda,
-      presta_servicos,
-      id_contador
+      presta_servicos
     ],
     (err, result) => {
       if (err) {

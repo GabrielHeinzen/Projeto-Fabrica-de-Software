@@ -31,11 +31,7 @@ CREATE TABLE empresa_cliente (
     possui_funcionarios BOOLEAN,
     possui_notas_venda BOOLEAN,
     presta_servicos BOOLEAN,
-    id_contador INT NOT NULL,
-
-    CONSTRAINT fk_cliente_contador
-        FOREIGN KEY (id_contador)
-        REFERENCES contador(id_contador)
+    id_contador INT NULL
 ) ENGINE=InnoDB;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
