@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 
@@ -8,6 +10,44 @@ app.use(cors({
   origin: '*'
 }));
 app.use(express.json());
+
+app.use('/uploads', express.static('uploads'));
+
+//config multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+
+  filename: (req, file, cb) => {
+    const nomeUnico = Date.now() + '-' + file.originalname;
+    cb(null, nomeUnico);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const tiposPermitidos = [
+    'application/pdf',
+    'image/jpeg'
+  ];
+
+  if (tiposPermitidos.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Apenas PDF e JPG são permitidos'));
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  }
+});
+
+
+
 
 const db = mysql.createConnection({
   host: '127.0.0.1',
@@ -301,6 +341,35 @@ app.put('/empresa/:id', (req, res) => {
 
 app.listen(3001, () => {
   console.log('Servidor rodando na porta 3001');
+});
+
+app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
+  const { id } = req.params;
+  const { tipo_documento } = req.body;
+
+  if (!req.file) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Nenhum arquivo enviado'
+    });
+  }
+
+  if (!tipo_documento) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Informe o tipo do documento'
+    });
+  }
+
+  const caminhoArquivo = `/uploads/${req.file.filename}`;
+
+  res.json({
+    sucesso: true,
+    mensagem: 'Documento enviado com sucesso',
+    id_empresa: id,
+    tipo_documento: tipo_documento,
+    arquivo: caminhoArquivo
+  });
 });
 
 //docker start mysql-contabilidade
