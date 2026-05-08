@@ -18,10 +18,17 @@ LISTA CONTADORES DO BANCO:
 ```
 docker exec -it mysql_contabil mysql -u root -proot -e "USE sistema_cont; SELECT * FROM contador;"
 ```
-EXCLUI CONTADOR PELO ID
+EXCLUI CONTADOR PELO ID:
+
 ```
 docker exec -it mysql_contabil mysql -u root -proot -e "USE sistema_cont; DELETE FROM contador WHERE id_contador = ;"
 ```
+LISTA EMPRESAS CADASTRADAS: 
+```
+docker exec -it mysql_contabil mysql -u root -proot -e "USE sistema_cont; SELECT * FROM empresa_cliente;"
+```
+
+
 ---
 
 ## Backend
