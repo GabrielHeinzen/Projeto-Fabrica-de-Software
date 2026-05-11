@@ -14,10 +14,39 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [documentos, setDocumentos] = useState({
+    contratoSocial: null,
+    comprovanteCnpj: null,
+    documentoSocios: null,
+    comprovanteEndereco: null,
+    balancoContabil: null
+  });
+
+  const [datasEntrega, setDatasEntrega] = useState({
+    dataEstimada: '',
+    dataReal: ''
+  });
+
   const handleChange = (field) => (event) => {
     setFormData((prev) => ({
       ...prev,
       [field]: event.target.value
+    }));
+  };
+
+  const handleFileChange = (campo) => (event) => {
+    const arquivo = event.target.files[0];
+
+    setDocumentos((prev) => ({
+      ...prev,
+      [campo]: arquivo
+    }));
+  };
+
+  const handleDateChange = (campo) => (event) => {
+    setDatasEntrega((prev) => ({
+      ...prev,
+      [campo]: event.target.value
     }));
   };
 
@@ -70,7 +99,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
         <div className="empresa-brand">
           <div className="empresa-logo">ME</div>
           <div>
-            <strong>MinhaEmpresa</strong>
+            <strong>C2R Contabilidade</strong>
             <span>Portal Contabil</span>
           </div>
         </div>
@@ -112,10 +141,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
             <p className="empresa-kicker">Minha Empresa</p>
             <h1>Cadastrar Empresa</h1>
             <p>Preencha os dados da sua empresa e envie os documentos necessarios para analise.</p>
-          </div>
-          <div className="empresa-hero-badge">
-            <span>Cadastro</span>
-            <strong>Em andamento</strong>
           </div>
         </section>
 
@@ -173,9 +198,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
               <span>Possui funcionarios? *</span>
               <div className="empresa-toggle-options">
                 <label
-                  className={`empresa-toggle-option ${
-                    formData.possuiFuncionarios === 'sim' ? 'is-selected' : ''
-                  }`}
+                  className={`empresa-toggle-option ${formData.possuiFuncionarios === 'sim' ? 'is-selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -188,9 +212,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
                   Sim
                 </label>
                 <label
-                  className={`empresa-toggle-option ${
-                    formData.possuiFuncionarios === 'nao' ? 'is-selected' : ''
-                  }`}
+                  className={`empresa-toggle-option ${formData.possuiFuncionarios === 'nao' ? 'is-selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -208,9 +231,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
               <span>Possui notas de vendas? *</span>
               <div className="empresa-toggle-options">
                 <label
-                  className={`empresa-toggle-option ${
-                    formData.possuiNotasVenda === 'sim' ? 'is-selected' : ''
-                  }`}
+                  className={`empresa-toggle-option ${formData.possuiNotasVenda === 'sim' ? 'is-selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -223,9 +245,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
                   Sim
                 </label>
                 <label
-                  className={`empresa-toggle-option ${
-                    formData.possuiNotasVenda === 'nao' ? 'is-selected' : ''
-                  }`}
+                  className={`empresa-toggle-option ${formData.possuiNotasVenda === 'nao' ? 'is-selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -243,9 +264,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
               <span>Presta servicos? *</span>
               <div className="empresa-toggle-options">
                 <label
-                  className={`empresa-toggle-option ${
-                    formData.prestaServicos === 'sim' ? 'is-selected' : ''
-                  }`}
+                  className={`empresa-toggle-option ${formData.prestaServicos === 'sim' ? 'is-selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -258,9 +278,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
                   Sim
                 </label>
                 <label
-                  className={`empresa-toggle-option ${
-                    formData.prestaServicos === 'nao' ? 'is-selected' : ''
-                  }`}
+                  className={`empresa-toggle-option ${formData.prestaServicos === 'nao' ? 'is-selected' : ''
+                    }`}
                 >
                   <input
                     type="radio"
@@ -293,39 +312,165 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
               <li>
                 <div>
                   <strong>Contrato Social ou Estatuto Social</strong>
-                  <span>PDF ou JPG - ate 10MB</span>
+
+                  <span>
+                    {documentos.contratoSocial
+                      ? documentos.contratoSocial.name
+                      : 'PDF ou JPG - ate 10MB'}
+                  </span>
                 </div>
-                <span className="empresa-status">Pendente</span>
+
+                <div className="empresa-doc-actions">
+                  <label className="empresa-upload-button">
+                    +
+
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      hidden
+                      onChange={handleFileChange('contratoSocial')}
+                    />
+                  </label>
+
+                  <span className="empresa-status">
+                    {documentos.contratoSocial ? 'Anexado' : 'Pendente'}
+                  </span>
+                </div>
               </li>
               <li>
                 <div>
                   <strong>Comprovante de Inscricao e Situacao Cadastral (CNPJ)</strong>
-                  <span>PDF ou JPG - ate 10MB</span>
+
+                  <span>
+                    {documentos.comprovanteCnpj
+                      ? documentos.comprovanteCnpj.name
+                      : 'PDF ou JPG - ate 10MB'}
+                  </span>
                 </div>
-                <span className="empresa-status">Pendente</span>
+
+                <div className="empresa-doc-actions">
+                  <label className="empresa-upload-button">
+                    +
+
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      hidden
+                      onChange={handleFileChange('comprovanteCnpj')}
+                    />
+                  </label>
+
+                  <span className="empresa-status">
+                    {documentos.comprovanteCnpj ? 'Anexado' : 'Pendente'}
+                  </span>
+                </div>
               </li>
               <li>
                 <div>
                   <strong>Documento de Identificacao do(s) Socio(s)</strong>
-                  <span>PDF ou JPG - ate 10MB</span>
+
+                  <span>
+                    {documentos.documentoSocios
+                      ? documentos.documentoSocios.name
+                      : 'PDF ou JPG - ate 10MB'}
+                  </span>
                 </div>
-                <span className="empresa-status">Pendente</span>
+
+                <div className="empresa-doc-actions">
+                  <label className="empresa-upload-button">
+                    +
+
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      hidden
+                      onChange={handleFileChange('documentoSocios')}
+                    />
+                  </label>
+
+                  <span className="empresa-status">
+                    {documentos.documentoSocios ? 'Anexado' : 'Pendente'}
+                  </span>
+                </div>
               </li>
               <li>
                 <div>
                   <strong>Comprovante de Endereco</strong>
-                  <span>PDF ou JPG - ate 10MB</span>
+
+                  <span>
+                    {documentos.comprovanteEndereco
+                      ? documentos.comprovanteEndereco.name
+                      : 'PDF ou JPG - ate 10MB'}
+                  </span>
                 </div>
-                <span className="empresa-status">Pendente</span>
+
+                <div className="empresa-doc-actions">
+                  <label className="empresa-upload-button">
+                    +
+
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      hidden
+                      onChange={handleFileChange('comprovanteEndereco')}
+                    />
+                  </label>
+
+                  <span className="empresa-status">
+                    {documentos.comprovanteEndereco ? 'Anexado' : 'Pendente'}
+                  </span>
+                </div>
               </li>
               <li>
                 <div>
                   <strong>Ultimo Balanco ou Demonstracao Contabil</strong>
-                  <span>PDF ou JPG - ate 10MB</span>
+
+                  <span>
+                    {documentos.balancoContabil
+                      ? documentos.balancoContabil.name
+                      : 'PDF ou JPG - ate 10MB'}
+                  </span>
                 </div>
-                <span className="empresa-status">Pendente</span>
+
+                <div className="empresa-doc-actions">
+                  <label className="empresa-upload-button">
+                    +
+
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      hidden
+                      onChange={handleFileChange('balancoContabil')}
+                    />
+                  </label>
+
+                  <span className="empresa-status">
+                    {documentos.balancoContabil ? 'Anexado' : 'Pendente'}
+                  </span>
+                </div>
               </li>
             </ul>
+            <div className="empresa-datas">
+              <label className="empresa-field">
+                <span>Data inicial</span>
+
+                <input
+                  type="date"
+                  value={datasEntrega.dataEstimada}
+                  onChange={handleDateChange('dataEstimada')}
+                />
+              </label>
+
+              <label className="empresa-field">
+                <span>Data final</span>
+
+                <input
+                  type="date"
+                  value={datasEntrega.dataReal}
+                  onChange={handleDateChange('dataReal')}
+                />
+              </label>
+            </div>
             <div className="empresa-doc-footer">
               Seus documentos estao seguros e serao usados apenas para validacao cadastral.
             </div>
