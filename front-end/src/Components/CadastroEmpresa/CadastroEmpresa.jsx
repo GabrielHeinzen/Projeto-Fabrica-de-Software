@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './CadastroEmpresa.css';
 
 const initialForm = {
@@ -97,7 +98,9 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
     <div className="empresa-page">
       <aside className="empresa-sidebar">
         <div className="empresa-brand">
-          <div className="empresa-logo">ME</div>
+          <div className="empresa-logo">
+            <img src={logoIcon} alt="C2R Contabilidade" />
+          </div>
           <div>
             <strong>C2R Contabilidade</strong>
             <span>Portal Contabil</span>
@@ -106,8 +109,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
 
         <nav className="empresa-nav">
           <button type="button" className="empresa-nav-item">Dashboard</button>
-          <button type="button" className="empresa-nav-item">Minha Empresa</button>
-          <button type="button" className="empresa-nav-item is-active">Cadastrar Empresa</button>
+          <button type="button" className="empresa-nav-item">Minhas Empresas</button>
+          <button type="button" className="empresa-nav-item is-active">Cadastro</button>
           <button type="button" className="empresa-nav-item">Usuarios</button>
           <button type="button" className="empresa-nav-item">Documentos</button>
           <button type="button" className="empresa-nav-item">Solicitacoes</button>
@@ -115,17 +118,11 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
           <button type="button" className="empresa-nav-item">Suporte</button>
           <button type="button" className="empresa-nav-item">Configuracoes</button>
         </nav>
-
-        <div className="empresa-support">
-          <p>Precisa de ajuda?</p>
-          <span>Nossa equipe esta pronta para te atender.</span>
-          <button type="button" className="empresa-support-button">Falar com suporte</button>
-        </div>
       </aside>
 
       <div className="empresa-content">
         <header className="empresa-topbar">
-          <div className="empresa-breadcrumb">Minha Empresa / Cadastrar Empresa</div>
+          <div className="empresa-breadcrumb">Cadastro de Empresas</div>
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
@@ -138,9 +135,8 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
 
         <section className="empresa-hero">
           <div>
-            <p className="empresa-kicker">Minha Empresa</p>
             <h1>Cadastrar Empresa</h1>
-            <p>Preencha os dados da sua empresa e envie os documentos necessarios para analise.</p>
+            <p>Preencha os dados e envie os documentos necessários.</p>
           </div>
         </section>
 
@@ -148,7 +144,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
           <form className="empresa-card empresa-card--form" onSubmit={handleSubmit}>
             <div className="empresa-card-header">
               <h2>Dados da Empresa</h2>
-              <span className="empresa-badge">Obrigatorio</span>
             </div>
 
             <label className="empresa-field">
@@ -306,7 +301,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
           </form>
 
           <section className="empresa-card empresa-card--docs">
-            <h2>Documentos Necessarios</h2>
+            <h2>Documentos Necessários</h2>
             <p>Envie os documentos abaixo para validarmos sua empresa.</p>
             <ul className="empresa-doc-list">
               <li>
@@ -452,7 +447,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
             </ul>
             <div className="empresa-datas">
               <label className="empresa-field">
-                <span>Data inicial</span>
+                <span>Data inicial (estimada da entrega)</span>
 
                 <input
                   type="date"
@@ -462,7 +457,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
               </label>
 
               <label className="empresa-field">
-                <span>Data final</span>
+                <span>Data final (real da entrega)</span>
 
                 <input
                   type="date"
@@ -470,9 +465,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
                   onChange={handleDateChange('dataReal')}
                 />
               </label>
-            </div>
-            <div className="empresa-doc-footer">
-              Seus documentos estao seguros e serao usados apenas para validacao cadastral.
             </div>
           </section>
         </div>
