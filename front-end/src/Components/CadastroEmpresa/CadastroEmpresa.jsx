@@ -11,7 +11,7 @@ const initialForm = {
   prestaServicos: ''
 };
 
-function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
+function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,6 +55,11 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
     event.preventDefault();
 
     if (isSubmitting) {
+      return;
+    }
+
+    if (!datasEntrega.dataEstimada) {
+      alert('Informe a data estimada da entrega dos documentos.');
       return;
     }
 
@@ -109,8 +114,20 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
 
         <nav className="empresa-nav">
           <button type="button" className="empresa-nav-item">Dashboard</button>
-          <button type="button" className="empresa-nav-item">Minhas Empresas</button>
-          <button type="button" className="empresa-nav-item is-active">Cadastro</button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('empresas')}
+          >
+            Minhas Empresas
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item is-active"
+            onClick={() => onNavigate && onNavigate('cadastro')}
+          >
+            Cadastro Empresa
+          </button>
           <button type="button" className="empresa-nav-item">Usuarios</button>
           <button type="button" className="empresa-nav-item">Documentos</button>
           <button type="button" className="empresa-nav-item">Solicitacoes</button>
@@ -122,7 +139,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
 
       <div className="empresa-content">
         <header className="empresa-topbar">
-          <div className="empresa-breadcrumb">Cadastro de Empresas</div>
+          <div className="empresa-breadcrumb"></div>
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
@@ -141,7 +158,11 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
         </section>
 
         <div className="empresa-grid">
-          <form className="empresa-card empresa-card--form" onSubmit={handleSubmit}>
+          <form
+            id="empresa-form"
+            className="empresa-card empresa-card--form"
+            onSubmit={handleSubmit}
+          >
             <div className="empresa-card-header">
               <h2>Dados da Empresa</h2>
             </div>
@@ -287,11 +308,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
                 </label>
               </div>
             </div>
-
-            <div className="empresa-note">
-              Certifique-se de que o CNPJ informado esta correto. Nao utilizamos esses dados para consulta de credito.
-            </div>
-
             <div className="empresa-actions">
               <button type="submit" className="empresa-primary" disabled={isSubmitting}>
                 {isSubmitting ? 'Salvando...' : 'Salvar e continuar'}
@@ -447,22 +463,14 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout }) {
             </ul>
             <div className="empresa-datas">
               <label className="empresa-field">
-                <span>Data inicial (estimada da entrega)</span>
+                <span>Data estimada da entrega dos documentos *</span>
 
                 <input
                   type="date"
+                  form="empresa-form"
                   value={datasEntrega.dataEstimada}
                   onChange={handleDateChange('dataEstimada')}
-                />
-              </label>
-
-              <label className="empresa-field">
-                <span>Data final (real da entrega)</span>
-
-                <input
-                  type="date"
-                  value={datasEntrega.dataReal}
-                  onChange={handleDateChange('dataReal')}
+                  required
                 />
               </label>
             </div>

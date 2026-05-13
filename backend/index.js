@@ -283,12 +283,14 @@ app.put('/empresa/:id', (req, res) => {
     id_contador
   } = req.body;
 
-  if (!cnpj || !razao_social || !regime_tributario || !id_contador) {
+  if (!cnpj || !razao_social || !regime_tributario) {
     return res.status(400).json({
       sucesso: false,
       mensagem: 'Preencha os campos obrigatórios'
     });
   }
+
+  const contadorNormalizado = id_contador === '' || id_contador === undefined ? null : id_contador;
 
   const sql = `
     UPDATE empresa_cliente
@@ -312,7 +314,7 @@ app.put('/empresa/:id', (req, res) => {
       possui_funcionarios,
       possui_notas_venda,
       presta_servicos,
-      id_contador,
+      contadorNormalizado,
       id
     ],
     (err, result) => {

@@ -1,0 +1,185 @@
+.empresa-card--list .empresa-card-header,
+.empresa-card--summary .empresa-card-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.empresa-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.empresa-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+}
+
+.empresa-list-item {
+  border: 1px solid #edf2f7;
+  border-radius: 16px;
+  padding: 16px;
+  background: #f9fbfd;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.empresa-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.empresa-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.empresa-list-header strong {
+  display: block;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.empresa-list-subtitle {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.empresa-list-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.empresa-list-meta span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.empresa-list-meta strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.empresa-list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.empresa-action-button {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.empresa-danger {
+  background: #ffe8e8;
+  color: #b03a3a;
+  border: 1px solid #f4b5b5;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.empresa-danger:hover {
+  background: #ffd9d9;
+}
+
+.empresa-edit {
+  border-top: 1px dashed var(--border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.empresa-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.empresa-edit-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.empresa-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.empresa-pill--primary {
+  background: rgba(47, 111, 115, 0.12);
+  color: var(--primary);
+  border-color: rgba(47, 111, 115, 0.35);
+}
+
+.empresa-pill--ok {
+  background: rgba(47, 111, 115, 0.12);
+  color: var(--primary-dark);
+}
+
+.empresa-pill--warn {
+  background: rgba(242, 160, 61, 0.2);
+  color: #a85b12;
+}
+
+.empresa-empty {
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px dashed var(--border);
+  background: #f7fafc;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empresa-empty--error {
+  border-color: rgba(176, 58, 58, 0.35);
+  background: rgba(176, 58, 58, 0.08);
+  color: #b03a3a;
+}
+
+.empresa-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.empresa-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #edf2f7;
+  background: #f7fafc;
+  color: var(--ink);
+}
+
+.empresa-summary-item span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.empresa-summary-item strong {
+  font-size: 16px;
+}
