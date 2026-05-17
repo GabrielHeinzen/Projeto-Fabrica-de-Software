@@ -77,3 +77,13 @@ git add .
 git commit -m "mensagem"
 git push
 ```
+
+---
+
+## Collection Postman
+
+A collection utilizada para testes da API está disponível em:
+
+`/postman/API Sistema Cont.postman_collection.json`
+
+Para utilizar, basta abrir o Postman, clicar em **Import** e selecionar o arquivo.

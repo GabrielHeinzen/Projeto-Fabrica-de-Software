@@ -1,0 +1,129 @@
+{
+  "info": {
+    "_postman_id": "8a17799a-1da7-49ce-8d1d-60cf9a551c06",
+    "name": "API Sistema Cont",
+    "description": "A collection **API Sistema Cont** foi desenvolvida com o objetivo de centralizar e documentar os endpoints responsáveis pelo gerenciamento de empresas no sistema.\n\nA documentação contempla operações fundamentais de um serviço RESTful, permitindo a realização completa de operações de cadastro, consulta, atualização e remoção de registros por meio do protocolo HTTP.\n\n---\n\n## Objetivo\n\nDisponibilizar uma interface padronizada para comunicação entre cliente e servidor, garantindo organização, rastreabilidade e facilidade de integração entre aplicações.\n\n---",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54547988",
+    "_collection_link": "https://go.postman.co/collection/54547988-8a17799a-1da7-49ce-8d1d-60cf9a551c06?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "GET EMPRESAS",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://legendary-robot-r7gpx4qxw6hx6r7-3001.app.github.dev",
+          "protocol": "https",
+          "host": [
+            "legendary-robot-r7gpx4qxw6hx6r7-3001",
+            "app",
+            "github",
+            "dev"
+          ]
+        },
+        "description": "## GET /empresas\n\n### Descrição\n\nResponsável por retornar a lista de empresas cadastradas no sistema.\n\n### Método HTTP\n\n`GET`\n\n### Endpoint\n\n``` http\n/empresas\n\n ```\n\n### Requisição\n\nEsta rota não requer corpo (`body`) na requisição.\n\n### Respostas\n\n#### 200 — OK\n\nRetornado quando a listagem de empresas é realizada com sucesso.\n\nExemplo de resposta:\n\n``` json\n[\n  {\n    \"id\": 1,\n    \"nome\": \"Empresa Exemplo\",\n    \"cnpj\": \"00.000.000/0001-00\",\n    \"email\": \"empresa@email.com\"\n  }\n]\n\n ```\n\n---\n\n#### 401 — Unauthorized\n\nRetornado quando o usuário não possui autenticação válida para acessar o recurso.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Token não informado\"\n}\n\n ```\n\n---\n\n#### 403 — Forbidden\n\nRetornado quando o usuário autenticado não possui permissão para acessar o recurso solicitado.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Acesso negado\"\n}\n\n ```\n\n---\n\n#### 404 — Not Found\n\nRetornado quando nenhuma empresa é encontrada na base de dados.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Nenhuma empresa encontrada\"\n}\n\n ```\n\n---\n\n#### 500 — Internal Server Error\n\nRetornado quando ocorre um erro interno no servidor durante o processamento da requisição.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Erro interno do servidor\"\n}\n\n ```"
+      },
+      "response": []
+    },
+    {
+      "name": "POST EMPRESA",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"cnpj\": \"78.456.123/0001-55\",\r\n  \"razao_social\": \"Alpha Transportes LTDA\",\r\n  \"regime_tributario\": \"Simples Nacional\",\r\n  \"possui_funcionarios\": true,\r\n  \"possui_notas_venda\": true,\r\n  \"presta_servicos\": true,\r\n  \"id_contador\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://legendary-robot-r7gpx4qxw6hx6r7-3001.app.github.dev/empresa",
+          "protocol": "https",
+          "host": [
+            "legendary-robot-r7gpx4qxw6hx6r7-3001",
+            "app",
+            "github",
+            "dev"
+          ],
+          "path": [
+            "empresa"
+          ]
+        },
+        "description": "StartFragment\n\n## POST /empresas\n\n### Descrição\n\nResponsável pelo cadastro de novas empresas no sistema.\n\n### Método HTTP\n\n`POST`\n\n### Endpoint\n\n``` git\n/empresas\n\n ```\n\n### Corpo da Requisição\n\n``` json\n{\n  \"nome\": \"Empresa Exemplo\",\n  \"cnpj\": \"00.000.000/0001-00\",\n  \"email\": \"empresa@email.com\"\n}\n\n ```\n\n### Respostas\n\n#### 201 — Created\n\nRetornado quando a empresa é cadastrada com sucesso.\n\nExemplo:\n\n``` json\n{\n  \"id\": 1,\n  \"mensagem\": \"Empresa cadastrada com sucesso\"\n}\n\n ```\n\n---\n\n#### 400 — Bad Request\n\nRetornado quando os dados enviados são inválidos ou obrigatórios não foram informados.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Dados inválidos\"\n}\n\n ```\n\n---\n\n#### 409 — Conflict\n\nRetornado quando já existe uma empresa cadastrada com o mesmo CNPJ.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Empresa já cadastrada\"\n}\n\n ```\n\n---\n\n#### 500 — Internal Server Error\n\nRetornado quando ocorre um erro interno no servidor.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Erro interno do servidor\"\n}\n\n ```"
+      },
+      "response": []
+    },
+    {
+      "name": "PUT EMPRESA",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"cnpj\": \"78.456.123/0001-55\",\r\n  \"razao_social\": \"Alpha Transportes Atualizado LTDA\",\r\n  \"regime_tributario\": \"Lucro Presumido\",\r\n  \"possui_funcionarios\": true,\r\n  \"possui_notas_venda\": false,\r\n  \"presta_servicos\": true,\r\n  \"id_contador\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://legendary-robot-r7gpx4qxw6hx6r7-3001.app.github.dev/empresa/2",
+          "protocol": "https",
+          "host": [
+            "legendary-robot-r7gpx4qxw6hx6r7-3001",
+            "app",
+            "github",
+            "dev"
+          ],
+          "path": [
+            "empresa",
+            "2"
+          ]
+        },
+        "description": "# PUT /empresas/{id}\n\n## Descrição\n\nResponsável pela atualização dos dados de uma empresa previamente cadastrada.\n\n### Método HTTP\n\n`PUT`\n\n### Endpoint\n\n```\n/empresas/{id}\n\n ```\n\n### Parâmetros da Rota\n\n| Parâmetro | Tipo | Descrição |\n| --- | --- | --- |\n| id | Integer | Identificador único da empresa |\n\n### Corpo da Requisição\n\n```\n{\n  \"nome\": \"Empresa Atualizada\",\n  \"email\": \"novoemail@email.com\"\n}\n\n ```\n\n### Respostas\n\n#### 200 — OK\n\nRetornado quando a atualização é realizada com sucesso.\n\nExemplo:\n\n```\n{\n  \"mensagem\": \"Empresa atualizada com sucesso\"\n}\n\n ```\n\n---\n\n#### 400 — Bad Request\n\nRetornado quando os dados enviados são inválidos.\n\nExemplo:\n\n```\n{\n  \"erro\": \"Dados inválidos\"\n}\n\n ```\n\n---\n\n#### 404 — Not Found\n\nRetornado quando a empresa informada não é localizada.\n\nExemplo:\n\n```\n{\n  \"erro\": \"Empresa não encontrada\"\n}\n\n ```\n\n---\n\n#### 500 — Internal Server Error\n\nRetornado quando ocorre um erro interno no servidor.\n\nExemplo:\n\n```\n{\n  \"erro\": \"Erro interno do servidor\"\n}\n\n\n\n ```"
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE EMPRESA",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://legendary-robot-r7gpx4qxw6hx6r7-3001.app.github.dev/empresa/2",
+          "protocol": "https",
+          "host": [
+            "legendary-robot-r7gpx4qxw6hx6r7-3001",
+            "app",
+            "github",
+            "dev"
+          ],
+          "path": [
+            "empresa",
+            "2"
+          ]
+        },
+        "description": "# DELETE /empresas/{id}\n\n## Descrição\n\nResponsável pela remoção de uma empresa cadastrada no sistema.\n\n### Método HTTP\n\n`DELETE`\n\n### Endpoint\n\n```\n/empresas/{id}\n\n ```\n\n### Parâmetros da Rota\n\n| Parâmetro | Tipo | Descrição |\n| id | Integer | Identificador único da empresa |\n\n### Respostas\n\n#### 200 — OK\n\nRetornado quando a empresa é removida com sucesso.\n\nExemplo:\n\n```\n{\n  \"mensagem\": \"Empresa removida com sucesso\"\n}\n\n ```\n\n---\n\n#### 404 — Not Found\n\nRetornado quando a empresa informada não é localizada.\n\nExemplo:\n\n```\n{\n  \"erro\": \"Empresa não encontrada\"\n}\n\n ```\n\n---\n\n#### 500 — Internal Server Error\n\nRetornado quando ocorre um erro interno no servidor.\n\nExemplo:\n\n``` json\n{\n  \"erro\": \"Erro interno do servidor\"\n}\n\n\n\n ```"
+      },
+      "response": []
+    }
+  ]
+}

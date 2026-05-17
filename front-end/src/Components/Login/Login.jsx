@@ -8,7 +8,7 @@ function Login({ onLoginSuccess, onShowRegister }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://legendary-robot-r7gpx4qxw6hx6r7-3001.app.github.dev';
 
     try {
       const resposta = await fetch(`${apiBaseUrl}/login`, {
