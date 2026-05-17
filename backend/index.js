@@ -156,6 +156,26 @@ app.post('/register', (req, res) => {
   });
 });
 
+app.get('/contador', (req, res) => {
+  const sql = `
+    SELECT id_contador, Nome AS nome, email, telefone
+    FROM contador
+    ORDER BY Nome
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar contadores'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
 app.post('/empresa', (req, res) => {
    const {
     cnpj,
@@ -279,8 +299,7 @@ app.put('/empresa/:id', (req, res) => {
     regime_tributario,
     possui_funcionarios,
     possui_notas_venda,
-    presta_servicos,
-    id_contador
+    presta_servicos
   } = req.body;
 
   if (!cnpj || !razao_social || !regime_tributario) {
@@ -290,8 +309,6 @@ app.put('/empresa/:id', (req, res) => {
     });
   }
 
-  const contadorNormalizado = id_contador === '' || id_contador === undefined ? null : id_contador;
-
   const sql = `
     UPDATE empresa_cliente
     SET 
@@ -300,8 +317,7 @@ app.put('/empresa/:id', (req, res) => {
       regime_tributario = ?,
       possui_funcionarios = ?,
       possui_notas_venda = ?,
-      presta_servicos = ?,
-      id_contador = ?
+      presta_servicos = ?
     WHERE id_cliente = ?
   `;
 
@@ -314,7 +330,6 @@ app.put('/empresa/:id', (req, res) => {
       possui_funcionarios,
       possui_notas_venda,
       presta_servicos,
-      contadorNormalizado,
       id
     ],
     (err, result) => {

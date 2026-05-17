@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useToast } from '../Toast/ToastProvider';
 import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './CadastroEmpresa.css';
 
@@ -14,6 +15,7 @@ const initialForm = {
 function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   const [documentos, setDocumentos] = useState({
     contratoSocial: null,
@@ -59,7 +61,9 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
     }
 
     if (!datasEntrega.dataEstimada) {
-      alert('Informe a data estimada da entrega dos documentos.');
+      showToast('Informe a data estimada da entrega dos documentos.', 'warning', {
+        title: 'Atencao'
+      });
       return;
     }
 
@@ -86,14 +90,20 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
       const dados = await resposta.json();
 
       if (resposta.ok && dados.sucesso) {
-        alert('Empresa cadastrada com sucesso.');
+        showToast('Empresa cadastrada com sucesso.', 'success', {
+          title: 'Sucesso'
+        });
         setFormData(initialForm);
       } else {
-        alert(dados.mensagem || 'Erro ao cadastrar empresa');
+        showToast(dados.mensagem || 'Erro ao cadastrar empresa', 'error', {
+          title: 'Erro'
+        });
       }
     } catch (erro) {
       console.log(erro);
-      alert('Erro ao conectar com backend');
+      showToast('Erro ao conectar com backend', 'error', {
+        title: 'Erro'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -128,7 +138,13 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
           >
             Cadastro Empresa
           </button>
-          <button type="button" className="empresa-nav-item">Usuarios</button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('usuarios')}
+          >
+            Usuarios
+          </button>
           <button type="button" className="empresa-nav-item">Documentos</button>
           <button type="button" className="empresa-nav-item">Solicitacoes</button>
         </nav>

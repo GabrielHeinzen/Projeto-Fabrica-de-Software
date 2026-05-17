@@ -1,59 +1,144 @@
 import './App.css'
 import { useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { ToastProvider } from './Components/Toast/ToastProvider';
 import CadastroEmpresa from './Components/CadastroEmpresa/CadastroEmpresa';
 import MinhasEmpresas from './Components/MinhasEmpresas/MinhasEmpresas';
+import Usuarios from './Components/Usuarios/Usuarios';
 import Login from './Components/Login/Login';
-import Register from './Components/Register/Register';
+
+const loadStoredUser = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const stored = window.localStorage.getItem('authUser');
+
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stored);
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+function RequireAuth({ authed, children }) {
+  const location = useLocation();
+
+  if (!authed) {
+    return <Navigate to="/Login" replace state={{ from: location }} />;
+  }
+
+  return children;
+}
 
 function App() {
-  const [authUser, setAuthUser] = useState(null);
-  const [authView, setAuthView] = useState('login');
-  const [authedView, setAuthedView] = useState('cadastro');
+  const [authUser, setAuthUser] = useState(loadStoredUser);
+  const navigate = useNavigate();
+  const isAuthed = Boolean(authUser);
+
+  const routeMap = {
+    cadastro: '/Cadastro-de-Empresa',
+    empresas: '/Minhas-Empresas',
+    usuarios: '/Usuarios'
+  };
 
   const handleLoginSuccess = (user) => {
     setAuthUser(user);
-    setAuthedView('cadastro');
+    window.localStorage.setItem('authUser', JSON.stringify(user));
+    navigate('/Cadastro-de-Empresa', { replace: true });
   };
 
   const handleLogout = () => {
     setAuthUser(null);
-    setAuthView('login');
-  };
-
-  const handleShowRegister = () => {
-    setAuthView('register');
-  };
-
-  const handleShowLogin = () => {
-    setAuthView('login');
+    window.localStorage.removeItem('authUser');
+    navigate('/Login', { replace: true });
   };
 
   const handleNavigate = (view) => {
-    setAuthedView(view);
+    const target = routeMap[view];
+    if (target) {
+      navigate(target);
+    }
   };
 
   return (
-    <div className={`app-root ${authUser ? 'app-root--authed' : 'app-root--login'}`}>
-      {authUser ? (
-        authedView === 'empresas' ? (
-          <MinhasEmpresas
-            userName={authUser.name}
-            onLogout={handleLogout}
-            onNavigate={handleNavigate}
+    <ToastProvider>
+      <div className={`app-root ${isAuthed ? 'app-root--authed' : 'app-root--login'}`}>
+        <Routes>
+          <Route
+            path="/"
+            element={(
+              <Navigate
+                to={isAuthed ? '/Cadastro-de-Empresa' : '/Login'}
+                replace
+              />
+            )}
           />
-        ) : (
-          <CadastroEmpresa
-            userName={authUser.name}
-            onLogout={handleLogout}
-            onNavigate={handleNavigate}
+          <Route
+            path="/Login"
+            element={(
+              isAuthed ? (
+                <Navigate to="/Cadastro-de-Empresa" replace />
+              ) : (
+                <Login
+                  onLoginSuccess={handleLoginSuccess}
+                />
+              )
+            )}
           />
-        )
-      ) : authView === 'register' ? (
-        <Register onShowLogin={handleShowLogin} />
-      ) : (
-        <Login onLoginSuccess={handleLoginSuccess} onShowRegister={handleShowRegister} />
-      )}
-    </div>
+          <Route
+            path="/Cadastro-de-Empresa"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <CadastroEmpresa
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/Minhas-Empresas"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <MinhasEmpresas
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/Usuarios"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <Usuarios
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="*"
+            element={(
+              <Navigate
+                to={isAuthed ? '/Cadastro-de-Empresa' : '/Login'}
+                replace
+              />
+            )}
+          />
+        </Routes>
+      </div>
+    </ToastProvider>
   );
 }
 

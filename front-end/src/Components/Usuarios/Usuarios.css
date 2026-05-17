@@ -1,0 +1,19 @@
+.usuarios-list-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.usuarios-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(47, 111, 115, 0.18), rgba(242, 160, 61, 0.22));
+  color: var(--primary-dark);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(47, 111, 115, 0.25);
+}
+

@@ -1,10 +1,12 @@
 import { FaUser, FaLock } from 'react-icons/fa';
 import { useState } from 'react';
+import { useToast } from '../Toast/ToastProvider';
 import './Login.css';
 
-function Login({ onLoginSuccess, onShowRegister }) {
+function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { showToast } = useToast();
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -34,12 +36,16 @@ function Login({ onLoginSuccess, onShowRegister }) {
           onLoginSuccess({ name: nomeUsuario, email: username });
         }
       } else {
-        alert(dados.mensagem);
+        showToast(dados.mensagem || 'Falha no login', 'error', {
+          title: 'Erro'
+        });
       }
 
     } catch (erro) {
       console.log(erro);
-      alert("Erro ao conectar com backend");
+      showToast('Erro ao conectar com backend', 'error', {
+        title: 'Erro'
+      });
     }
   };
 
@@ -71,22 +77,6 @@ function Login({ onLoginSuccess, onShowRegister }) {
 
         <button type="submit">Entrar</button>
 
-        <div className="register">
-          <p>
-            Nao tem uma conta?{' '}
-            <a
-              href="#"
-              onClick={(event) => {
-                event.preventDefault();
-                if (onShowRegister) {
-                  onShowRegister();
-                }
-              }}
-            >
-              Cadastre-se
-            </a>
-          </p>
-        </div>
       </form>
     </div>
   );

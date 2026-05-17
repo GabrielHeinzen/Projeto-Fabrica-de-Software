@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import '../CadastroEmpresa/CadastroEmpresa.css';
 import './MinhasEmpresas.css';
+import { useToast } from '../Toast/ToastProvider';
 
 const regimeLabels = {
   simples: 'Simples Nacional',
@@ -29,6 +30,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [editForm, setEditForm] = useState(null);
   const [savingId, setSavingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const { showToast } = useToast();
 
   const carregarEmpresas = useCallback(async () => {
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -78,7 +80,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
-      alert('Empresa sem identificador.');
+      showToast('Empresa sem identificador.', 'warning', {
+        title: 'Atencao'
+      });
       return;
     }
 
@@ -104,7 +108,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     }
 
     if (!editForm.cnpj || !editForm.razao_social || !editForm.regime_tributario) {
-      alert('Preencha os campos obrigatorios.');
+      showToast('Preencha os campos obrigatorios.', 'warning', {
+        title: 'Atencao'
+      });
       return;
     }
 
@@ -134,7 +140,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok || !dados.sucesso) {
-        alert(dados.mensagem || 'Erro ao atualizar empresa');
+        showToast(dados.mensagem || 'Erro ao atualizar empresa', 'error', {
+          title: 'Erro'
+        });
         return;
       }
 
@@ -155,7 +163,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       handleEditCancel();
     } catch (err) {
       console.log(err);
-      alert('Erro ao conectar com backend');
+      showToast('Erro ao conectar com backend', 'error', {
+        title: 'Erro'
+      });
     } finally {
       setSavingId(null);
     }
@@ -165,7 +175,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
-      alert('Empresa sem identificador.');
+      showToast('Empresa sem identificador.', 'warning', {
+        title: 'Atencao'
+      });
       return;
     }
 
@@ -187,7 +199,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok || !dados.sucesso) {
-        alert(dados.mensagem || 'Erro ao excluir empresa');
+        showToast(dados.mensagem || 'Erro ao excluir empresa', 'error', {
+          title: 'Erro'
+        });
         return;
       }
 
@@ -198,7 +212,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       }
     } catch (err) {
       console.log(err);
-      alert('Erro ao conectar com backend');
+      showToast('Erro ao conectar com backend', 'error', {
+        title: 'Erro'
+      });
     } finally {
       setDeletingId(null);
     }
@@ -229,7 +245,13 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           >
             Cadastro Empresa
           </button>
-          <button type="button" className="empresa-nav-item">Usuarios</button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('usuarios')}
+          >
+            Usuarios
+          </button>
           <button type="button" className="empresa-nav-item">Documentos</button>
           <button type="button" className="empresa-nav-item">Solicitacoes</button>
         </nav>
@@ -237,7 +259,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
 
       <div className="empresa-content">
         <header className="empresa-topbar">
-          <div className="empresa-breadcrumb">Minhas Empresas</div>
+          <div className="empresa-breadcrumb"></div>
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
@@ -325,25 +347,6 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                         >
                           {isDeleting ? 'Excluindo...' : 'Excluir'}
                         </button>
-                      </div>
-                    </div>
-
-                    <div className="empresa-list-meta">
-                      <div>
-                        <span>Funcionarios</span>
-                        <strong>{formatSimNao(empresa.possui_funcionarios)}</strong>
-                      </div>
-                      <div>
-                        <span>Notas de venda</span>
-                        <strong>{formatSimNao(empresa.possui_notas_venda)}</strong>
-                      </div>
-                      <div>
-                        <span>Servicos</span>
-                        <strong>{formatSimNao(empresa.presta_servicos)}</strong>
-                      </div>
-                      <div>
-                        <span>Contador</span>
-                        <strong>{empresa.id_contador ? `#${empresa.id_contador}` : 'Nao atribuido'}</strong>
                       </div>
                     </div>
 
