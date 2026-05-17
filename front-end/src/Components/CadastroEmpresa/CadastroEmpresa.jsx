@@ -131,9 +131,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
           <button type="button" className="empresa-nav-item">Usuarios</button>
           <button type="button" className="empresa-nav-item">Documentos</button>
           <button type="button" className="empresa-nav-item">Solicitacoes</button>
-          <button type="button" className="empresa-nav-item">Financeiro</button>
-          <button type="button" className="empresa-nav-item">Suporte</button>
-          <button type="button" className="empresa-nav-item">Configuracoes</button>
         </nav>
       </aside>
 
