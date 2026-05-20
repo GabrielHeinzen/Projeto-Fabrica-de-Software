@@ -25,3 +25,26 @@
   border: 1px solid rgba(47, 111, 115, 0.25);
 }
 
+.usuarios-telefone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(47, 111, 115, 0.2);
+  background: linear-gradient(135deg, rgba(47, 111, 115, 0.08), rgba(255, 255, 255, 0.9));
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.usuarios-telefone__value {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(47, 111, 115, 0.25);
+  color: var(--ink);
+  font-weight: 600;
+}
+

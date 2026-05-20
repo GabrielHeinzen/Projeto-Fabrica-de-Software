@@ -252,7 +252,6 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           </button>
           <button type="button" className="empresa-nav-item is-active">Usuarios</button>
           <button type="button" className="empresa-nav-item">Documentos</button>
-          <button type="button" className="empresa-nav-item">Solicitacoes</button>
         </nav>
       </aside>
 
@@ -335,13 +334,11 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
                     </div>
 
                     <div className="empresa-list-meta">
-                      <div>
-                        <span>ID do contador</span>
-                        <strong>{usuario.id_contador ?? 'N/A'}</strong>
-                      </div>
-                      <div>
+                      <div className="usuarios-telefone">
                         <span>Telefone</span>
-                        <strong>{formatTexto(usuario.telefone)}</strong>
+                        <strong className="usuarios-telefone__value">
+                          {formatTexto(usuario.telefone)}
+                        </strong>
                       </div>
                     </div>
                   </li>
