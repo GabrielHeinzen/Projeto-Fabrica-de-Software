@@ -176,6 +176,34 @@ app.get('/contador', (req, res) => {
   });
 });
 
+app.delete('/contador/:id', (req, res) => {
+  const { id } = req.params;
+
+  const sql = 'DELETE FROM contador WHERE id_contador = ?';
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao deletar contador'
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: 'Contador nao encontrado'
+      });
+    }
+
+    return res.json({
+      sucesso: true,
+      mensagem: 'Contador excluido com sucesso'
+    });
+  });
+});
+
 app.post('/empresa', (req, res) => {
    const {
     cnpj,

@@ -18,6 +18,7 @@ const buildIniciais = (nome) => {
 };
 
 const formatTexto = (valor) => valor || 'Nao informado';
+const getUsuarioId = (usuario) => usuario.id_contador ?? usuario.id;
 
 const initialForm = {
   nome: '',
@@ -32,6 +33,8 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
   const [erro, setErro] = useState('');
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [usuarioParaExcluir, setUsuarioParaExcluir] = useState(null);
   const { showToast } = useToast();
 
   const carregarUsuarios = useCallback(async () => {
@@ -127,6 +130,84 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteRequest = (usuario) => {
+    const usuarioId = getUsuarioId(usuario);
+
+    if (!usuarioId) {
+      showToast('Contador sem identificador.', 'warning', {
+        title: 'Atencao'
+      });
+      return;
+    }
+
+    setUsuarioParaExcluir(usuario);
+  };
+
+  const handleDeleteCancel = () => {
+    if (deletingId) {
+      return;
+    }
+
+    setUsuarioParaExcluir(null);
+  };
+
+  const handleDelete = async (usuario) => {
+    const usuarioId = getUsuarioId(usuario);
+
+    if (!usuarioId) {
+      showToast('Contador sem identificador.', 'warning', {
+        title: 'Atencao'
+      });
+      return false;
+    }
+
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+    setDeletingId(usuarioId);
+
+    try {
+      const resposta = await fetch(`${apiBaseUrl}/contador/${usuarioId}`, {
+        method: 'DELETE'
+      });
+
+      const dados = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok || !dados.sucesso) {
+        showToast(dados.mensagem || 'Erro ao excluir contador', 'error', {
+          title: 'Erro'
+        });
+        return false;
+      }
+
+      setUsuarios((prev) => prev.filter((item) => getUsuarioId(item) !== usuarioId));
+
+      showToast('Contador excluido com sucesso.', 'success', {
+        title: 'Sucesso'
+      });
+      return true;
+    } catch (err) {
+      console.log(err);
+      showToast('Erro ao conectar com backend', 'error', {
+        title: 'Erro'
+      });
+      return false;
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!usuarioParaExcluir) {
+      return;
+    }
+
+    const sucesso = await handleDelete(usuarioParaExcluir);
+
+    if (sucesso) {
+      setUsuarioParaExcluir(null);
     }
   };
 
@@ -226,16 +307,31 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
               <div className="empresa-empty">Nenhum usuario cadastrado ainda.</div>
             ) : (
               <ul className="empresa-list">
-                {usuarios.map((usuario) => (
-                  <li key={usuario.id_contador || usuario.email} className="empresa-list-item">
-                    <div className="usuarios-list-header">
-                      <div className="usuarios-avatar" aria-hidden="true">
-                        {buildIniciais(usuario.nome)}
+                {usuarios.map((usuario) => {
+                  const usuarioId = getUsuarioId(usuario);
+                  const isDeleting = deletingId === usuarioId;
+                  const deleteDisabled = Boolean(deletingId && deletingId !== usuarioId);
+
+                  return (
+                  <li key={usuarioId || usuario.email} className="empresa-list-item">
+                    <div className="usuarios-list-top">
+                      <div className="usuarios-list-header">
+                        <div className="usuarios-avatar" aria-hidden="true">
+                          {buildIniciais(usuario.nome)}
+                        </div>
+                        <div>
+                          <strong>{formatTexto(usuario.nome)}</strong>
+                          <span className="empresa-list-subtitle">{formatTexto(usuario.email)}</span>
+                        </div>
                       </div>
-                      <div>
-                        <strong>{formatTexto(usuario.nome)}</strong>
-                        <span className="empresa-list-subtitle">{formatTexto(usuario.email)}</span>
-                      </div>
+                      <button
+                        type="button"
+                        className="empresa-danger empresa-action-button"
+                        onClick={() => handleDeleteRequest(usuario)}
+                        disabled={isDeleting || deleteDisabled}
+                      >
+                        {isDeleting ? 'Excluindo...' : 'Excluir'}
+                      </button>
                     </div>
 
                     <div className="empresa-list-meta">
@@ -249,7 +345,8 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
                       </div>
                     </div>
                   </li>
-                ))}
+                );
+                })}
               </ul>
             )}
           </section>
@@ -323,6 +420,44 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           </form>
         </div>
       </div>
+      {usuarioParaExcluir && (
+        <div className="empresa-modal" role="dialog" aria-modal="true">
+          <div
+            className="empresa-modal__backdrop"
+            onClick={handleDeleteCancel}
+          />
+          <div className="empresa-modal__content" role="document">
+            <div className="empresa-modal__icon" aria-hidden="true">!</div>
+            <div className="empresa-modal__text">
+              <span className="empresa-modal__title">Confirmar exclusao</span>
+              <span className="empresa-modal__message">
+                Deseja realmente excluir este contador?
+              </span>
+              <span className="empresa-modal__empresa">
+                {usuarioParaExcluir.nome || usuarioParaExcluir.email || 'Contador selecionado'}
+              </span>
+            </div>
+            <div className="empresa-modal__actions">
+              <button
+                type="button"
+                className="empresa-secondary"
+                onClick={handleDeleteCancel}
+                disabled={Boolean(deletingId)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="empresa-danger"
+                onClick={handleDeleteConfirm}
+                disabled={Boolean(deletingId)}
+              >
+                {deletingId ? 'Excluindo...' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

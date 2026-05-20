@@ -30,9 +30,10 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [editForm, setEditForm] = useState(null);
   const [savingId, setSavingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [empresaParaExcluir, setEmpresaParaExcluir] = useState(null);
   const { showToast } = useToast();
 
-  const carregarEmpresas = useCallback(async () => {
+  const carregarEmpresas = useCallback(async (mostrarToast = false) => {
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     setIsLoading(true);
@@ -47,13 +48,23 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
 
       const dados = await resposta.json();
       setEmpresas(Array.isArray(dados) ? dados : []);
+      if (mostrarToast) {
+        showToast('Lista atualizada com sucesso.', 'success', {
+          title: 'Sucesso'
+        });
+      }
     } catch (err) {
       console.log(err);
       setErro('Nao foi possivel carregar as empresas agora.');
+      if (mostrarToast) {
+        showToast('Nao foi possivel carregar as empresas agora.', 'error', {
+          title: 'Erro'
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
     carregarEmpresas();
@@ -161,6 +172,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       )));
 
       handleEditCancel();
+      showToast('Empresa atualizada com sucesso.', 'success', {
+        title: 'Sucesso'
+      });
     } catch (err) {
       console.log(err);
       showToast('Erro ao conectar com backend', 'error', {
@@ -171,7 +185,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     }
   };
 
-  const handleDelete = async (empresa) => {
+  const handleDeleteRequest = (empresa) => {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
@@ -181,10 +195,25 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       return;
     }
 
-    const confirmacao = window.confirm('Deseja realmente excluir esta empresa?');
+    setEmpresaParaExcluir(empresa);
+  };
 
-    if (!confirmacao) {
+  const handleDeleteCancel = () => {
+    if (deletingId) {
       return;
+    }
+
+    setEmpresaParaExcluir(null);
+  };
+
+  const handleDelete = async (empresa) => {
+    const empresaId = getEmpresaId(empresa);
+
+    if (!empresaId) {
+      showToast('Empresa sem identificador.', 'warning', {
+        title: 'Atencao'
+      });
+      return false;
     }
 
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -202,7 +231,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
         showToast(dados.mensagem || 'Erro ao excluir empresa', 'error', {
           title: 'Erro'
         });
-        return;
+        return false;
       }
 
       setEmpresas((prev) => prev.filter((item) => getEmpresaId(item) !== empresaId));
@@ -210,13 +239,31 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       if (editingId === empresaId) {
         handleEditCancel();
       }
+
+      showToast('Empresa excluida com sucesso.', 'success', {
+        title: 'Sucesso'
+      });
+      return true;
     } catch (err) {
       console.log(err);
       showToast('Erro ao conectar com backend', 'error', {
         title: 'Erro'
       });
+      return false;
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!empresaParaExcluir) {
+      return;
+    }
+
+    const sucesso = await handleDelete(empresaParaExcluir);
+
+    if (sucesso) {
+      setEmpresaParaExcluir(null);
     }
   };
 
@@ -292,7 +339,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                 <button
                   type="button"
                   className="empresa-secondary"
-                  onClick={carregarEmpresas}
+                  onClick={() => carregarEmpresas(true)}
                   disabled={isLoading}
                 >
                   {isLoading ? 'Atualizando...' : 'Atualizar lista'}
@@ -342,7 +389,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                         <button
                           type="button"
                           className="empresa-danger empresa-action-button"
-                          onClick={() => handleDelete(empresa)}
+                          onClick={() => handleDeleteRequest(empresa)}
                           disabled={isDeleting || isSaving}
                         >
                           {isDeleting ? 'Excluindo...' : 'Excluir'}
@@ -567,6 +614,44 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           </section>
         </div>
       </div>
+      {empresaParaExcluir && (
+        <div className="empresa-modal" role="dialog" aria-modal="true">
+          <div
+            className="empresa-modal__backdrop"
+            onClick={handleDeleteCancel}
+          />
+          <div className="empresa-modal__content" role="document">
+            <div className="empresa-modal__icon" aria-hidden="true">!</div>
+            <div className="empresa-modal__text">
+              <span className="empresa-modal__title">Confirmar exclusao</span>
+              <span className="empresa-modal__message">
+                Deseja realmente excluir esta empresa?
+              </span>
+              <span className="empresa-modal__empresa">
+                {empresaParaExcluir.razao_social || 'Empresa selecionada'}
+              </span>
+            </div>
+            <div className="empresa-modal__actions">
+              <button
+                type="button"
+                className="empresa-secondary"
+                onClick={handleDeleteCancel}
+                disabled={Boolean(deletingId)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="empresa-danger"
+                onClick={handleDeleteConfirm}
+                disabled={Boolean(deletingId)}
+              >
+                {deletingId ? 'Excluindo...' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

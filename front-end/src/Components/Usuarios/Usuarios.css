@@ -4,6 +4,14 @@
   gap: 14px;
 }
 
+.usuarios-list-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .usuarios-avatar {
   width: 46px;
   height: 46px;
