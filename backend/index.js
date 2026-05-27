@@ -3,6 +3,7 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const multer = require('multer');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 
@@ -50,10 +51,11 @@ const upload = multer({
 
 
 const db = mysql.createConnection({
-  host: '127.0.0.1',
-  user: 'root',
-  password: 'root',
-  database: 'sistema_cont'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 });
 
 db.connect((erro) => {
@@ -384,8 +386,10 @@ app.put('/empresa/:id', (req, res) => {
   );
 });
 
-app.listen(3001, () => {
-  console.log('Servidor rodando na porta 3001');
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
