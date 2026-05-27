@@ -204,6 +204,83 @@ app.delete('/contador/:id', (req, res) => {
   });
 });
 
+app.put('/contador/:id', (req, res) => {
+  const { id } = req.params;
+  const { nome, email, telefone, senha } = req.body;
+
+  if (!nome || !email) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Preencha os campos obrigatorios'
+    });
+  }
+
+  const emailNormalizado = email.trim().toLowerCase();
+  const senhaNormalizada = typeof senha === 'string' ? senha.trim() : '';
+
+  const checkSql = `
+    SELECT id_contador
+    FROM contador
+    WHERE email = ? AND id_contador <> ?
+    LIMIT 1
+  `;
+
+  db.query(checkSql, [emailNormalizado, id], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro no servidor'
+      });
+    }
+
+    if (checkResult.length > 0) {
+      return res.status(409).json({
+        sucesso: false,
+        mensagem: 'Email ja cadastrado'
+      });
+    }
+
+    let updateSql = `
+      UPDATE contador
+      SET Nome = ?,
+          email = ?,
+          telefone = ?
+    `;
+    const params = [nome.trim(), emailNormalizado, telefone || null];
+
+    if (senhaNormalizada) {
+      updateSql += ', senha_login = ?';
+      params.push(senhaNormalizada);
+    }
+
+    updateSql += ' WHERE id_contador = ?';
+    params.push(id);
+
+    db.query(updateSql, params, (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao atualizar contador'
+        });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          sucesso: false,
+          mensagem: 'Contador nao encontrado'
+        });
+      }
+
+      return res.json({
+        sucesso: true,
+        mensagem: 'Contador atualizado com sucesso'
+      });
+    });
+  });
+});
+
 app.post('/empresa', (req, res) => {
    const {
     cnpj,
