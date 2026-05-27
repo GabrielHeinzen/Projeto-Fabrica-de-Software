@@ -19,6 +19,12 @@ const buildIniciais = (nome) => {
 
 const formatTexto = (valor) => valor || 'Nao informado';
 const getUsuarioId = (usuario) => usuario.id_contador ?? usuario.id;
+const buildEditForm = (usuario) => ({
+  nome: usuario.nome || '',
+  email: usuario.email || '',
+  telefone: usuario.telefone || '',
+  senha: ''
+});
 
 const initialForm = {
   nome: '',
@@ -33,6 +39,9 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
   const [erro, setErro] = useState('');
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [savingId, setSavingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [usuarioParaExcluir, setUsuarioParaExcluir] = useState(null);
   const { showToast } = useToast();
@@ -76,6 +85,100 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
 
   const handleClear = () => {
     setFormData(initialForm);
+  };
+
+  const handleEditStart = (usuario) => {
+    const usuarioId = getUsuarioId(usuario);
+
+    if (!usuarioId) {
+      showToast('Contador sem identificador.', 'warning', {
+        title: 'Atencao'
+      });
+      return;
+    }
+
+    setEditingId(usuarioId);
+    setEditForm(buildEditForm(usuario));
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditForm(null);
+  };
+
+  const handleEditChange = (field) => (event) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [field]: event.target.value
+    }));
+  };
+
+  const handleUpdate = async (usuarioId) => {
+    if (!editForm) {
+      return;
+    }
+
+    if (!editForm.nome || !editForm.email) {
+      showToast('Preencha os campos obrigatorios.', 'warning', {
+        title: 'Atencao'
+      });
+      return;
+    }
+
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const payload = {
+      nome: editForm.nome,
+      email: editForm.email,
+      telefone: editForm.telefone
+    };
+
+    if (editForm.senha) {
+      payload.senha = editForm.senha;
+    }
+
+    setSavingId(usuarioId);
+
+    try {
+      const resposta = await fetch(`${apiBaseUrl}/contador/${usuarioId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const dados = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok || !dados.sucesso) {
+        showToast(dados.mensagem || 'Erro ao atualizar contador', 'error', {
+          title: 'Erro'
+        });
+        return;
+      }
+
+      setUsuarios((prev) => prev.map((usuario) => (
+        getUsuarioId(usuario) === usuarioId
+          ? {
+            ...usuario,
+            nome: editForm.nome,
+            email: editForm.email,
+            telefone: editForm.telefone
+          }
+          : usuario
+      )));
+
+      handleEditCancel();
+      showToast('Contador atualizado com sucesso.', 'success', {
+        title: 'Sucesso'
+      });
+    } catch (err) {
+      console.log(err);
+      showToast('Erro ao conectar com backend', 'error', {
+        title: 'Erro'
+      });
+    } finally {
+      setSavingId(null);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -183,6 +286,10 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
       }
 
       setUsuarios((prev) => prev.filter((item) => getUsuarioId(item) !== usuarioId));
+
+      if (editingId === usuarioId) {
+        handleEditCancel();
+      }
 
       showToast('Contador excluido com sucesso.', 'success', {
         title: 'Sucesso'
@@ -308,7 +415,10 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
               <ul className="empresa-list">
                 {usuarios.map((usuario) => {
                   const usuarioId = getUsuarioId(usuario);
+                  const isEditing = editingId === usuarioId;
+                  const isSaving = savingId === usuarioId;
                   const isDeleting = deletingId === usuarioId;
+                  const editDisabled = Boolean(editingId && editingId !== usuarioId);
                   const deleteDisabled = Boolean(deletingId && deletingId !== usuarioId);
 
                   return (
@@ -323,14 +433,24 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
                           <span className="empresa-list-subtitle">{formatTexto(usuario.email)}</span>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="empresa-danger empresa-action-button"
-                        onClick={() => handleDeleteRequest(usuario)}
-                        disabled={isDeleting || deleteDisabled}
-                      >
-                        {isDeleting ? 'Excluindo...' : 'Excluir'}
-                      </button>
+                      <div className="empresa-list-actions">
+                        <button
+                          type="button"
+                          className="empresa-secondary empresa-action-button"
+                          onClick={() => handleEditStart(usuario)}
+                          disabled={editDisabled || isEditing || isDeleting}
+                        >
+                          {isEditing ? 'Editando' : 'Editar'}
+                        </button>
+                        <button
+                          type="button"
+                          className="empresa-danger empresa-action-button"
+                          onClick={() => handleDeleteRequest(usuario)}
+                          disabled={isDeleting || isSaving || deleteDisabled}
+                        >
+                          {isDeleting ? 'Excluindo...' : 'Excluir'}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="empresa-list-meta">
@@ -341,6 +461,66 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
                         </strong>
                       </div>
                     </div>
+
+                    {isEditing && editForm && (
+                      <div className="empresa-edit">
+                        <div className="empresa-edit-grid">
+                          <label className="empresa-field">
+                            <span>Nome *</span>
+                            <input
+                              type="text"
+                              value={editForm.nome}
+                              onChange={handleEditChange('nome')}
+                              required
+                            />
+                          </label>
+                          <label className="empresa-field">
+                            <span>Email *</span>
+                            <input
+                              type="email"
+                              value={editForm.email}
+                              onChange={handleEditChange('email')}
+                              required
+                            />
+                          </label>
+                          <label className="empresa-field">
+                            <span>Telefone</span>
+                            <input
+                              type="tel"
+                              value={editForm.telefone}
+                              onChange={handleEditChange('telefone')}
+                            />
+                          </label>
+                          <label className="empresa-field">
+                            <span>Senha (opcional)</span>
+                            <input
+                              type="password"
+                              value={editForm.senha}
+                              onChange={handleEditChange('senha')}
+                              placeholder="Manter senha atual"
+                            />
+                          </label>
+                        </div>
+                        <div className="empresa-edit-actions">
+                          <button
+                            type="button"
+                            className="empresa-primary empresa-action-button"
+                            onClick={() => handleUpdate(usuarioId)}
+                            disabled={isSaving || isDeleting}
+                          >
+                            {isSaving ? 'Salvando...' : 'Salvar alteracoes'}
+                          </button>
+                          <button
+                            type="button"
+                            className="empresa-secondary empresa-action-button"
+                            onClick={handleEditCancel}
+                            disabled={isSaving || isDeleting}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 );
                 })}
