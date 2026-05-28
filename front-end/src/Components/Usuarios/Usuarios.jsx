@@ -18,7 +18,21 @@ const buildIniciais = (nome) => {
 };
 
 const formatTexto = (valor) => valor || 'Nao informado';
-const getUsuarioId = (usuario) => usuario.id_contador ?? usuario.id;
+const normalizeId = (value) => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const texto = String(value).trim();
+  return texto.length > 0 ? texto : null;
+};
+const getUsuarioId = (usuario) => normalizeId(
+  usuario?.id_contador ?? usuario?.id ?? usuario?.idContador
+);
+const getApiBaseUrl = () => {
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+};
 const buildEditForm = (usuario) => ({
   nome: usuario.nome || '',
   email: usuario.email || '',
@@ -47,7 +61,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
   const { showToast } = useToast();
 
   const carregarUsuarios = useCallback(async () => {
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = getApiBaseUrl();
 
     setIsLoading(true);
     setErro('');
@@ -125,7 +139,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
       return;
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = getApiBaseUrl();
     const payload = {
       nome: editForm.nome,
       email: editForm.email,
@@ -195,7 +209,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
       return;
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = getApiBaseUrl();
 
     setIsSubmitting(true);
 
@@ -267,7 +281,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
       return false;
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = getApiBaseUrl();
 
     setDeletingId(usuarioId);
 

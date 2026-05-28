@@ -178,6 +178,39 @@ app.get('/contador', (req, res) => {
   });
 });
 
+app.get('/contador/:id', (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT id_contador, Nome AS nome, email, telefone
+    FROM contador
+    WHERE id_contador = ?
+    LIMIT 1
+  `;
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar contador'
+      });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: 'Contador nao encontrado'
+      });
+    }
+
+    return res.json({
+      sucesso: true,
+      contador: result[0]
+    });
+  });
+});
+
 app.delete('/contador/:id', (req, res) => {
   const { id } = req.params;
 
