@@ -3,7 +3,9 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
 
 const app = express();
 
@@ -11,6 +13,40 @@ app.use(cors({
   origin: '*'
 }));
 app.use(express.json());
+
+function autenticarToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({
+      sucesso: false,
+      mensagem: 'Token não informado'
+    });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({
+      sucesso: false,
+      mensagem: 'Token inválido'
+    });
+  }
+
+  try {
+    const usuario = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.usuario = usuario;
+
+    next();
+
+  } catch (erro) {
+    return res.status(401).json({
+      sucesso: false,
+      mensagem: 'Token expirado ou inválido'
+    });
+  }
+}
 
 app.use('/uploads', express.static('uploads'));
 
@@ -88,10 +124,23 @@ app.post('/login', (req, res) => {
     }
 
     if (resultado.length > 0) {
-      res.json({
-        sucesso: true,
-        usuario: resultado[0].Nome
-      });
+      const token = jwt.sign(
+  {
+    id: resultado[0].id_contador,
+    nome: resultado[0].Nome,
+    email: resultado[0].email
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: '1d'
+  }
+);
+
+res.json({
+  sucesso: true,
+  usuario: resultado[0].Nome,
+  token
+});
     } else {
       res.status(401).json({
         sucesso: false,
