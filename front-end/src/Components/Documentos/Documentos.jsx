@@ -3,183 +3,232 @@ import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './Documentos.css';
 
 function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
-  const [documentos] = useState([
-    {
-      id: 1,
-      nome: 'Contrato Social',
-      validade: '2026-12-12'
-    },
-    {
-      id: 2,
-      nome: 'Alvará de Funcionamento',
-      validade: '2025-08-10'
-    }
-  ]);
+    const [documentos, setDocumentos] = useState([
+        {
+            id: 1,
+            nome: 'Contrato Social ou Estatuto Social',
+            validade: '2026-12-31'
+        },
+        {
+            id: 2,
+            nome: 'Comprovante de Inscricao e Situacao Cadastral (CNPJ)',
+            validade: '2026-12-31'
+        },
+        {
+            id: 3,
+            nome: 'Documento de Identificacao do(s) Socio(s)',
+            validade: '2026-12-31'
+        },
+        {
+            id: 4,
+            nome: 'Comprovante de Endereco',
+            validade: '2026-12-31'
+        },
+        {
+            id: 5,
+            nome: 'Ultimo Balanco ou Demonstracao Contabil',
+            validade: '2026-12-31'
+        }
+    ]);
 
-  return (
-    <div className="empresa-page">
-      <aside className="empresa-sidebar">
-        <div className="empresa-brand">
-          <div className="empresa-logo">
-            <img src={logoIcon} alt="C2R Contabilidade" />
-          </div>
+    const [novoDocumento, setNovoDocumento] = useState('');
+    const [novaValidade, setNovaValidade] = useState('');
 
-          <div>
-            <strong>C2R Contabilidade</strong>
-            <span>Portal Contábil</span>
-          </div>
-        </div>
+    const cadastrarDocumento = () => {
+        if (!novoDocumento.trim() || !novaValidade.trim()) {
+            return;
+        }
 
-        <nav className="empresa-nav">
-          <button type="button" className="empresa-nav-item">
-            Dashboard
-          </button>
+        const novo = {
+            id: Date.now(),
+            nome: novoDocumento,
+            validade: novaValidade
+        };
 
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('empresas')}
-          >
-            Minhas Empresas
-          </button>
+        setDocumentos((prev) => [...prev, novo]);
 
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('cadastro')}
-          >
-            Cadastro Empresa
-          </button>
+        setNovoDocumento('');
+        setNovaValidade('');
+    };
 
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('usuarios')}
-          >
-            Usuários
-          </button>
+    const excluirDocumento = (id) => {
+        setDocumentos((prev) =>
+            prev.filter((doc) => doc.id !== id)
+        );
+    };
 
-          <button
-            type="button"
-            className="empresa-nav-item is-active"
-            onClick={() => onNavigate && onNavigate('documentos')}
-          >
-            Documentos
-          </button>
-        </nav>
-      </aside>
+    return (
+        <div className="empresa-page">
+            <aside className="empresa-sidebar">
+                <div className="empresa-brand">
+                    <div className="empresa-logo">
+                        <img src={logoIcon} alt="C2R Contabilidade" />
+                    </div>
 
-      <div className="empresa-content">
-        <header className="empresa-topbar">
-          <div className="empresa-breadcrumb"></div>
+                    <div>
+                        <strong>C2R Contabilidade</strong>
+                        <span>Portal Contábil</span>
+                    </div>
+                </div>
 
-          <div className="empresa-user">
-            <span className="empresa-user-name">
-              {userName}
-            </span>
-
-            {onLogout && (
-              <button
-                type="button"
-                className="empresa-logout"
-                onClick={onLogout}
-              >
-                Sair
-              </button>
-            )}
-          </div>
-        </header>
-
-        <section className="empresa-hero">
-          <div>
-            <span className="empresa-kicker">
-              Gestão de documentos
-            </span>
-
-            <h1>Cadastro de Documentos</h1>
-
-            <p>
-              Gerencie os documentos utilizados no sistema.
-            </p>
-          </div>
-
-          <div className="empresa-hero-badge">
-            <span>Total cadastrados</span>
-            <strong>{documentos.length}</strong>
-          </div>
-        </section>
-
-        <div className="empresa-grid">
-          <section className="empresa-card">
-            <div className="empresa-card-header">
-              <h2>Novo Documento</h2>
-            </div>
-
-            <label className="empresa-field">
-              <span>Nome do documento</span>
-
-              <input
-                type="text"
-                placeholder="Digite o nome do documento"
-              />
-            </label>
-
-            <label className="empresa-field">
-              <span>Validade</span>
-
-              <input type="date" />
-            </label>
-
-            <div className="empresa-actions">
-              <button
-                type="button"
-                className="empresa-primary"
-              >
-                Cadastrar Documento
-              </button>
-            </div>
-          </section>
-
-          <section className="empresa-card">
-            <div className="empresa-card-header">
-              <h2>Documentos Cadastrados</h2>
-
-              <span className="empresa-badge">
-                {documentos.length} ativos
-              </span>
-            </div>
-
-            <ul className="empresa-doc-list">
-              {documentos.map((doc) => (
-                <li key={doc.id}>
-                  <div>
-                    <strong>{doc.nome}</strong>
-
-                    <span>
-                      Validade: {doc.validade}
-                    </span>
-                  </div>
-
-                  <div className="empresa-doc-actions">
-                    <span className="empresa-status">
-                      Ativo
-                    </span>
+                <nav className="empresa-nav">
+                    <button type="button" className="empresa-nav-item">
+                        Dashboard
+                    </button>
 
                     <button
-                      type="button"
-                      className="empresa-delete-button"
+                        type="button"
+                        className="empresa-nav-item"
+                        onClick={() => onNavigate && onNavigate('empresas')}
                     >
-                      ✕
+                        Minhas Empresas
                     </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+
+                    <button
+                        type="button"
+                        className="empresa-nav-item"
+                        onClick={() => onNavigate && onNavigate('cadastro')}
+                    >
+                        Cadastro Empresa
+                    </button>
+
+                    <button
+                        type="button"
+                        className="empresa-nav-item"
+                        onClick={() => onNavigate && onNavigate('usuarios')}
+                    >
+                        Usuários
+                    </button>
+
+                    <button
+                        type="button"
+                        className="empresa-nav-item is-active"
+                        onClick={() => onNavigate && onNavigate('documentos')}
+                    >
+                        Documentos
+                    </button>
+                </nav>
+            </aside>
+
+            <div className="empresa-content">
+                <header className="empresa-topbar">
+                    <div className="empresa-breadcrumb"></div>
+
+                    <div className="empresa-user">
+                        <span className="empresa-user-name">
+                            {userName}
+                        </span>
+
+                        {onLogout && (
+                            <button
+                                type="button"
+                                className="empresa-logout"
+                                onClick={onLogout}
+                            >
+                                Sair
+                            </button>
+                        )}
+                    </div>
+                </header>
+
+                <section className="empresa-hero">
+                    <div>
+                        <span className="empresa-kicker">
+                            Gestão de documentos
+                        </span>
+
+                        <h1>Cadastro de Documentos</h1>
+
+                        <p>
+                            Gerencie os documentos utilizados no sistema.
+                        </p>
+                    </div>
+
+                    <div className="empresa-hero-badge">
+                        <span>Total cadastrados</span>
+                        <strong>{documentos.length}</strong>
+                    </div>
+                </section>
+
+                <div className="empresa-grid">
+                    <section className="empresa-card">
+                        <div className="empresa-card-header">
+                            <h2>Novo Documento</h2>
+                        </div>
+
+                        <label className="empresa-field">
+                            <span>Nome do documento</span>
+
+                            <input
+                                type="text"
+                                placeholder="Digite o nome do documento"
+                                value={novoDocumento}
+                                onChange={(e) => setNovoDocumento(e.target.value)}
+                            />
+                        </label>
+
+                        <label className="empresa-field">
+                            <span>Data limite</span>
+
+                            <input
+                                type="date"
+                                value={novaValidade}
+                                onChange={(e) => setNovaValidade(e.target.value)}
+                            />
+                        </label>
+
+                        <div className="empresa-actions">
+                            <button
+                                type="button"
+                                className="empresa-primary"
+                                onClick={cadastrarDocumento}
+                            >
+                                Cadastrar Documento
+                            </button>
+                        </div>
+                    </section>
+
+                    <section className="empresa-card">
+                        <div className="empresa-card-header">
+                            <h2>Documentos Cadastrados</h2>
+
+                            <span className="empresa-badge">
+                                {documentos.length} ativos
+                            </span>
+                        </div>
+
+                        <ul className="empresa-doc-list">
+                            {documentos.map((doc) => (
+                                <li key={doc.id}>
+                                    <div>
+                                        <strong>{doc.nome}</strong>
+
+                                        <span>
+                                            Data limite: {new Date(doc.validade).toLocaleDateString('pt-BR')}
+                                        </span>
+                                    </div>
+
+                                    <div className="empresa-doc-actions">
+                                        <span className="empresa-status">
+                                            Ativo
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            className="empresa-delete-button"
+                                            onClick={() => excluirDocumento(doc.id)}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Documentos;
