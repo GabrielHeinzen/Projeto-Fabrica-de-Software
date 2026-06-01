@@ -299,7 +299,13 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           >
             Usuarios
           </button>
-          <button type="button" className="empresa-nav-item">Documentos</button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('documentos')}
+          >
+            Documentos
+          </button>
         </nav>
       </aside>
 
@@ -362,222 +368,222 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   const editDisabled = Boolean(editingId && editingId !== empresaId);
 
                   return (
-                  <li
-                    key={empresaId || `${empresa.cnpj}-${empresa.razao_social}`}
-                    className="empresa-list-item"
-                  >
-                    <div className="empresa-list-header">
-                      <div>
-                        <strong>{empresa.razao_social || 'Razao social nao informada'}</strong>
-                        <span className="empresa-list-subtitle">
-                          CNPJ: {empresa.cnpj || 'Nao informado'}
-                        </span>
-                      </div>
-                      <div className="empresa-list-actions">
-                        <span className="empresa-pill empresa-pill--primary">
-                          {formatRegime(empresa.regime_tributario)}
-                        </span>
-                        <button
-                          type="button"
-                          className="empresa-secondary empresa-action-button"
-                          onClick={() => handleEditStart(empresa)}
-                          disabled={editDisabled || isEditing || isDeleting}
-                        >
-                          {isEditing ? 'Editando' : 'Editar'}
-                        </button>
-                        <button
-                          type="button"
-                          className="empresa-danger empresa-action-button"
-                          onClick={() => handleDeleteRequest(empresa)}
-                          disabled={isDeleting || isSaving}
-                        >
-                          {isDeleting ? 'Excluindo...' : 'Excluir'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="empresa-list-footer">
-                      <span className={`empresa-pill ${parseFlag(empresa.possui_funcionarios)
-                        ? 'empresa-pill--ok'
-                        : 'empresa-pill--warn'
-                        }`}
-                      >
-                        Funcionarios: {formatSimNao(empresa.possui_funcionarios)}
-                      </span>
-                      <span className={`empresa-pill ${parseFlag(empresa.possui_notas_venda)
-                        ? 'empresa-pill--ok'
-                        : 'empresa-pill--warn'
-                        }`}
-                      >
-                        Notas de venda: {formatSimNao(empresa.possui_notas_venda)}
-                      </span>
-                      <span className={`empresa-pill ${parseFlag(empresa.presta_servicos)
-                        ? 'empresa-pill--ok'
-                        : 'empresa-pill--warn'
-                        }`}
-                      >
-                        Servicos: {formatSimNao(empresa.presta_servicos)}
-                      </span>
-                    </div>
-
-                    {isEditing && editForm && (
-                      <div className="empresa-edit">
-                        <div className="empresa-edit-grid">
-                          <label className="empresa-field">
-                            <span>Razao Social *</span>
-                            <input
-                              type="text"
-                              value={editForm.razao_social}
-                              onChange={handleEditChange('razao_social')}
-                              required
-                            />
-                          </label>
-
-                          <label className="empresa-field">
-                            <span>CNPJ *</span>
-                            <input
-                              type="text"
-                              value={editForm.cnpj}
-                              onChange={handleEditChange('cnpj')}
-                              maxLength={18}
-                              required
-                            />
-                          </label>
-
-                          <label className="empresa-field">
-                            <span>Regime Tributario *</span>
-                            <select
-                              value={editForm.regime_tributario}
-                              onChange={handleEditChange('regime_tributario')}
-                              required
-                            >
-                              <option value="" disabled>
-                                Selecione o regime
-                              </option>
-                              <option value="simples">Simples Nacional</option>
-                              <option value="presumido">Lucro Presumido</option>
-                              <option value="real">Lucro Real</option>
-                              <option value="mei">MEI</option>
-                            </select>
-                          </label>
-
+                    <li
+                      key={empresaId || `${empresa.cnpj}-${empresa.razao_social}`}
+                      className="empresa-list-item"
+                    >
+                      <div className="empresa-list-header">
+                        <div>
+                          <strong>{empresa.razao_social || 'Razao social nao informada'}</strong>
+                          <span className="empresa-list-subtitle">
+                            CNPJ: {empresa.cnpj || 'Nao informado'}
+                          </span>
                         </div>
-
-                        <div className="empresa-toggle-group">
-                          <span>Possui funcionarios? *</span>
-                          <div className="empresa-toggle-options">
-                            <label
-                              className={`empresa-toggle-option ${editForm.possui_funcionarios === 'sim' ? 'is-selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name={`edit-funcionarios-${empresaId}`}
-                                value="sim"
-                                checked={editForm.possui_funcionarios === 'sim'}
-                                onChange={handleEditChange('possui_funcionarios')}
-                                required
-                              />
-                              Sim
-                            </label>
-                            <label
-                              className={`empresa-toggle-option ${editForm.possui_funcionarios === 'nao' ? 'is-selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name={`edit-funcionarios-${empresaId}`}
-                                value="nao"
-                                checked={editForm.possui_funcionarios === 'nao'}
-                                onChange={handleEditChange('possui_funcionarios')}
-                              />
-                              Nao
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="empresa-toggle-group">
-                          <span>Possui notas de venda? *</span>
-                          <div className="empresa-toggle-options">
-                            <label
-                              className={`empresa-toggle-option ${editForm.possui_notas_venda === 'sim' ? 'is-selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name={`edit-notas-${empresaId}`}
-                                value="sim"
-                                checked={editForm.possui_notas_venda === 'sim'}
-                                onChange={handleEditChange('possui_notas_venda')}
-                                required
-                              />
-                              Sim
-                            </label>
-                            <label
-                              className={`empresa-toggle-option ${editForm.possui_notas_venda === 'nao' ? 'is-selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name={`edit-notas-${empresaId}`}
-                                value="nao"
-                                checked={editForm.possui_notas_venda === 'nao'}
-                                onChange={handleEditChange('possui_notas_venda')}
-                              />
-                              Nao
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="empresa-toggle-group">
-                          <span>Presta servicos? *</span>
-                          <div className="empresa-toggle-options">
-                            <label
-                              className={`empresa-toggle-option ${editForm.presta_servicos === 'sim' ? 'is-selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name={`edit-servicos-${empresaId}`}
-                                value="sim"
-                                checked={editForm.presta_servicos === 'sim'}
-                                onChange={handleEditChange('presta_servicos')}
-                                required
-                              />
-                              Sim
-                            </label>
-                            <label
-                              className={`empresa-toggle-option ${editForm.presta_servicos === 'nao' ? 'is-selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name={`edit-servicos-${empresaId}`}
-                                value="nao"
-                                checked={editForm.presta_servicos === 'nao'}
-                                onChange={handleEditChange('presta_servicos')}
-                              />
-                              Nao
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="empresa-edit-actions">
+                        <div className="empresa-list-actions">
+                          <span className="empresa-pill empresa-pill--primary">
+                            {formatRegime(empresa.regime_tributario)}
+                          </span>
                           <button
                             type="button"
-                            className="empresa-primary"
-                            onClick={() => handleUpdate(empresaId)}
-                            disabled={isSaving}
+                            className="empresa-secondary empresa-action-button"
+                            onClick={() => handleEditStart(empresa)}
+                            disabled={editDisabled || isEditing || isDeleting}
                           >
-                            {isSaving ? 'Salvando...' : 'Salvar alteracoes'}
+                            {isEditing ? 'Editando' : 'Editar'}
                           </button>
                           <button
                             type="button"
-                            className="empresa-secondary"
-                            onClick={handleEditCancel}
-                            disabled={isSaving}
+                            className="empresa-danger empresa-action-button"
+                            onClick={() => handleDeleteRequest(empresa)}
+                            disabled={isDeleting || isSaving}
                           >
-                            Cancelar
+                            {isDeleting ? 'Excluindo...' : 'Excluir'}
                           </button>
                         </div>
                       </div>
-                    )}
-                  </li>
-                );
+
+                      <div className="empresa-list-footer">
+                        <span className={`empresa-pill ${parseFlag(empresa.possui_funcionarios)
+                          ? 'empresa-pill--ok'
+                          : 'empresa-pill--warn'
+                          }`}
+                        >
+                          Funcionarios: {formatSimNao(empresa.possui_funcionarios)}
+                        </span>
+                        <span className={`empresa-pill ${parseFlag(empresa.possui_notas_venda)
+                          ? 'empresa-pill--ok'
+                          : 'empresa-pill--warn'
+                          }`}
+                        >
+                          Notas de venda: {formatSimNao(empresa.possui_notas_venda)}
+                        </span>
+                        <span className={`empresa-pill ${parseFlag(empresa.presta_servicos)
+                          ? 'empresa-pill--ok'
+                          : 'empresa-pill--warn'
+                          }`}
+                        >
+                          Servicos: {formatSimNao(empresa.presta_servicos)}
+                        </span>
+                      </div>
+
+                      {isEditing && editForm && (
+                        <div className="empresa-edit">
+                          <div className="empresa-edit-grid">
+                            <label className="empresa-field">
+                              <span>Razao Social *</span>
+                              <input
+                                type="text"
+                                value={editForm.razao_social}
+                                onChange={handleEditChange('razao_social')}
+                                required
+                              />
+                            </label>
+
+                            <label className="empresa-field">
+                              <span>CNPJ *</span>
+                              <input
+                                type="text"
+                                value={editForm.cnpj}
+                                onChange={handleEditChange('cnpj')}
+                                maxLength={18}
+                                required
+                              />
+                            </label>
+
+                            <label className="empresa-field">
+                              <span>Regime Tributario *</span>
+                              <select
+                                value={editForm.regime_tributario}
+                                onChange={handleEditChange('regime_tributario')}
+                                required
+                              >
+                                <option value="" disabled>
+                                  Selecione o regime
+                                </option>
+                                <option value="simples">Simples Nacional</option>
+                                <option value="presumido">Lucro Presumido</option>
+                                <option value="real">Lucro Real</option>
+                                <option value="mei">MEI</option>
+                              </select>
+                            </label>
+
+                          </div>
+
+                          <div className="empresa-toggle-group">
+                            <span>Possui funcionarios? *</span>
+                            <div className="empresa-toggle-options">
+                              <label
+                                className={`empresa-toggle-option ${editForm.possui_funcionarios === 'sim' ? 'is-selected' : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`edit-funcionarios-${empresaId}`}
+                                  value="sim"
+                                  checked={editForm.possui_funcionarios === 'sim'}
+                                  onChange={handleEditChange('possui_funcionarios')}
+                                  required
+                                />
+                                Sim
+                              </label>
+                              <label
+                                className={`empresa-toggle-option ${editForm.possui_funcionarios === 'nao' ? 'is-selected' : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`edit-funcionarios-${empresaId}`}
+                                  value="nao"
+                                  checked={editForm.possui_funcionarios === 'nao'}
+                                  onChange={handleEditChange('possui_funcionarios')}
+                                />
+                                Nao
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="empresa-toggle-group">
+                            <span>Possui notas de venda? *</span>
+                            <div className="empresa-toggle-options">
+                              <label
+                                className={`empresa-toggle-option ${editForm.possui_notas_venda === 'sim' ? 'is-selected' : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`edit-notas-${empresaId}`}
+                                  value="sim"
+                                  checked={editForm.possui_notas_venda === 'sim'}
+                                  onChange={handleEditChange('possui_notas_venda')}
+                                  required
+                                />
+                                Sim
+                              </label>
+                              <label
+                                className={`empresa-toggle-option ${editForm.possui_notas_venda === 'nao' ? 'is-selected' : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`edit-notas-${empresaId}`}
+                                  value="nao"
+                                  checked={editForm.possui_notas_venda === 'nao'}
+                                  onChange={handleEditChange('possui_notas_venda')}
+                                />
+                                Nao
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="empresa-toggle-group">
+                            <span>Presta servicos? *</span>
+                            <div className="empresa-toggle-options">
+                              <label
+                                className={`empresa-toggle-option ${editForm.presta_servicos === 'sim' ? 'is-selected' : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`edit-servicos-${empresaId}`}
+                                  value="sim"
+                                  checked={editForm.presta_servicos === 'sim'}
+                                  onChange={handleEditChange('presta_servicos')}
+                                  required
+                                />
+                                Sim
+                              </label>
+                              <label
+                                className={`empresa-toggle-option ${editForm.presta_servicos === 'nao' ? 'is-selected' : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`edit-servicos-${empresaId}`}
+                                  value="nao"
+                                  checked={editForm.presta_servicos === 'nao'}
+                                  onChange={handleEditChange('presta_servicos')}
+                                />
+                                Nao
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="empresa-edit-actions">
+                            <button
+                              type="button"
+                              className="empresa-primary"
+                              onClick={() => handleUpdate(empresaId)}
+                              disabled={isSaving}
+                            >
+                              {isSaving ? 'Salvando...' : 'Salvar alteracoes'}
+                            </button>
+                            <button
+                              type="button"
+                              className="empresa-secondary"
+                              onClick={handleEditCancel}
+                              disabled={isSaving}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
                 })}
               </ul>
             )}

@@ -372,7 +372,13 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
             Cadastro Empresa
           </button>
           <button type="button" className="empresa-nav-item is-active">Usuarios</button>
-          <button type="button" className="empresa-nav-item">Documentos</button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('documentos')}
+          >
+            Documentos
+          </button>
         </nav>
       </aside>
 
@@ -436,107 +442,107 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
                   const deleteDisabled = Boolean(deletingId && deletingId !== usuarioId);
 
                   return (
-                  <li key={usuarioId || usuario.email} className="empresa-list-item">
-                    <div className="usuarios-list-top">
-                      <div className="usuarios-list-header">
-                        <div className="usuarios-avatar" aria-hidden="true">
-                          {buildIniciais(usuario.nome)}
+                    <li key={usuarioId || usuario.email} className="empresa-list-item">
+                      <div className="usuarios-list-top">
+                        <div className="usuarios-list-header">
+                          <div className="usuarios-avatar" aria-hidden="true">
+                            {buildIniciais(usuario.nome)}
+                          </div>
+                          <div>
+                            <strong>{formatTexto(usuario.nome)}</strong>
+                            <span className="empresa-list-subtitle">{formatTexto(usuario.email)}</span>
+                          </div>
                         </div>
-                        <div>
-                          <strong>{formatTexto(usuario.nome)}</strong>
-                          <span className="empresa-list-subtitle">{formatTexto(usuario.email)}</span>
-                        </div>
-                      </div>
-                      <div className="empresa-list-actions">
-                        <button
-                          type="button"
-                          className="empresa-secondary empresa-action-button"
-                          onClick={() => handleEditStart(usuario)}
-                          disabled={editDisabled || isEditing || isDeleting}
-                        >
-                          {isEditing ? 'Editando' : 'Editar'}
-                        </button>
-                        <button
-                          type="button"
-                          className="empresa-danger empresa-action-button"
-                          onClick={() => handleDeleteRequest(usuario)}
-                          disabled={isDeleting || isSaving || deleteDisabled}
-                        >
-                          {isDeleting ? 'Excluindo...' : 'Excluir'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="empresa-list-meta">
-                      <div className="usuarios-telefone">
-                        <span>Telefone</span>
-                        <strong className="usuarios-telefone__value">
-                          {formatTexto(usuario.telefone)}
-                        </strong>
-                      </div>
-                    </div>
-
-                    {isEditing && editForm && (
-                      <div className="empresa-edit">
-                        <div className="empresa-edit-grid">
-                          <label className="empresa-field">
-                            <span>Nome *</span>
-                            <input
-                              type="text"
-                              value={editForm.nome}
-                              onChange={handleEditChange('nome')}
-                              required
-                            />
-                          </label>
-                          <label className="empresa-field">
-                            <span>Email *</span>
-                            <input
-                              type="email"
-                              value={editForm.email}
-                              onChange={handleEditChange('email')}
-                              required
-                            />
-                          </label>
-                          <label className="empresa-field">
-                            <span>Telefone</span>
-                            <input
-                              type="tel"
-                              value={editForm.telefone}
-                              onChange={handleEditChange('telefone')}
-                            />
-                          </label>
-                          <label className="empresa-field">
-                            <span>Senha (opcional)</span>
-                            <input
-                              type="password"
-                              value={editForm.senha}
-                              onChange={handleEditChange('senha')}
-                              placeholder="Manter senha atual"
-                            />
-                          </label>
-                        </div>
-                        <div className="empresa-edit-actions">
-                          <button
-                            type="button"
-                            className="empresa-primary empresa-action-button"
-                            onClick={() => handleUpdate(usuarioId)}
-                            disabled={isSaving || isDeleting}
-                          >
-                            {isSaving ? 'Salvando...' : 'Salvar alteracoes'}
-                          </button>
+                        <div className="empresa-list-actions">
                           <button
                             type="button"
                             className="empresa-secondary empresa-action-button"
-                            onClick={handleEditCancel}
-                            disabled={isSaving || isDeleting}
+                            onClick={() => handleEditStart(usuario)}
+                            disabled={editDisabled || isEditing || isDeleting}
                           >
-                            Cancelar
+                            {isEditing ? 'Editando' : 'Editar'}
+                          </button>
+                          <button
+                            type="button"
+                            className="empresa-danger empresa-action-button"
+                            onClick={() => handleDeleteRequest(usuario)}
+                            disabled={isDeleting || isSaving || deleteDisabled}
+                          >
+                            {isDeleting ? 'Excluindo...' : 'Excluir'}
                           </button>
                         </div>
                       </div>
-                    )}
-                  </li>
-                );
+
+                      <div className="empresa-list-meta">
+                        <div className="usuarios-telefone">
+                          <span>Telefone</span>
+                          <strong className="usuarios-telefone__value">
+                            {formatTexto(usuario.telefone)}
+                          </strong>
+                        </div>
+                      </div>
+
+                      {isEditing && editForm && (
+                        <div className="empresa-edit">
+                          <div className="empresa-edit-grid">
+                            <label className="empresa-field">
+                              <span>Nome *</span>
+                              <input
+                                type="text"
+                                value={editForm.nome}
+                                onChange={handleEditChange('nome')}
+                                required
+                              />
+                            </label>
+                            <label className="empresa-field">
+                              <span>Email *</span>
+                              <input
+                                type="email"
+                                value={editForm.email}
+                                onChange={handleEditChange('email')}
+                                required
+                              />
+                            </label>
+                            <label className="empresa-field">
+                              <span>Telefone</span>
+                              <input
+                                type="tel"
+                                value={editForm.telefone}
+                                onChange={handleEditChange('telefone')}
+                              />
+                            </label>
+                            <label className="empresa-field">
+                              <span>Senha (opcional)</span>
+                              <input
+                                type="password"
+                                value={editForm.senha}
+                                onChange={handleEditChange('senha')}
+                                placeholder="Manter senha atual"
+                              />
+                            </label>
+                          </div>
+                          <div className="empresa-edit-actions">
+                            <button
+                              type="button"
+                              className="empresa-primary empresa-action-button"
+                              onClick={() => handleUpdate(usuarioId)}
+                              disabled={isSaving || isDeleting}
+                            >
+                              {isSaving ? 'Salvando...' : 'Salvar alteracoes'}
+                            </button>
+                            <button
+                              type="button"
+                              className="empresa-secondary empresa-action-button"
+                              onClick={handleEditCancel}
+                              disabled={isSaving || isDeleting}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
                 })}
               </ul>
             )}

@@ -6,6 +6,7 @@ import CadastroEmpresa from './Components/CadastroEmpresa/CadastroEmpresa';
 import MinhasEmpresas from './Components/MinhasEmpresas/MinhasEmpresas';
 import Usuarios from './Components/Usuarios/Usuarios';
 import Login from './Components/Login/Login';
+import Documentos from './Components/Documentos/Documentos';
 
 const loadStoredUser = () => {
   if (typeof window === 'undefined') {
@@ -44,7 +45,8 @@ function App() {
   const routeMap = {
     cadastro: '/Cadastro-de-Empresa',
     empresas: '/Minhas-Empresas',
-    usuarios: '/Usuarios'
+    usuarios: '/Usuarios',
+    documentos: '/Documentos'
   };
 
   const handleLoginSuccess = (user) => {
@@ -120,6 +122,18 @@ function App() {
             element={(
               <RequireAuth authed={isAuthed}>
                 <Usuarios
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/Documentos"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <Documentos
                   userName={authUser?.name}
                   onLogout={handleLogout}
                   onNavigate={handleNavigate}
