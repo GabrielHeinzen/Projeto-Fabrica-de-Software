@@ -125,22 +125,22 @@ app.post('/login', (req, res) => {
 
     if (resultado.length > 0) {
       const token = jwt.sign(
-  {
-    id: resultado[0].id_contador,
-    nome: resultado[0].Nome,
-    email: resultado[0].email
-  },
-  process.env.JWT_SECRET,
-  {
-    expiresIn: '1d'
-  }
-);
+        {
+          id: resultado[0].id_contador,
+          nome: resultado[0].Nome,
+          email: resultado[0].email
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '1d'
+        }
+      );
 
-res.json({
-  sucesso: true,
-  usuario: resultado[0].Nome,
-  token
-});
+      res.json({
+        sucesso: true,
+        usuario: resultado[0].Nome,
+        token
+      });
     } else {
       res.status(401).json({
         sucesso: false,
@@ -366,7 +366,7 @@ app.put('/contador/:id', (req, res) => {
 });
 
 app.post('/empresa', (req, res) => {
-   const {
+  const {
     cnpj,
     razao_social,
     regime_tributario,
@@ -545,12 +545,7 @@ app.put('/empresa/:id', (req, res) => {
   );
 });
 
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
-
+//rota upload
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const { id } = req.params;
   const { tipo_documento } = req.body;
@@ -580,6 +575,152 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   });
 });
 
-//docker start mysql-contabilidade
-//cd backend
-//npx nodemon index.js  
+/*
+  Dashboard Geral
+
+  Solicitação do cliente:
+
+  "Seria legal aparecer o que já foi enviado e o que ainda está pendente,
+  isso por obrigação e por empresa se possível."
+
+  Esta rota retorna:
+
+  - Quantidade total de obrigações enviadas
+  - Quantidade total de obrigações pendentes
+  - Quantidade total de obrigações registradas
+
+  Utilizada para os cards principais da dashboard.
+*/
+
+app.get('/dashboard', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT
+      SUM(CASE WHEN status = 'ENVIADO' THEN 1 ELSE 0 END) AS total_enviados,
+      SUM(CASE WHEN status = 'PENDENTE' THEN 1 ELSE 0 END) AS total_pendentes,
+      COUNT(*) AS total_obrigacoes
+    FROM envio_documento
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar dashboard',
+        erro: err.message
+      });
+    }
+
+    res.json(result[0]);
+  });
+});
+
+/*
+  Dashboard por Empresa
+
+  Solicitação do cliente:
+
+  "Seria legal aparecer o que já foi enviado e o que ainda está pendente,
+  isso por obrigação e por empresa se possível."
+
+  Esta rota retorna os dados agrupados por empresa,
+  permitindo visualizar:
+
+  - Quantidade de documentos enviados
+  - Quantidade de documentos pendentes
+
+  Exemplo:
+
+  Empresa ABC
+  - 10 enviados
+  - 3 pendentes
+
+  Empresa XYZ
+  - 5 enviados
+  - 8 pendentes
+*/
+
+app.get('/dashboard/empresas', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT
+      e.razao_social,
+      SUM(CASE WHEN ed.status = 'ENVIADO' THEN 1 ELSE 0 END) AS enviados,
+      SUM(CASE WHEN ed.status = 'PENDENTE' THEN 1 ELSE 0 END) AS pendentes
+    FROM empresa_cliente e
+    LEFT JOIN envio_documento ed
+      ON e.id_cliente = ed.id_cliente
+    GROUP BY e.id_cliente, e.razao_social
+    ORDER BY e.razao_social
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar dashboard empresas'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+
+/*
+  Dashboard por Obrigação
+
+  Solicitação do cliente:
+
+  "Seria legal aparecer o que já foi enviado e o que ainda está pendente,
+  isso por obrigação e por empresa se possível."
+
+  Esta rota retorna os dados agrupados por tipo de obrigação,
+  permitindo visualizar o status de cada documento fiscal,
+  contábil ou trabalhista.
+
+  Exemplo:
+
+  DAS
+  - 15 enviados
+  - 2 pendentes
+
+  DIME
+  - 8 enviados
+  - 4 pendentes
+
+  REINF
+  - 6 enviados
+  - 1 pendente
+*/
+
+app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT
+      td.nome,
+      SUM(CASE WHEN ed.status = 'ENVIADO' THEN 1 ELSE 0 END) AS enviados,
+      SUM(CASE WHEN ed.status = 'PENDENTE' THEN 1 ELSE 0 END) AS pendentes
+    FROM tipo_documento td
+    LEFT JOIN envio_documento ed
+      ON td.id_tipo_documento = ed.id_tipo_documento
+    GROUP BY td.id_tipo_documento, td.nome
+    ORDER BY td.nome
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar dashboard obrigações'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
