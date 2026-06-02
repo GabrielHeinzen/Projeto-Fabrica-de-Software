@@ -47,7 +47,8 @@ function App() {
     cadastro: '/Cadastro-de-Empresa',
     empresas: '/Minhas-Empresas',
     usuarios: '/Usuarios',
-    documentos: '/Documentos'
+    documentos: '/Documentos',
+    anexo: '/Anexo-Documentos'
   };
 
   const handleLoginSuccess = (user) => {
@@ -135,6 +136,18 @@ function App() {
             element={(
               <RequireAuth authed={isAuthed}>
                 <Documentos
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/Anexo-Documentos"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <AnexoDocumentos
                   userName={authUser?.name}
                   onLogout={handleLogout}
                   onNavigate={handleNavigate}
