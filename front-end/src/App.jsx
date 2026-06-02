@@ -7,6 +7,7 @@ import MinhasEmpresas from './Components/MinhasEmpresas/MinhasEmpresas';
 import Usuarios from './Components/Usuarios/Usuarios';
 import Login from './Components/Login/Login';
 import Documentos from './Components/Documentos/Documentos';
+import AnexoDocumentos from './Components/AnexoDocumentos/AnexoDocumentos';
 
 const loadStoredUser = () => {
   if (typeof window === 'undefined') {
