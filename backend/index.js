@@ -545,6 +545,10 @@ app.put('/empresa/:id', (req, res) => {
   );
 });
 
+const {
+  calcularProximoVencimento
+} = require('./utils/periodicidade');
+
 //rota upload
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const { id } = req.params;
