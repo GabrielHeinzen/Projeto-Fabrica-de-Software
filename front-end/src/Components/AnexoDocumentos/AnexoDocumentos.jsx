@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '../Toast/ToastProvider';
 import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './AnexoDocumentos.css';
 
-function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
+function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [documentos, setDocumentos] = useState([
         {
             id: 1,
@@ -30,33 +30,37 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             nome: 'Ultimo Balanco ou Demonstracao Contabil',
             validade: '2026-12-31'
         }
+
     ]);
 
-    const [novoDocumento, setNovoDocumento] = useState('');
-    const [novaValidade, setNovaValidade] = useState('');
+    const [empresas, setEmpresas] = useState([]);
+    const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const cadastrarDocumento = () => {
-        if (!novoDocumento.trim() || !novaValidade.trim()) {
-            return;
+    const apiBaseUrl =
+        import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+    const carregarEmpresas = async () => {
+        try {
+            const resposta = await fetch(`${apiBaseUrl}/empresa`);
+
+            if (!resposta.ok) {
+                throw new Error('Erro ao buscar empresas');
+            }
+
+            const dados = await resposta.json();
+
+            setEmpresas(Array.isArray(dados) ? dados : []);
+        } catch (erro) {
+            console.log(erro);
+        } finally {
+            setIsLoading(false);
         }
-
-        const novo = {
-            id: Date.now(),
-            nome: novoDocumento,
-            validade: novaValidade
-        };
-
-        setDocumentos((prev) => [...prev, novo]);
-
-        setNovoDocumento('');
-        setNovaValidade('');
     };
 
-    const excluirDocumento = (id) => {
-        setDocumentos((prev) =>
-            prev.filter((doc) => doc.id !== id)
-        );
-    };
+    useEffect(() => {
+        carregarEmpresas();
+    }, []);
 
     return (
         <div className="empresa-page">
@@ -103,10 +107,17 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                     <button
                         type="button"
-                        className="empresa-nav-item is-active"
+                        className="empresa-nav-item"
                         onClick={() => onNavigate && onNavigate('documentos')}
                     >
                         Documentos
+                    </button>
+                    <button
+                        type="button"
+                        className="empresa-nav-item is-active"
+                        onClick={() => onNavigate && onNavigate('anexo')}
+                    >
+                        Anexo de Documentos
                     </button>
                 </nav>
             </aside>
@@ -138,93 +149,125 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                             Gestão de documentos
                         </span>
 
-                        <h1>Cadastro de Documentos</h1>
+                        <h1>Anexo de Documentos</h1>
 
                         <p>
-                            Gerencie os documentos utilizados no sistema.
+                            Selecione uma empresa e envie os documentos necessários.
                         </p>
                     </div>
 
                     <div className="empresa-hero-badge">
-                        <span>Total cadastrados</span>
-                        <strong>{documentos.length}</strong>
+                        <span>Empresas</span>
+                        <strong>{empresas.length}</strong>
                     </div>
                 </section>
 
                 <div className="empresa-grid">
+
                     <section className="empresa-card">
                         <div className="empresa-card-header">
-                            <h2>Novo Documento</h2>
+                            <h2>Empresas Cadastradas</h2>
                         </div>
 
-                        <label className="empresa-field">
-                            <span>Nome do documento</span>
+                        {isLoading ? (
+                            <p>Carregando empresas...</p>
+                        ) : (
+                            <ul className="empresa-doc-list">
 
-                            <input
-                                type="text"
-                                placeholder="Digite o nome do documento"
-                                value={novoDocumento}
-                                onChange={(e) => setNovoDocumento(e.target.value)}
-                            />
-                        </label>
+                                {empresas.map((empresa) => (
+                                    <li
+                                        key={empresa.id_cliente}
+                                        onClick={() => setEmpresaSelecionada(empresa)}
+                                        style={{
+                                            cursor: 'pointer',
+                                            border:
+                                                empresaSelecionada?.id_cliente === empresa.id_cliente
+                                                    ? '2px solid #0f766e'
+                                                    : ''
+                                        }}
+                                    >
+                                        <div>
+                                            <strong>
+                                                {empresa.razao_social}
+                                            </strong>
 
-                        <label className="empresa-field">
-                            <span>Data limite</span>
+                                            <span>
+                                                {empresa.cnpj}
+                                            </span>
+                                        </div>
+                                    </li>
+                                ))}
 
-                            <input
-                                type="date"
-                                value={novaValidade}
-                                onChange={(e) => setNovaValidade(e.target.value)}
-                            />
-                        </label>
-
-                        <div className="empresa-actions">
-                            <button
-                                type="button"
-                                className="empresa-primary"
-                                onClick={cadastrarDocumento}
-                            >
-                                Cadastrar Documento
-                            </button>
-                        </div>
+                            </ul>
+                        )}
                     </section>
 
                     <section className="empresa-card">
-                        <div className="empresa-card-header">
-                            <h2>Documentos Cadastrados</h2>
 
-                            <span className="empresa-badge">
-                                {documentos.length} ativos
-                            </span>
+                        <div className="empresa-card-header">
+                            <h2>Documentos Necessários</h2>
                         </div>
 
-                        <ul className="empresa-doc-list">
-                            {documentos.map((doc) => (
-                                <li key={doc.id}>
-                                    <div>
-                                        <strong>{doc.nome}</strong>
 
-                                        <span>
-                                            Data limite: {new Date(doc.validade).toLocaleDateString('pt-BR')}
-                                        </span>
-                                    </div>
+                        {!empresaSelecionada ? (
+                            <p>
+                                Selecione uma empresa para anexar documentos.
+                            </p>
+                        ) : (
+                            <>
+                                <p>
+                                    Empresa selecionada:
+                                    <strong>
+                                        {' '}
+                                        {empresaSelecionada.razao_social}
+                                    </strong>
+                                </p>
 
-                                    <div className="empresa-doc-actions">
-                                        <span className="empresa-status">
-                                            Ativo
-                                        </span>
+                                <ul className="empresa-doc-list">
+                                    {documentos.map((doc) => (
+                                        <li key={doc.id}>
+                                            <div>
+                                                <strong>{doc.nome}</strong>
 
-                                        <button
-                                            type="button"
-                                            className="empresa-delete-button"
-                                            onClick={() => excluirDocumento(doc.id)}
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                                                <span>
+                                                    Data limite:
+                                                    {' '}
+                                                    {new Date(doc.validade).toLocaleDateString('pt-BR')}
+                                                </span>
+                                            </div>
+
+                                            <div className="empresa-doc-actions">
+                                                <label className="empresa-upload-button">
+                                                    +
+
+                                                    <input
+                                                        type="file"
+                                                        hidden
+                                                    />
+                                                </label>
+
+                                                <span className="empresa-status">
+                                                    Pendente
+                                                </span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <div
+                                    className="empresa-actions"
+                                    style={{ marginTop: '20px' }}
+                                >
+                                    <button
+                                        type="button"
+                                        className="empresa-primary"
+                                    >
+                                        Enviar Documentos
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
                     </section>
                 </div>
             </div>
@@ -232,4 +275,5 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     );
 }
 
-export default Documentos;
+
+export default AnexoDocumentos;

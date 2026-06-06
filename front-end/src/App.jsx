@@ -48,7 +48,7 @@ function App() {
     empresas: '/Minhas-Empresas',
     usuarios: '/Usuarios',
     documentos: '/Documentos',
-    anexo: '/Anexo-Documentos'
+    anexo: '/AnexoDocumentos'
   };
 
   const handleLoginSuccess = (user) => {
@@ -144,7 +144,7 @@ function App() {
             )}
           />
           <Route
-            path="/Anexo-Documentos"
+            path="/AnexoDocumentos"
             element={(
               <RequireAuth authed={isAuthed}>
                 <AnexoDocumentos

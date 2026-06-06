@@ -306,6 +306,13 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           >
             Documentos
           </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('anexo')}
+          >
+            Anexo de Documentos
+          </button>
         </nav>
       </aside>
 

@@ -17,39 +17,10 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
 
-  const [documentos, setDocumentos] = useState({
-    contratoSocial: null,
-    comprovanteCnpj: null,
-    documentoSocios: null,
-    comprovanteEndereco: null,
-    balancoContabil: null
-  });
-
-  const [datasEntrega, setDatasEntrega] = useState({
-    dataEstimada: '',
-    dataReal: ''
-  });
-
   const handleChange = (field) => (event) => {
     setFormData((prev) => ({
       ...prev,
       [field]: event.target.value
-    }));
-  };
-
-  const handleFileChange = (campo) => (event) => {
-    const arquivo = event.target.files[0];
-
-    setDocumentos((prev) => ({
-      ...prev,
-      [campo]: arquivo
-    }));
-  };
-
-  const handleDateChange = (campo) => (event) => {
-    setDatasEntrega((prev) => ({
-      ...prev,
-      [campo]: event.target.value
     }));
   };
 
@@ -60,12 +31,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
       return;
     }
 
-    if (!datasEntrega.dataEstimada) {
-      showToast('Informe a data estimada da entrega dos documentos.', 'warning', {
-        title: 'Atencao'
-      });
-      return;
-    }
 
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -151,6 +116,13 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
             onClick={() => onNavigate && onNavigate('documentos')}
           >
             Documentos
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('anexo')}
+          >
+            Anexo de Documentos
           </button>
         </nav>
       </aside>
@@ -334,165 +306,6 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
             </div>
           </form>
 
-          <section className="empresa-card empresa-card--docs">
-            <h2>Documentos Necessários</h2>
-            <p>Envie os documentos abaixo para validarmos sua empresa.</p>
-            <ul className="empresa-doc-list">
-              <li>
-                <div>
-                  <strong>Contrato Social ou Estatuto Social</strong>
-
-                  <span>
-                    {documentos.contratoSocial
-                      ? documentos.contratoSocial.name
-                      : 'PDF ou JPG - ate 10MB'}
-                  </span>
-                </div>
-
-                <div className="empresa-doc-actions">
-                  <label className="empresa-upload-button">
-                    +
-
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      hidden
-                      onChange={handleFileChange('contratoSocial')}
-                    />
-                  </label>
-
-                  <span className="empresa-status">
-                    {documentos.contratoSocial ? 'Anexado' : 'Pendente'}
-                  </span>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <strong>Comprovante de Inscricao e Situacao Cadastral (CNPJ)</strong>
-
-                  <span>
-                    {documentos.comprovanteCnpj
-                      ? documentos.comprovanteCnpj.name
-                      : 'PDF ou JPG - ate 10MB'}
-                  </span>
-                </div>
-
-                <div className="empresa-doc-actions">
-                  <label className="empresa-upload-button">
-                    +
-
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      hidden
-                      onChange={handleFileChange('comprovanteCnpj')}
-                    />
-                  </label>
-
-                  <span className="empresa-status">
-                    {documentos.comprovanteCnpj ? 'Anexado' : 'Pendente'}
-                  </span>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <strong>Documento de Identificacao do(s) Socio(s)</strong>
-
-                  <span>
-                    {documentos.documentoSocios
-                      ? documentos.documentoSocios.name
-                      : 'PDF ou JPG - ate 10MB'}
-                  </span>
-                </div>
-
-                <div className="empresa-doc-actions">
-                  <label className="empresa-upload-button">
-                    +
-
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      hidden
-                      onChange={handleFileChange('documentoSocios')}
-                    />
-                  </label>
-
-                  <span className="empresa-status">
-                    {documentos.documentoSocios ? 'Anexado' : 'Pendente'}
-                  </span>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <strong>Comprovante de Endereco</strong>
-
-                  <span>
-                    {documentos.comprovanteEndereco
-                      ? documentos.comprovanteEndereco.name
-                      : 'PDF ou JPG - ate 10MB'}
-                  </span>
-                </div>
-
-                <div className="empresa-doc-actions">
-                  <label className="empresa-upload-button">
-                    +
-
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      hidden
-                      onChange={handleFileChange('comprovanteEndereco')}
-                    />
-                  </label>
-
-                  <span className="empresa-status">
-                    {documentos.comprovanteEndereco ? 'Anexado' : 'Pendente'}
-                  </span>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <strong>Ultimo Balanco ou Demonstracao Contabil</strong>
-
-                  <span>
-                    {documentos.balancoContabil
-                      ? documentos.balancoContabil.name
-                      : 'PDF ou JPG - ate 10MB'}
-                  </span>
-                </div>
-
-                <div className="empresa-doc-actions">
-                  <label className="empresa-upload-button">
-                    +
-
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      hidden
-                      onChange={handleFileChange('balancoContabil')}
-                    />
-                  </label>
-
-                  <span className="empresa-status">
-                    {documentos.balancoContabil ? 'Anexado' : 'Pendente'}
-                  </span>
-                </div>
-              </li>
-            </ul>
-            <div className="empresa-datas">
-              <label className="empresa-field">
-                <span>Data estimada da entrega dos documentos *</span>
-
-                <input
-                  type="date"
-                  form="empresa-form"
-                  value={datasEntrega.dataEstimada}
-                  onChange={handleDateChange('dataEstimada')}
-                  required
-                />
-              </label>
-            </div>
-          </section>
         </div>
       </div>
     </div>
