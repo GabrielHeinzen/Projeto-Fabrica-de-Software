@@ -189,16 +189,6 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                         </label>
 
                         <label className="empresa-field">
-                            <span>Data limite</span>
-
-                            <input
-                                type="date"
-                                value={novaValidade}
-                                onChange={(e) => setNovaValidade(e.target.value)}
-                            />
-                        </label>
-
-                        <label className="empresa-field">
                             <span>Periodicidade</span>
 
                             <select
