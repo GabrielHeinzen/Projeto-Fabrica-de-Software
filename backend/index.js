@@ -725,6 +725,93 @@ app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
+app.get('/documentos', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT 
+      id_tipo_documento AS id,
+      nome,
+      dia_limite_envio,
+      periodicidade
+    FROM tipo_documento
+    ORDER BY nome
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar documentos'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+app.post('/documentos', autenticarToken, (req, res) => {
+  const { nome, data_limite, periodicidade } = req.body;
+
+  if (!nome || !data_limite || !periodicidade) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Preencha todos os campos obrigatórios'
+    });
+  }
+
+  const diaLimite = new Date(data_limite).getUTCDate();
+
+  const sql = `
+    INSERT INTO tipo_documento
+    (nome, dia_limite_envio, periodicidade)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(sql, [nome, diaLimite, periodicidade], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao cadastrar documento'
+      });
+    }
+
+    res.status(201).json({
+      sucesso: true,
+      mensagem: 'Documento cadastrado com sucesso',
+      id: result.insertId
+    });
+  });
+});
+
+app.delete('/documentos/:id', autenticarToken, (req, res) => {
+  const { id } = req.params;
+
+  const sql = 'DELETE FROM tipo_documento WHERE id_tipo_documento = ?';
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao excluir documento'
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: 'Documento não encontrado'
+      });
+    }
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Documento excluído com sucesso'
+    });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

@@ -34,6 +34,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
     const [novoDocumento, setNovoDocumento] = useState('');
     const [novaValidade, setNovaValidade] = useState('');
+    const [periodicidade, setPeriodicidade] = useState('UNICO');
 
     const cadastrarDocumento = () => {
         if (!novoDocumento.trim() || !novaValidade.trim()) {
@@ -43,13 +44,15 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
         const novo = {
             id: Date.now(),
             nome: novoDocumento,
-            validade: novaValidade
+            validade: novaValidade,
+            periodicidade: periodicidade
         };
 
         setDocumentos((prev) => [...prev, novo]);
 
         setNovoDocumento('');
         setNovaValidade('');
+        setPeriodicidade('UNICO');
     };
 
     const excluirDocumento = (id) => {
@@ -145,7 +148,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                             Gestão de documentos
                         </span>
 
-                        <h1>Cadastro de Documentos</h1>
+                        <h1>Cadastro de Documentofields</h1>
 
                         <p>
                             Gerencie os documentos utilizados no sistema.
@@ -185,6 +188,31 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                             />
                         </label>
 
+                        <label className="empresa-field">
+                            <span>Data limite</span>
+
+                            <input
+                                type="date"
+                                value={novaValidade}
+                                onChange={(e) => setNovaValidade(e.target.value)}
+                            />
+                        </label>
+
+                        <label className="empresa-field">
+                            <span>Periodicidade</span>
+
+                            <select
+                                value={periodicidade}
+                                onChange={(e) => setPeriodicidade(e.target.value)}
+                            >
+                                <option value="UNICO">Único</option>
+                                <option value="MENSAL">Mensal</option>
+                                <option value="TRIMESTRAL">Trimestral</option>
+                                <option value="SEMESTRAL">Semestral</option>
+                                <option value="ANUAL">Anual</option>
+                            </select>
+                        </label>
+
                         <div className="empresa-actions">
                             <button
                                 type="button"
@@ -213,6 +241,10 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                                         <span>
                                             Data limite: {new Date(doc.validade).toLocaleDateString('pt-BR')}
+                                        </span>
+
+                                        <span>
+                                            Periodicidade: {doc.periodicidade}
                                         </span>
                                     </div>
 
