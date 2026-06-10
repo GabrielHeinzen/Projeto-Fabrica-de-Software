@@ -1,40 +1,57 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '../Toast/ToastProvider';
 import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './Documentos.css';
 
 function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
-    const [documentos, setDocumentos] = useState([
-        {
-            id: 1,
-            nome: 'Contrato Social ou Estatuto Social',
-            validade: '2026-12-31'
-        },
-        {
-            id: 2,
-            nome: 'Comprovante de Inscricao e Situacao Cadastral (CNPJ)',
-            validade: '2026-12-31'
-        },
-        {
-            id: 3,
-            nome: 'Documento de Identificacao do(s) Socio(s)',
-            validade: '2026-12-31'
-        },
-        {
-            id: 4,
-            nome: 'Comprovante de Endereco',
-            validade: '2026-12-31'
-        },
-        {
-            id: 5,
-            nome: 'Ultimo Balanco ou Demonstracao Contabil',
-            validade: '2026-12-31'
-        }
-    ]);
+    const [documentos, setDocumentos] = useState([]);
 
     const [novoDocumento, setNovoDocumento] = useState('');
     const [novaValidade, setNovaValidade] = useState('');
     const [periodicidade, setPeriodicidade] = useState('UNICO');
+    
+    useEffect(() => {
+        const buscarDocumentos = async () => {
+            const authUser = JSON.parse(localStorage.getItem('authUser'));
+            const token = authUser?.token;
+
+            if (!token) {
+                return;
+            }
+
+            try {
+                const resposta = await fetch(
+                    `${import.meta.env.VITE_API_URL}/documentos`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    console.error(dados);
+                    return;
+                }
+
+                const documentosFormatados = dados.map((doc) => ({
+                    id: doc.id,
+                    nome: doc.nome,
+                    validade: doc.dia_limite_envio,
+                    periodicidade: doc.periodicidade
+                }));
+
+                setDocumentos(documentosFormatados);
+
+            } catch (erro) {
+                console.error('Erro ao buscar documentos:', erro);
+            }
+        };
+
+        buscarDocumentos();
+    }, []);
 
     const cadastrarDocumento = async () => {
         if (!novoDocumento.trim() || !novaValidade.trim()) {
