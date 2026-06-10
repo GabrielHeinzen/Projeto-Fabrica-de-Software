@@ -41,7 +41,8 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             return;
         }
 
-        const token = localStorage.getItem('token');
+        const authUser = JSON.parse(localStorage.getItem('authUser'));
+        const token = authUser?.token;
 
         try {
             const resposta = await fetch(
