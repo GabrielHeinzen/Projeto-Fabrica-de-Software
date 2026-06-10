@@ -32,9 +32,22 @@ function Login({ onLoginSuccess }) {
 
       if (dados.sucesso) {
         const nomeUsuario = dados.usuario || username;
+
+        const usuarioLogado = {
+          name: nomeUsuario,
+          email: username,
+          token: dados.token
+        };
+
+        localStorage.setItem(
+          'authUser',
+          JSON.stringify(usuarioLogado)
+        );
+
         if (onLoginSuccess) {
-          onLoginSuccess({ name: nomeUsuario, email: username });
+          onLoginSuccess(usuarioLogado);
         }
+
       } else {
         showToast(dados.mensagem || 'Falha no login', 'error', {
           title: 'Erro'
@@ -85,5 +98,5 @@ function Login({ onLoginSuccess }) {
 export default Login;
 
 //for file in database/*.sql; do
-  //docker exec -i mysql_contabil mysql -u root -proot sistema_cont < "$file"
+//docker exec -i mysql_contabil mysql -u root -proot sistema_cont < "$file"
 //done
