@@ -64,6 +64,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
+                console.error(dados);
                 alert(dados.mensagem || 'Erro ao cadastrar documento');
                 return;
             }
