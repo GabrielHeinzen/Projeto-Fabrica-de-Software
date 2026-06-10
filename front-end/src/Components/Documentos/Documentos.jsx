@@ -36,65 +36,54 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [novaValidade, setNovaValidade] = useState('');
     const [periodicidade, setPeriodicidade] = useState('UNICO');
 
-    const cadastrarDocumento = () => {
+    const cadastrarDocumento = async () => {
         if (!novoDocumento.trim() || !novaValidade.trim()) {
             return;
         }
 
-        const cadastrarDocumento = async () => {
-    if (!novoDocumento.trim() || !novaValidade.trim()) {
-        return;
-    }
+        const token = localStorage.getItem('token');
 
-    const token = localStorage.getItem('token');
+        try {
+            const resposta = await fetch(
+                `${import.meta.env.VITE_API_URL}/documentos`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        nome: novoDocumento,
+                        data_limite: novaValidade,
+                        periodicidade
+                    })
+                }
+            );
 
-    try {
-        const resposta = await fetch(
-            `${import.meta.env.VITE_API_URL}/documentos`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    nome: novoDocumento,
-                    data_limite: novaValidade,
-                    periodicidade
-                })
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                alert(dados.mensagem || 'Erro ao cadastrar documento');
+                return;
             }
-        );
 
-        const dados = await resposta.json();
+            const documentoCriado = {
+                id: dados.id,
+                nome: novoDocumento,
+                validade: novaValidade,
+                periodicidade
+            };
 
-        if (!resposta.ok) {
-            throw new Error(dados.mensagem);
+            setDocumentos((prev) => [...prev, documentoCriado]);
+
+            setNovoDocumento('');
+            setNovaValidade('');
+            setPeriodicidade('UNICO');
+
+        } catch (erro) {
+            console.error('Erro ao cadastrar documento:', erro);
+            alert('Erro ao conectar com o backend');
         }
-
-        const novo = {
-            id: dados.id,
-            nome: novoDocumento,
-            validade: novaValidade,
-            periodicidade
-        };
-
-        setDocumentos((prev) => [...prev, novo]);
-
-        setNovoDocumento('');
-        setNovaValidade('');
-        setPeriodicidade('UNICO');
-
-    } catch (erro) {
-        console.error(erro);
-        alert('Erro ao cadastrar documento');
-    }
-};
-
-        setDocumentos((prev) => [...prev, novo]);
-
-        setNovoDocumento('');
-        setNovaValidade('');
-        setPeriodicidade('UNICO');
     };
 
     const excluirDocumento = (id) => {
