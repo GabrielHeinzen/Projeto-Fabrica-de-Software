@@ -41,12 +41,54 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             return;
         }
 
+        const cadastrarDocumento = async () => {
+    if (!novoDocumento.trim() || !novaValidade.trim()) {
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+
+    try {
+        const resposta = await fetch(
+            `${import.meta.env.VITE_API_URL}/documentos`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    nome: novoDocumento,
+                    data_limite: novaValidade,
+                    periodicidade
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(dados.mensagem);
+        }
+
         const novo = {
-            id: Date.now(),
+            id: dados.id,
             nome: novoDocumento,
             validade: novaValidade,
-            periodicidade: periodicidade
+            periodicidade
         };
+
+        setDocumentos((prev) => [...prev, novo]);
+
+        setNovoDocumento('');
+        setNovaValidade('');
+        setPeriodicidade('UNICO');
+
+    } catch (erro) {
+        console.error(erro);
+        alert('Erro ao cadastrar documento');
+    }
+};
 
         setDocumentos((prev) => [...prev, novo]);
 
