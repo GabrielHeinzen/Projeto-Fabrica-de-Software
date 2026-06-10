@@ -83,7 +83,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
         } catch (erro) {
             console.error('Erro ao cadastrar documento:', erro);
-            alert('Erro ao conectar com o backend');
+            alert(erro.message || 'Erro ao cadastrar documento');
         }
     };
 
