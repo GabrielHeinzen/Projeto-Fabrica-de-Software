@@ -4,34 +4,7 @@ import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './AnexoDocumentos.css';
 
 function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
-    const [documentos, setDocumentos] = useState([
-        {
-            id: 1,
-            nome: 'Contrato Social ou Estatuto Social',
-            validade: '2026-12-31'
-        },
-        {
-            id: 2,
-            nome: 'Comprovante de Inscricao e Situacao Cadastral (CNPJ)',
-            validade: '2026-12-31'
-        },
-        {
-            id: 3,
-            nome: 'Documento de Identificacao do(s) Socio(s)',
-            validade: '2026-12-31'
-        },
-        {
-            id: 4,
-            nome: 'Comprovante de Endereco',
-            validade: '2026-12-31'
-        },
-        {
-            id: 5,
-            nome: 'Ultimo Balanco ou Demonstracao Contabil',
-            validade: '2026-12-31'
-        }
-
-    ]);
+    const [documentos, setDocumentos] = useState([]);
 
     const [empresas, setEmpresas] = useState([]);
     const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
@@ -58,8 +31,44 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         }
     };
 
+    const carregarDocumentos = async () => {
+        const authUser = JSON.parse(localStorage.getItem('authUser'));
+        const token = authUser?.token;
+
+        if (!token) {
+            return;
+        }
+
+        try {
+            const resposta = await fetch(`${apiBaseUrl}/documentos`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!resposta.ok) {
+                throw new Error('Erro ao buscar documentos');
+            }
+
+            const dados = await resposta.json();
+
+            const documentosFormatados = dados.map((doc) => ({
+                id: doc.id,
+                nome: doc.nome,
+                validade: doc.dia_limite_envio,
+                periodicidade: doc.periodicidade
+            }));
+
+            setDocumentos(documentosFormatados);
+
+        } catch (erro) {
+            console.log(erro);
+        }
+    };
+
     useEffect(() => {
         carregarEmpresas();
+        carregarDocumentos();
     }, []);
 
     return (
@@ -232,7 +241,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                 <span>
                                                     Data limite:
                                                     {' '}
-                                                    {new Date(doc.validade).toLocaleDateString('pt-BR')}
+                                                    Dia limite: {doc.validade}
                                                 </span>
                                             </div>
 
