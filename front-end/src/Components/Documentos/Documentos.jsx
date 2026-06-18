@@ -11,6 +11,8 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [novaValidade, setNovaValidade] = useState('');
     const [periodicidade, setPeriodicidade] = useState('UNICO');
     
+    const [documentoParaExcluir, setDocumentoParaExcluir] = useState(null);
+    
     useEffect(() => {
         const buscarDocumentos = async () => {
             const authUser = JSON.parse(localStorage.getItem('authUser'));
@@ -106,13 +108,24 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
         }
     };
 
-    const excluirDocumento = (id) => {
+    const handleDeleteRequest = (doc) => {
+        setDocumentoParaExcluir(doc);
+    };
+
+    const handleDeleteCancel = () => {
+        setDocumentoParaExcluir(null);
+    };
+
+    const handleDeleteConfirm = () => {
+        if (!documentoParaExcluir) return;
+
         setDocumentos((prev) =>
-            prev.filter((doc) => doc.id !== id)
+            prev.filter((doc) => doc.id !== documentoParaExcluir.id)
         );
         showToast('Documento excluído com sucesso.', 'success', {
             title: 'Sucesso'
         });
+        setDocumentoParaExcluir(null);
     };
 
     return (
@@ -300,7 +313,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                         <button
                                             type="button"
                                             className="empresa-delete-button"
-                                            onClick={() => excluirDocumento(doc.id)}
+                                            onClick={() => handleDeleteRequest(doc)}
                                         >
                                             ✕
                                         </button>
@@ -311,6 +324,43 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                     </section>
                 </div>
             </div>
+
+            {documentoParaExcluir && (
+                <div className="empresa-modal" role="dialog" aria-modal="true">
+                    <div
+                        className="empresa-modal__backdrop"
+                        onClick={handleDeleteCancel}
+                    />
+                    <div className="empresa-modal__content" role="document">
+                        <div className="empresa-modal__icon" aria-hidden="true">!</div>
+                        <div className="empresa-modal__text">
+                            <span className="empresa-modal__title">Confirmar exclusão</span>
+                            <span className="empresa-modal__message">
+                                Deseja realmente excluir este documento?
+                            </span>
+                            <span className="empresa-modal__empresa">
+                                {documentoParaExcluir.nome || 'Documento selecionado'}
+                            </span>
+                        </div>
+                        <div className="empresa-modal__actions">
+                            <button
+                                type="button"
+                                className="empresa-secondary"
+                                onClick={handleDeleteCancel}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="empresa-danger"
+                                onClick={handleDeleteConfirm}
+                            >
+                                Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
