@@ -4,6 +4,7 @@ import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './Documentos.css';
 
 function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
+    const { showToast } = useToast();
     const [documentos, setDocumentos] = useState([]);
 
     const [novoDocumento, setNovoDocumento] = useState('');
@@ -109,6 +110,9 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
         setDocumentos((prev) =>
             prev.filter((doc) => doc.id !== id)
         );
+        showToast('Documento excluído com sucesso.', 'success', {
+            title: 'Sucesso'
+        });
     };
 
     return (
@@ -198,7 +202,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                             Gestão de documentos
                         </span>
 
-                        <h1>Cadastro de Documentofields</h1>
+                        <h1>Cadastro de Documentos</h1>
 
                         <p>
                             Gerencie os documentos utilizados no sistema.
