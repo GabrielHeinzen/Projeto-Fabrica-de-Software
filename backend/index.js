@@ -759,15 +759,13 @@ app.post('/documentos', autenticarToken, (req, res) => {
     });
   }
 
-  const diaLimite = new Date(data_limite).getUTCDate();
-
   const sql = `
     INSERT INTO tipo_documento
     (nome, dia_limite_envio, periodicidade)
     VALUES (?, ?, ?)
   `;
 
-  db.query(sql, [nome, diaLimite, periodicidade], (err, result) => {
+  db.query(sql, [nome, data_limite, periodicidade], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({

@@ -3,7 +3,7 @@ USE sistema_cont;
 CREATE TABLE tipo_documento (
     id_tipo_documento INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    dia_limite_envio INT NOT NULL,
+    dia_limite_envio DATE NOT NULL,
     id_setor INT NOT NULL,
     origem ENUM('CLIENTE','CONTABILIDADE') NOT NULL,
 
