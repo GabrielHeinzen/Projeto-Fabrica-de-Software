@@ -951,6 +951,33 @@ cron.schedule('0 0 * * *', () => {
 
 verificarPrazosDocumentos();
 
+app.get('/empresa/:id/documentos/status', (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT 
+      id_tipo_documento,
+      status,
+      data_envio
+    FROM envio_documento
+    WHERE id_cliente = ?
+      AND mes_referencia = DATE_FORMAT(CURDATE(), '%Y-%m-01')
+  `;
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar status dos documentos'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

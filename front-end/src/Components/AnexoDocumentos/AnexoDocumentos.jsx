@@ -70,6 +70,33 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         }
     };
 
+
+    const carregarStatusDocumentos = async (idCliente) => {
+        try {
+            const resposta = await fetch(
+                `${apiBaseUrl}/empresa/${idCliente}/documentos/status`
+            );
+
+            if (!resposta.ok) {
+                throw new Error('Erro ao buscar status dos documentos');
+            }
+
+            const dados = await resposta.json();
+
+            const enviados = {};
+
+            dados.forEach((item) => {
+                if (item.status === 'ENVIADO') {
+                    enviados[item.id_tipo_documento] = true;
+                }
+            });
+
+            setDocumentosEnviados(enviados);
+
+        } catch (erro) {
+            console.log(erro);
+        }
+    };
     useEffect(() => {
         carregarEmpresas();
         carregarDocumentos();
@@ -253,7 +280,10 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                 {empresas.map((empresa) => (
                                     <li
                                         key={empresa.id_cliente}
-                                        onClick={() => setEmpresaSelecionada(empresa)}
+                                        onClick={() => {
+                                            setEmpresaSelecionada(empresa);
+                                            carregarStatusDocumentos(empresa.id_cliente);
+                                        }}
                                         style={{
                                             cursor: 'pointer',
                                             border:
