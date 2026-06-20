@@ -80,7 +80,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         carregarDocumentos();
     }, []);
 
-    const enviarDocumentos = () => {
+    const enviarDocumentos = async () => {
         const idsComArquivo = Object.keys(arquivosSelecionados);
 
         if (idsComArquivo.length === 0) {
@@ -90,20 +90,49 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
             return;
         }
 
-        const enviados = {};
+        try {
+            const enviados = {};
 
-        idsComArquivo.forEach((id) => {
-            enviados[id] = true;
-        });
+            for (const idDocumento of idsComArquivo) {
 
-        setDocumentosEnviados((prev) => ({
-            ...prev,
-            ...enviados
-        }));
+                const arquivo = arquivosSelecionados[idDocumento];
 
-        showToast('Documentos enviados com sucesso!', 'success', {
-            title: 'Sucesso'
-        });
+                const formData = new FormData();
+
+                formData.append('documento', arquivo);
+                formData.append('id_tipo_documento', idDocumento);
+
+                const resposta = await fetch(
+                    `${apiBaseUrl}/empresa/${empresaSelecionada.id}/documentos`,
+                    {
+                        method: 'POST',
+                        body: formData
+                    }
+                );
+
+                if (!resposta.ok) {
+                    throw new Error('Erro ao enviar documento');
+                }
+
+                enviados[idDocumento] = true;
+            }
+
+            setDocumentosEnviados((prev) => ({
+                ...prev,
+                ...enviados
+            }));
+
+            showToast('Documentos enviados com sucesso!', 'success', {
+                title: 'Sucesso'
+            });
+
+        } catch (erro) {
+            console.error(erro);
+
+            showToast('Erro ao enviar documentos.', 'error', {
+                title: 'Erro'
+            });
+        }
     };
 
     return (
