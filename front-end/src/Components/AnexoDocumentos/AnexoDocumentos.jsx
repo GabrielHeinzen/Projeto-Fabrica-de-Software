@@ -4,6 +4,7 @@ import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './AnexoDocumentos.css';
 
 function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
+    const { showToast } = useToast();
     const [documentos, setDocumentos] = useState([]);
 
     const [empresas, setEmpresas] = useState([]);
@@ -83,7 +84,9 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         const idsComArquivo = Object.keys(arquivosSelecionados);
 
         if (idsComArquivo.length === 0) {
-            alert('Anexe pelo menos um documento antes de enviar.');
+            showToast('Anexe pelo menos um documento antes de enviar.', 'error', {
+                title: 'Erro'
+            });
             return;
         }
 
@@ -98,7 +101,9 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
             ...enviados
         }));
 
-        alert('Documentos enviados com sucesso!');
+        showToast('Documentos enviados com sucesso!', 'success', {
+            title: 'Sucesso'
+        });
     };
 
     return (
