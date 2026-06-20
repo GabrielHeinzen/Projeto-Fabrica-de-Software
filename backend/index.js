@@ -51,6 +51,12 @@ function autenticarToken(req, res, next) {
 }
 
 app.use('/uploads', express.static('uploads'));
+''
+const fs = require('fs');
+
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
 
 //config multer
 const storage = multer.diskStorage({
