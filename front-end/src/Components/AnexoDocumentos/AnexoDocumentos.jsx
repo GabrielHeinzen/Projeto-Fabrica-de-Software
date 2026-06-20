@@ -102,8 +102,11 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                 formData.append('documento', arquivo);
                 formData.append('id_tipo_documento', idDocumento);
 
+                console.log('Empresa selecionada:', empresaSelecionada);
+                console.log('ID empresa:', empresaSelecionada?.id_cliente);
+
                 const resposta = await fetch(
-                    `${apiBaseUrl}/empresa/${empresaSelecionada.id}/documentos`,
+                    `${apiBaseUrl}/empresa/${empresaSelecionada.id_cliente}/documentos`,
                     {
                         method: 'POST',
                         body: formData
