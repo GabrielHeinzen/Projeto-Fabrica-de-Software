@@ -257,7 +257,6 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                         accept="image/*,.pdf"
                                                         onChange={(e) => {
                                                             const arquivo = e.target.files[0];
-
                                                             if (!arquivo) return;
 
                                                             setArquivosSelecionados((prev) => ({
