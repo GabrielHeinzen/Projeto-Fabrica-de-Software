@@ -10,6 +10,8 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [arquivosSelecionados, setArquivosSelecionados] = useState({});
+
     const apiBaseUrl =
         import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -252,8 +254,25 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                     <input
                                                         type="file"
                                                         hidden
+                                                        accept="image/*,.pdf"
+                                                        onChange={(e) => {
+                                                            const arquivo = e.target.files[0];
+
+                                                            if (!arquivo) return;
+
+                                                            setArquivosSelecionados((prev) => ({
+                                                                ...prev,
+                                                                [doc.id]: arquivo
+                                                            }));
+                                                        }}
                                                     />
                                                 </label>
+
+                                                {arquivosSelecionados[doc.id] && (
+                                                    <span>
+                                                        {arquivosSelecionados[doc.id].name}
+                                                    </span>
+                                                )}
 
                                                 <span className="empresa-status">
                                                     Pendente
