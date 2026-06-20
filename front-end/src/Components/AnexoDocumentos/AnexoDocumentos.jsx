@@ -11,6 +11,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const [arquivosSelecionados, setArquivosSelecionados] = useState({});
+    const [documentosEnviados, setDocumentosEnviados] = useState({});
 
     const apiBaseUrl =
         import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -72,6 +73,33 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         carregarEmpresas();
         carregarDocumentos();
     }, []);
+
+    useEffect(() => {
+        carregarEmpresas();
+        carregarDocumentos();
+    }, []);
+
+    const enviarDocumentos = () => {
+        const idsComArquivo = Object.keys(arquivosSelecionados);
+
+        if (idsComArquivo.length === 0) {
+            alert('Anexe pelo menos um documento antes de enviar.');
+            return;
+        }
+
+        const enviados = {};
+
+        idsComArquivo.forEach((id) => {
+            enviados[id] = true;
+        });
+
+        setDocumentosEnviados((prev) => ({
+            ...prev,
+            ...enviados
+        }));
+
+        alert('Documentos enviados com sucesso!');
+    };
 
     return (
         <div className="empresa-page">
@@ -274,7 +302,11 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                 )}
 
                                                 <span className="empresa-status">
-                                                    Pendente
+                                                    {documentosEnviados[doc.id]
+                                                        ? 'Enviado'
+                                                        : arquivosSelecionados[doc.id]
+                                                            ? 'Anexado'
+                                                            : 'Pendente'}
                                                 </span>
                                             </div>
                                         </li>
@@ -288,6 +320,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                     <button
                                         type="button"
                                         className="empresa-primary"
+                                        onClick={enviarDocumentos}
                                     >
                                         Enviar Documentos
                                     </button>
