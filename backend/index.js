@@ -4,6 +4,8 @@ const mysql = require('mysql2');
 const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const cron = require('node-cron');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 
@@ -100,6 +102,14 @@ db.connect((erro) => {
     console.log(erro);
   } else {
     console.log('Banco conectado 🚀');
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -809,6 +819,121 @@ app.delete('/documentos/:id', autenticarToken, (req, res) => {
     });
   });
 });
+
+async function verificarPrazosDocumentos() {
+
+  console.log('Verificando documentos próximos do vencimento...');
+
+  const sql = `
+    SELECT
+      ec.razao_social,
+      td.nome,
+      td.dia_limite_envio
+    FROM envio_documento ed
+    INNER JOIN empresa_cliente ec
+      ON ec.id_cliente = ed.id_cliente
+    INNER JOIN tipo_documento td
+      ON td.id_tipo_documento = ed.id_tipo_documento
+    WHERE ed.status = 'PENDENTE'
+  `;
+
+  db.query(sql, async (err, documentos) => {
+
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    const hoje = new Date();
+
+    for (const documento of documentos) {
+
+      const vencimento = new Date(documento.dia_limite_envio);
+
+      const diferencaDias = Math.ceil(
+        (vencimento - hoje) /
+        (1000 * 60 * 60 * 24)
+      );
+
+      if (
+        diferencaDias < 0 ||
+        (diferencaDias !== 7 && diferencaDias !== 1)
+      ) {
+        continue;
+      }
+
+      db.query(
+        'SELECT email FROM contador',
+        async (erroEmails, contadores) => {
+
+          if (erroEmails) {
+            console.error(erroEmails);
+            return;
+          }
+
+          const destinatarios =
+            contadores.map(c => c.email);
+
+          if (destinatarios.length === 0) {
+            return;
+          }
+
+          try {
+
+            await transporter.sendMail({
+
+              from: process.env.EMAIL_USER,
+
+              to: destinatarios.join(','),
+
+              subject:
+                diferencaDias === 7
+                  ? '⚠ Documento vence em 7 dias'
+                  : '🚨 Documento vence amanhã',
+
+              text: `
+Empresa: ${documento.razao_social}
+
+Documento: ${documento.nome}
+
+Prazo final:
+${vencimento.toLocaleDateString('pt-BR')}
+
+Dias restantes:
+${diferencaDias}
+
+Acesse o sistema para verificar os documentos pendentes.
+              `
+            });
+
+            console.log(
+              `Email enviado para documento ${documento.nome}`
+            );
+
+          } catch (erroEnvio) {
+
+            console.error(
+              'Erro ao enviar email:',
+              erroEnvio
+            );
+          }
+        }
+      );
+    }
+  });
+}
+
+cron.schedule('0 0 * * *', () => {
+
+  console.log(
+    'Executando rotina automática de notificações'
+  );
+
+  verificarPrazosDocumentos();
+
+});
+
+verificarPrazosDocumentos();
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
