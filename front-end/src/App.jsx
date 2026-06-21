@@ -8,6 +8,7 @@ import Usuarios from './Components/Usuarios/Usuarios';
 import Login from './Components/Login/Login';
 import Documentos from './Components/Documentos/Documentos';
 import AnexoDocumentos from './Components/AnexoDocumentos/AnexoDocumentos';
+import Dashboard from './components/Dashboard/Dashboard';
 
 const loadStoredUser = () => {
   if (typeof window === 'undefined') {
