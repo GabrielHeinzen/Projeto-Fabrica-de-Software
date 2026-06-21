@@ -85,7 +85,9 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
             if (!resposta.ok) {
                 console.error(dados);
-                alert(dados.mensagem || 'Erro ao cadastrar documento');
+                showToast(dados.mensagem || 'Erro ao cadastrar documento', 'error', {
+                    title: 'Erro'
+                });
                 return;
             }
 
@@ -102,9 +104,15 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             setNovaValidade('');
             setPeriodicidade('UNICO');
 
+            showToast('Documento cadastrado com sucesso.', 'success', {
+                title: 'Sucesso'
+            });
+
         } catch (erro) {
             console.error('Erro ao cadastrar documento:', erro);
-            alert(erro.message || 'Erro ao cadastrar documento');
+            showToast(erro.message || 'Erro ao cadastrar documento', 'error', {
+                title: 'Erro'
+            });
         }
     };
 
