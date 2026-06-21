@@ -37,11 +37,8 @@ function autenticarToken(req, res, next) {
 
   try {
     const usuario = jwt.verify(token, process.env.JWT_SECRET);
-
     req.usuario = usuario;
-
     next();
-
   } catch (erro) {
     return res.status(401).json({
       sucesso: false,
@@ -51,19 +48,17 @@ function autenticarToken(req, res, next) {
 }
 
 app.use('/uploads', express.static('uploads'));
-''
+
 const fs = require('fs');
 
 if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }
 
-//config multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
   },
-
   filename: (req, file, cb) => {
     const nomeUnico = Date.now() + '-' + file.originalname;
     cb(null, nomeUnico);
@@ -90,9 +85,6 @@ const upload = multer({
     fileSize: 25 * 1024 * 1024
   }
 });
-
-
-
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -147,9 +139,7 @@ app.post('/login', (req, res) => {
           email: resultado[0].email
         },
         process.env.JWT_SECRET,
-        {
-          expiresIn: '1d'
-        }
+        { expiresIn: '1d' }
       );
 
       res.json({
@@ -391,7 +381,6 @@ app.post('/empresa', (req, res) => {
     presta_servicos
   } = req.body;
 
-  // validação básica
   if (!cnpj || !razao_social || !regime_tributario) {
     return res.status(400).json({
       sucesso: false,
@@ -409,14 +398,7 @@ app.post('/empresa', (req, res) => {
 
   db.query(
     sql,
-    [
-      cnpj,
-      razao_social,
-      regime_tributario,
-      possui_funcionarios,
-      possui_notas_venda,
-      presta_servicos
-    ],
+    [cnpj, razao_social, regime_tributario, possui_funcionarios, possui_notas_venda, presta_servicos],
     (err, result) => {
       if (err) {
         console.error(err);
@@ -433,22 +415,6 @@ app.post('/empresa', (req, res) => {
       });
     }
   );
-});
-
-app.get('/empresa', (req, res) => {
-  const sql = 'SELECT * FROM empresa_cliente';
-
-  db.query(sql, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        sucesso: false,
-        mensagem: 'Erro ao buscar empresas'
-      });
-    }
-
-    res.json(result);
-  });
 });
 
 app.get('/empresa', (req, res) => {
@@ -528,15 +494,7 @@ app.put('/empresa/:id', (req, res) => {
 
   db.query(
     sql,
-    [
-      cnpj,
-      razao_social,
-      regime_tributario,
-      possui_funcionarios,
-      possui_notas_venda,
-      presta_servicos,
-      id
-    ],
+    [cnpj, razao_social, regime_tributario, possui_funcionarios, possui_notas_venda, presta_servicos, id],
     (err, result) => {
       if (err) {
         console.error(err);
@@ -561,11 +519,8 @@ app.put('/empresa/:id', (req, res) => {
   );
 });
 
-const {
-  calcularProximoVencimento
-} = require('./utils/periodicidade');
+const { calcularProximoVencimento } = require('./utils/periodicidade');
 
-//rota upload
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const { id } = req.params;
   const { id_tipo_documento } = req.body;
@@ -587,10 +542,7 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const hoje = new Date().toISOString().slice(0, 10);
   const mesReferencia = new Date();
   mesReferencia.setDate(1);
-
-  const mesReferenciaFormatado = mesReferencia
-    .toISOString()
-    .slice(0, 10);
+  const mesReferenciaFormatado = mesReferencia.toISOString().slice(0, 10);
 
   const sql = `
     INSERT INTO envio_documento
@@ -598,42 +550,25 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
     VALUES (?, ?, 'ENVIADO', ?, ?)
   `;
 
-  db.query(
-    sql,
-    [mesReferenciaFormatado, hoje, id, id_tipo_documento],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-
-        return res.status(500).json({
-          sucesso: false,
-          mensagem: 'Erro ao registrar envio do documento'
-        });
-      }
-
-      res.json({
-        sucesso: true,
-        mensagem: 'Documento enviado com sucesso',
-        id_envio: result.insertId,
-        id_empresa: id,
-        id_tipo_documento,
-        status: 'ENVIADO'
+  db.query(sql, [mesReferenciaFormatado, hoje, id, id_tipo_documento], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao registrar envio do documento'
       });
     }
-  );
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Documento enviado com sucesso',
+      id_envio: result.insertId,
+      id_empresa: id,
+      id_tipo_documento,
+      status: 'ENVIADO'
+    });
+  });
 });
-
-/*
-  Dashboard Geral
-
-  Esta rota retorna:
-
-  - Quantidade total de obrigações enviadas
-  - Quantidade total de obrigações pendentes
-  - Quantidade total de obrigações registradas
-
-  Utilizada para os cards principais da dashboard.
-*/
 
 app.get('/dashboard', autenticarToken, (req, res) => {
   const sql = `
@@ -647,7 +582,6 @@ app.get('/dashboard', autenticarToken, (req, res) => {
   db.query(sql, (err, result) => {
     if (err) {
       console.error(err);
-
       return res.status(500).json({
         sucesso: false,
         mensagem: 'Erro ao buscar dashboard',
@@ -658,23 +592,6 @@ app.get('/dashboard', autenticarToken, (req, res) => {
     res.json(result[0]);
   });
 });
-
-/*
-  Dashboard por Empresa
-
-  - Quantidade de documentos enviados
-  - Quantidade de documentos pendentes
-
-  Exemplo:
-
-  Empresa ABC
-  - 10 enviados
-  - 3 pendentes
-
-  Empresa XYZ
-  - 5 enviados
-  - 8 pendentes
-*/
 
 app.get('/dashboard/empresas', autenticarToken, (req, res) => {
   const sql = `
@@ -700,29 +617,6 @@ app.get('/dashboard/empresas', autenticarToken, (req, res) => {
     res.json(result);
   });
 });
-
-
-/*
-  Dashboard por Obrigação
-
-  Esta rota retorna os dados agrupados por tipo de obrigação,
-  permitindo visualizar o status de cada documento fiscal,
-  contábil ou trabalhista.
-
-  Exemplo:
-
-  DAS
-  - 15 enviados
-  - 2 pendentes
-
-  DIME
-  - 8 enviados
-  - 4 pendentes
-
-  REINF
-  - 6 enviados
-  - 1 pendente
-*/
 
 app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
   const sql = `
@@ -843,8 +737,50 @@ app.delete('/documentos/:id', autenticarToken, (req, res) => {
   });
 });
 
-async function verificarPrazosDocumentos() {
+// ✏️ NOVO — Editar documento
+app.put('/documentos/:id', autenticarToken, (req, res) => {
+  const { id } = req.params;
+  const { nome, data_limite, periodicidade } = req.body;
 
+  if (!nome || !data_limite || !periodicidade) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Preencha todos os campos obrigatórios'
+    });
+  }
+
+  const sql = `
+    UPDATE tipo_documento
+    SET nome = ?,
+        dia_limite_envio = ?,
+        periodicidade = ?
+    WHERE id_tipo_documento = ?
+  `;
+
+  db.query(sql, [nome, data_limite, periodicidade, id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao atualizar documento'
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: 'Documento não encontrado'
+      });
+    }
+
+    res.json({
+      sucesso: true,
+      mensagem: 'Documento atualizado com sucesso'
+    });
+  });
+});
+
+async function verificarPrazosDocumentos() {
   console.log('Verificando documentos próximos do vencimento...');
 
   const sql = `
@@ -861,7 +797,6 @@ async function verificarPrazosDocumentos() {
   `;
 
   db.query(sql, async (err, documentos) => {
-
     console.log('Documentos encontrados:', documentos.length);
     console.log(documentos);
 
@@ -873,53 +808,33 @@ async function verificarPrazosDocumentos() {
     const hoje = new Date();
 
     for (const documento of documentos) {
-
       const vencimento = new Date(documento.dia_limite_envio);
 
       const diferencaDias = Math.ceil(
-        (vencimento - hoje) /
-        (1000 * 60 * 60 * 24)
+        (vencimento - hoje) / (1000 * 60 * 60 * 24)
       );
 
       console.log('Dias restantes:', diferencaDias);
 
-      /*if (
-        diferencaDias < 0 ||
-        (diferencaDias !== 7 && diferencaDias !== 1)
-      ) {
-        continue;
-      } */
+      db.query('SELECT email FROM contador', async (erroEmails, contadores) => {
+        if (erroEmails) {
+          console.error(erroEmails);
+          return;
+        }
 
-      db.query(
-        'SELECT email FROM contador',
-        async (erroEmails, contadores) => {
+        const destinatarios = contadores.map(c => c.email);
 
-          if (erroEmails) {
-            console.error(erroEmails);
-            return;
-          }
+        if (destinatarios.length === 0) return;
 
-          const destinatarios =
-            contadores.map(c => c.email);
-
-          if (destinatarios.length === 0) {
-            return;
-          }
-
-          try {
-
-            await transporter.sendMail({
-
-              from: process.env.EMAIL_USER,
-
-              to: destinatarios.join(','),
-
-              subject:
-                diferencaDias === 7
-                  ? '⚠ Documento vence em 7 dias'
-                  : '🚨 Documento vence amanhã',
-
-              text: `
+        try {
+          await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: destinatarios.join(','),
+            subject:
+              diferencaDias === 7
+                ? '⚠ Documento vence em 7 dias'
+                : '🚨 Documento vence amanhã',
+            text: `
 Empresa: ${documento.razao_social}
 
 Documento: ${documento.nome}
@@ -931,34 +846,21 @@ Dias restantes:
 ${diferencaDias}
 
 Acesse o sistema para verificar os documentos pendentes.
-              `
-            });
+            `
+          });
 
-            console.log(
-              `Email enviado para documento ${documento.nome}`
-            );
-
-          } catch (erroEnvio) {
-
-            console.error(
-              'Erro ao enviar email:',
-              erroEnvio
-            );
-          }
+          console.log(`Email enviado para documento ${documento.nome}`);
+        } catch (erroEnvio) {
+          console.error('Erro ao enviar email:', erroEnvio);
         }
-      );
+      });
     }
   });
 }
 
 cron.schedule('0 0 * * *', () => {
-
-  console.log(
-    'Executando rotina automática de notificações'
-  );
-
+  console.log('Executando rotina automática de notificações');
   verificarPrazosDocumentos();
-
 });
 
 verificarPrazosDocumentos();
@@ -979,7 +881,6 @@ app.get('/empresa/:id/documentos/status', (req, res) => {
   db.query(sql, [id], (err, result) => {
     if (err) {
       console.error(err);
-
       return res.status(500).json({
         sucesso: false,
         mensagem: 'Erro ao buscar status dos documentos'
