@@ -112,15 +112,15 @@ function App() {
           <Route
             path="/Dashboard"
             element={(
-              <RequireAuth authed={isAuthed}>
-                <Dashboard
-                  userName={authUser?.name}
-                  onLogout={handleLogout}
-                  onNavigate={handleNavigate}
-                />
-              </RequireAuth>
-            )}
-          />        
+            <RequireAuth authed={isAuthed}>
+            <Dashboard
+           userName={authUser?.name}
+            onLogout={handleLogout}
+            onNavigate={handleNavigate}
+          />
+         </RequireAuth>
+        )}
+        />
           <Route
             path="/Minhas-Empresas"
             element={(
