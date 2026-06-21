@@ -58,6 +58,9 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
     const cadastrarDocumento = async () => {
         if (!novoDocumento.trim() || !novaValidade.trim()) {
+            showToast('Preencha os campos obrigatórios.', 'warning', {
+                title: 'Atenção'
+            });
             return;
         }
 
