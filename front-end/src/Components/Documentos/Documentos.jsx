@@ -116,16 +116,44 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
         setDocumentoParaExcluir(null);
     };
 
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = async () => {
         if (!documentoParaExcluir) return;
 
-        setDocumentos((prev) =>
-            prev.filter((doc) => doc.id !== documentoParaExcluir.id)
-        );
-        showToast('Documento excluído com sucesso.', 'success', {
-            title: 'Sucesso'
-        });
-        setDocumentoParaExcluir(null);
+        const authUser = JSON.parse(localStorage.getItem('authUser'));
+        const token = authUser?.token;
+
+        try {
+            const resposta = await fetch(
+                `${import.meta.env.VITE_API_URL}/documentos/${documentoParaExcluir.id}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!resposta.ok) {
+                const errorData = await resposta.json().catch(() => ({}));
+                showToast(errorData.mensagem || 'Erro ao excluir documento.', 'error', {
+                    title: 'Erro'
+                });
+                return;
+            }
+
+            setDocumentos((prev) =>
+                prev.filter((doc) => doc.id !== documentoParaExcluir.id)
+            );
+            showToast('Documento excluído com sucesso.', 'success', {
+                title: 'Sucesso'
+            });
+            setDocumentoParaExcluir(null);
+        } catch (erro) {
+            console.error('Erro ao excluir documento:', erro);
+            showToast('Erro ao conectar com o servidor.', 'error', {
+                title: 'Erro'
+            });
+        }
     };
 
     return (
