@@ -49,7 +49,8 @@ function App() {
     empresas: '/Minhas-Empresas',
     usuarios: '/Usuarios',
     documentos: '/Documentos',
-    anexo: '/AnexoDocumentos'
+    anexo: '/AnexoDocumentos',
+    dashboard: '/Dashboard',
   };
 
   const handleLoginSuccess = (user) => {
@@ -109,6 +110,18 @@ function App() {
             )}
           />
           <Route
+            path="/Dashboard"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <Dashboard
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />        
+          <Route
             path="/Minhas-Empresas"
             element={(
               <RequireAuth authed={isAuthed}>
@@ -165,6 +178,7 @@ function App() {
               />
             )}
           />
+
         </Routes>
       </div>
     </ToastProvider>
