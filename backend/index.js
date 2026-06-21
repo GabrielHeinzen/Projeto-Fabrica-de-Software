@@ -855,6 +855,9 @@ async function verificarPrazosDocumentos() {
 
   db.query(sql, async (err, documentos) => {
 
+    console.log('Documentos encontrados:', documentos.length);
+    console.log(documentos);
+
     if (err) {
       console.error(err);
       return;
@@ -871,12 +874,14 @@ async function verificarPrazosDocumentos() {
         (1000 * 60 * 60 * 24)
       );
 
-      if (
+      console.log('Dias restantes:', diferencaDias);
+
+      /*if (
         diferencaDias < 0 ||
         (diferencaDias !== 7 && diferencaDias !== 1)
       ) {
         continue;
-      }
+      } */
 
       db.query(
         'SELECT email FROM contador',
