@@ -336,9 +336,9 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                 <strong>{doc.nome}</strong>
 
                                                 <span>
-                                                    Data limite:
-                                                    {' '}
-                                                    Dia limite: {doc.validade}
+                                                    Data limite: {
+                                                        new Date(doc.validade).toLocaleDateString('pt-BR')
+                                                    }
                                                 </span>
                                             </div>
 
