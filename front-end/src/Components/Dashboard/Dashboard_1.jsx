@@ -13,8 +13,9 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
   const [erro, setErro] = useState(null);
 
   useEffect(() => {
-    // Pega o token salvo no login — mesmo padrão que o resto do projeto usa
-    const token = localStorage.getItem('token');
+    // Pega o token salvo no login — fica dentro do objeto authUser
+    const authUser = JSON.parse(localStorage.getItem('authUser') || 'null');
+    const token = authUser?.token;
 
     const headers = {
       'Content-Type': 'application/json',
