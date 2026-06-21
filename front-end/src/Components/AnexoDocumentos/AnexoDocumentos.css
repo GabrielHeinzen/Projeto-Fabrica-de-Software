@@ -392,6 +392,10 @@
     border: 1px solid #edf2f7;
 }
 
+.empresa-doc-list li span {
+    display: block;
+}
+
 .empresa-doc-list strong {
     display: block;
     font-size: 14px;
