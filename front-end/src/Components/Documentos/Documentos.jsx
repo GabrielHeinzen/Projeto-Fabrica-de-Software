@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '../Toast/ToastProvider';
 import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './Documentos.css';
+
+const getApiBaseUrl = () => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+};
 
 function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const { showToast } = useToast();
@@ -13,48 +18,43 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     
     const [documentoParaExcluir, setDocumentoParaExcluir] = useState(null);
     
-    useEffect(() => {
-        const buscarDocumentos = async () => {
-            const authUser = JSON.parse(localStorage.getItem('authUser'));
-            const token = authUser?.token;
+    const carregarDocumentos = useCallback(async () => {
+        const authUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+        const token = authUser?.token;
 
-            if (!token) {
+        if (!token) return;
+
+        try {
+            const apiBaseUrl = getApiBaseUrl();
+            const resposta = await fetch(`${apiBaseUrl}/documentos`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const dados = await resposta.json().catch(() => []);
+
+            if (!resposta.ok) {
+                console.error('Erro ao buscar documentos:', dados);
                 return;
             }
 
-            try {
-                const resposta = await fetch(
-                    `${import.meta.env.VITE_API_URL}/documentos`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                );
+            const documentosFormatados = Array.isArray(dados) ? dados.map((doc) => ({
+                id: doc.id,
+                nome: doc.nome,
+                validade: doc.dia_limite_envio,
+                periodicidade: doc.periodicidade
+            })) : [];
 
-                const dados = await resposta.json();
-
-                if (!resposta.ok) {
-                    console.error(dados);
-                    return;
-                }
-
-                const documentosFormatados = dados.map((doc) => ({
-                    id: doc.id,
-                    nome: doc.nome,
-                    validade: doc.dia_limite_envio,
-                    periodicidade: doc.periodicidade
-                }));
-
-                setDocumentos(documentosFormatados);
-
-            } catch (erro) {
-                console.error('Erro ao buscar documentos:', erro);
-            }
-        };
-
-        buscarDocumentos();
+            setDocumentos(documentosFormatados);
+        } catch (erro) {
+            console.error('Erro ao conectar para buscar documentos:', erro);
+        }
     }, []);
+
+    useEffect(() => {
+        carregarDocumentos();
+    }, [carregarDocumentos]);
 
     const cadastrarDocumento = async () => {
         if (!novoDocumento.trim() || !novaValidade.trim()) {
@@ -64,56 +64,49 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             return;
         }
 
-        const authUser = JSON.parse(localStorage.getItem('authUser'));
+        const authUser = JSON.parse(localStorage.getItem('authUser') || '{}');
         const token = authUser?.token;
 
+        if (!token) {
+            showToast('Usuário não autenticado', 'error', { title: 'Erro' });
+            return;
+        }
+
         try {
-            const resposta = await fetch(
-                `${import.meta.env.VITE_API_URL}/documentos`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        nome: novoDocumento,
-                        data_limite: novaValidade,
-                        periodicidade
-                    })
-                }
-            );
+            const apiBaseUrl = getApiBaseUrl();
+            const resposta = await fetch(`${apiBaseUrl}/documentos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    nome: novoDocumento,
+                    data_limite: novaValidade,
+                    periodicidade
+                })
+            });
 
-            const dados = await resposta.json();
+            const dados = await resposta.json().catch(() => ({}));
 
-            if (!resposta.ok) {
-                console.error(dados);
+            if (resposta.ok && dados.sucesso !== false) {
+                showToast('Documento cadastrado com sucesso.', 'success', {
+                    title: 'Sucesso'
+                });
+                
+                setNovoDocumento('');
+                setNovaValidade('');
+                setPeriodicidade('UNICO');
+                
+                carregarDocumentos();
+            } else {
                 showToast(dados.mensagem || 'Erro ao cadastrar documento', 'error', {
                     title: 'Erro'
                 });
-                return;
             }
-
-            const documentoCriado = {
-                id: dados.id,
-                nome: novoDocumento,
-                validade: novaValidade,
-                periodicidade
-            };
-
-            setDocumentos((prev) => [...prev, documentoCriado]);
-
-            setNovoDocumento('');
-            setNovaValidade('');
-            setPeriodicidade('UNICO');
-
-            showToast('Documento cadastrado com sucesso.', 'success', {
-                title: 'Sucesso'
-            });
-
         } catch (erro) {
             console.error('Erro ao cadastrar documento:', erro);
-            showToast(erro.message || 'Erro ao cadastrar documento', 'error', {
+            showToast('Erro ao conectar com servidor.', 'error', {
                 title: 'Erro'
             });
         }
