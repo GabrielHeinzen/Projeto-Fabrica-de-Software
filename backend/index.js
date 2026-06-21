@@ -541,16 +541,36 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
 
   const hoje = new Date().toISOString().slice(0, 10);
   const mesReferencia = new Date();
+  const urlArquivo = `/uploads/${req.file.filename}`;
+  const nomeArquivo = req.file.originalname;
   mesReferencia.setDate(1);
   const mesReferenciaFormatado = mesReferencia.toISOString().slice(0, 10);
 
   const sql = `
-    INSERT INTO envio_documento
-    (mes_referencia, data_envio, status, id_cliente, id_tipo_documento)
-    VALUES (?, ?, 'ENVIADO', ?, ?)
-  `;
+  INSERT INTO envio_documento
+  (
+    mes_referencia,
+    data_envio,
+    status,
+    id_cliente,
+    id_tipo_documento,
+    nome_arquivo,
+    url_arquivo
+  )
+  VALUES (?, ?, 'ENVIADO', ?, ?, ?, ?)
+`;
 
-  db.query(sql, [mesReferenciaFormatado, hoje, id, id_tipo_documento], (err, result) => {
+ db.query(
+  sql,
+  [
+    mesReferenciaFormatado,
+    hoje,
+    id,
+    id_tipo_documento,
+    nomeArquivo,
+    urlArquivo
+  ],
+  (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({
