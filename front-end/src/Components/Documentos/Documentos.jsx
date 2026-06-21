@@ -33,7 +33,6 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const carregarDocumentos = useCallback(async () => {
         const authUser = JSON.parse(localStorage.getItem('authUser') || '{}');
         const token = authUser?.token;
-
         if (!token) return;
 
         try {
@@ -43,11 +42,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
             });
 
             const dados = await resposta.json().catch(() => []);
-
-            if (!resposta.ok) {
-                console.error('Erro ao buscar documentos:', dados);
-                return;
-            }
+            if (!resposta.ok) { console.error('Erro ao buscar documentos:', dados); return; }
 
             const documentosFormatados = Array.isArray(dados) ? dados.map((doc) => ({
                 id: doc.id,
@@ -62,9 +57,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
         }
     }, []);
 
-    useEffect(() => {
-        carregarDocumentos();
-    }, [carregarDocumentos]);
+    useEffect(() => { carregarDocumentos(); }, [carregarDocumentos]);
 
     const cadastrarDocumento = async () => {
         if (!novoDocumento.trim() || !novaValidade.trim()) {
@@ -74,20 +67,13 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
         const authUser = JSON.parse(localStorage.getItem('authUser') || '{}');
         const token = authUser?.token;
-
-        if (!token) {
-            showToast('Usuário não autenticado', 'error', { title: 'Erro' });
-            return;
-        }
+        if (!token) { showToast('Usuário não autenticado', 'error', { title: 'Erro' }); return; }
 
         try {
             const apiBaseUrl = getApiBaseUrl();
             const resposta = await fetch(`${apiBaseUrl}/documentos`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ nome: novoDocumento, data_limite: novaValidade, periodicidade })
             });
 
@@ -130,22 +116,14 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
         const authUser = JSON.parse(localStorage.getItem('authUser') || '{}');
         const token = authUser?.token;
-
         setSalvandoEdicao(true);
 
         try {
             const apiBaseUrl = getApiBaseUrl();
             const resposta = await fetch(`${apiBaseUrl}/documentos/${documentoParaEditar.id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    nome: editNome,
-                    data_limite: editValidade,
-                    periodicidade: editPeriodicidade
-                })
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ nome: editNome, data_limite: editValidade, periodicidade: editPeriodicidade })
             });
 
             const dados = await resposta.json().catch(() => ({}));
@@ -250,12 +228,21 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                         <label className="empresa-field">
                             <span>Nome do documento</span>
-                            <input type="text" placeholder="Digite o nome do documento" value={novoDocumento} onChange={(e) => setNovoDocumento(e.target.value)} />
+                            <input
+                                type="text"
+                                placeholder="Digite o nome do documento"
+                                value={novoDocumento}
+                                onChange={(e) => setNovoDocumento(e.target.value)}
+                            />
                         </label>
 
                         <label className="empresa-field">
                             <span>Data limite</span>
-                            <input type="date" value={novaValidade} onChange={(e) => setNovaValidade(e.target.value)} />
+                            <input
+                                type="date"
+                                value={novaValidade}
+                                onChange={(e) => setNovaValidade(e.target.value)}
+                            />
                         </label>
 
                         <label className="empresa-field">
@@ -292,8 +279,22 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                     </div>
                                     <div className="empresa-doc-actions">
                                         <span className="empresa-status">Ativo</span>
-                                        <button type="button" className="empresa-edit-button" title="Editar documento" onClick={() => handleEditRequest(doc)}>✎</button>
-                                        <button type="button" className="empresa-delete-button" title="Excluir documento" onClick={() => handleDeleteRequest(doc)}>✕</button>
+                                        <button
+                                            type="button"
+                                            className="empresa-edit-button"
+                                            title="Editar documento"
+                                            onClick={() => handleEditRequest(doc)}
+                                        >
+                                            ✎
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="empresa-delete-button"
+                                            title="Excluir documento"
+                                            onClick={() => handleDeleteRequest(doc)}
+                                        >
+                                            ✕
+                                        </button>
                                     </div>
                                 </li>
                             ))}
@@ -316,11 +317,19 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                         <div className="empresa-modal__fields">
                             <label className="empresa-field">
                                 <span>Nome do documento</span>
-                                <input type="text" value={editNome} onChange={(e) => setEditNome(e.target.value)} />
+                                <input
+                                    type="text"
+                                    value={editNome}
+                                    onChange={(e) => setEditNome(e.target.value)}
+                                />
                             </label>
                             <label className="empresa-field">
                                 <span>Data limite</span>
-                                <input type="date" value={editValidade} onChange={(e) => setEditValidade(e.target.value)} />
+                                <input
+                                    type="date"
+                                    value={editValidade}
+                                    onChange={(e) => setEditValidade(e.target.value)}
+                                />
                             </label>
                             <label className="empresa-field">
                                 <span>Periodicidade</span>
@@ -335,7 +344,9 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                         </div>
 
                         <div className="empresa-modal__actions">
-                            <button type="button" className="empresa-secondary" onClick={handleEditCancel} disabled={salvandoEdicao}>Cancelar</button>
+                            <button type="button" className="empresa-secondary" onClick={handleEditCancel} disabled={salvandoEdicao}>
+                                Cancelar
+                            </button>
                             <button type="button" className="empresa-primary" onClick={handleEditConfirm} disabled={salvandoEdicao}>
                                 {salvandoEdicao ? 'Salvando...' : 'Salvar'}
                             </button>
