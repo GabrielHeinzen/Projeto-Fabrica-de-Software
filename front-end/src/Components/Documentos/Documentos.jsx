@@ -7,6 +7,11 @@ const getApiBaseUrl = () => {
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
 };
+const formatarData = (dataStr) => {
+    if (!dataStr) return '—';
+    const data = new Date(`${dataStr.slice(0, 10)}T12:00:00`);
+    return data.toLocaleDateString('pt-BR');
+};
 
 function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const { showToast } = useToast();
@@ -122,13 +127,12 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
     const handleDeleteConfirm = async () => {
         if (!documentoParaExcluir) return;
-
         const authUser = JSON.parse(localStorage.getItem('authUser'));
         const token = authUser?.token;
 
         try {
             const resposta = await fetch(
-                `${import.meta.env.VITE_API_URL}/documentos/${documentoParaExcluir.id}`,
+               `${getApiBaseUrl()}/documentos/${documentoParaExcluir.id}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -329,7 +333,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                         <strong>{doc.nome}</strong>
 
                                         <span>
-                                            Data limite: {new Date(doc.validade).toLocaleDateString('pt-BR')}
+                                            Data limite: {formatarData(doc.validade)}
                                         </span>
 
                                         <span>
