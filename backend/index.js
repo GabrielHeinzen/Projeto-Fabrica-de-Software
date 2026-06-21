@@ -815,6 +815,13 @@ app.delete('/documentos/:id', autenticarToken, (req, res) => {
 
   db.query(sql, [id], (err, result) => {
     if (err) {
+      if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+        return res.status(409).json({
+          sucesso: false,
+          mensagem: 'Este documento possui envios vinculados e não pode ser excluído.'
+        });
+      }
+
       console.error(err);
       return res.status(500).json({
         sucesso: false,
