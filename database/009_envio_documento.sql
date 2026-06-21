@@ -7,9 +7,11 @@ CREATE TABLE envio_documento (
     mes_referencia DATE NOT NULL,
     data_envio DATE,
     status VARCHAR(20) DEFAULT 'PENDENTE',
-
     id_cliente INT NOT NULL,
     id_tipo_documento INT NOT NULL,
+
+    nome_arquivo VARCHAR(255),
+    url_arquivo VARCHAR(500),
 
     CONSTRAINT fk_enviodoc_cliente
         FOREIGN KEY (id_cliente)

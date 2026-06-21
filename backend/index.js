@@ -4,6 +4,8 @@ const mysql = require('mysql2');
 const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const cron = require('node-cron');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 
@@ -49,6 +51,12 @@ function autenticarToken(req, res, next) {
 }
 
 app.use('/uploads', express.static('uploads'));
+''
+const fs = require('fs');
+
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
 
 //config multer
 const storage = multer.diskStorage({
@@ -79,7 +87,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024
+    fileSize: 25 * 1024 * 1024
   }
 });
 
@@ -100,6 +108,14 @@ db.connect((erro) => {
     console.log(erro);
   } else {
     console.log('Banco conectado 🚀');
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -552,7 +568,7 @@ const {
 //rota upload
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const { id } = req.params;
-  const { tipo_documento } = req.body;
+  const { id_tipo_documento } = req.body;
 
   if (!req.file) {
     return res.status(400).json({
@@ -561,31 +577,54 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
     });
   }
 
-  if (!tipo_documento) {
+  if (!id_tipo_documento) {
     return res.status(400).json({
       sucesso: false,
       mensagem: 'Informe o tipo do documento'
     });
   }
 
-  const caminhoArquivo = `/uploads/${req.file.filename}`;
+  const hoje = new Date().toISOString().slice(0, 10);
+  const mesReferencia = new Date();
+  mesReferencia.setDate(1);
 
-  res.json({
-    sucesso: true,
-    mensagem: 'Documento enviado com sucesso',
-    id_empresa: id,
-    tipo_documento: tipo_documento,
-    arquivo: caminhoArquivo
-  });
+  const mesReferenciaFormatado = mesReferencia
+    .toISOString()
+    .slice(0, 10);
+
+  const sql = `
+    INSERT INTO envio_documento
+    (mes_referencia, data_envio, status, id_cliente, id_tipo_documento)
+    VALUES (?, ?, 'ENVIADO', ?, ?)
+  `;
+
+  db.query(
+    sql,
+    [mesReferenciaFormatado, hoje, id, id_tipo_documento],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao registrar envio do documento'
+        });
+      }
+
+      res.json({
+        sucesso: true,
+        mensagem: 'Documento enviado com sucesso',
+        id_envio: result.insertId,
+        id_empresa: id,
+        id_tipo_documento,
+        status: 'ENVIADO'
+      });
+    }
+  );
 });
 
 /*
   Dashboard Geral
-
-  Solicitação do cliente:
-
-  "Seria legal aparecer o que já foi enviado e o que ainda está pendente,
-  isso por obrigação e por empresa se possível."
 
   Esta rota retorna:
 
@@ -622,14 +661,6 @@ app.get('/dashboard', autenticarToken, (req, res) => {
 
 /*
   Dashboard por Empresa
-
-  Solicitação do cliente:
-
-  "Seria legal aparecer o que já foi enviado e o que ainda está pendente,
-  isso por obrigação e por empresa se possível."
-
-  Esta rota retorna os dados agrupados por empresa,
-  permitindo visualizar:
 
   - Quantidade de documentos enviados
   - Quantidade de documentos pendentes
@@ -673,11 +704,6 @@ app.get('/dashboard/empresas', autenticarToken, (req, res) => {
 
 /*
   Dashboard por Obrigação
-
-  Solicitação do cliente:
-
-  "Seria legal aparecer o que já foi enviado e o que ainda está pendente,
-  isso por obrigação e por empresa se possível."
 
   Esta rota retorna os dados agrupados por tipo de obrigação,
   permitindo visualizar o status de cada documento fiscal,
@@ -759,15 +785,13 @@ app.post('/documentos', autenticarToken, (req, res) => {
     });
   }
 
-  const diaLimite = new Date(data_limite).getUTCDate();
-
   const sql = `
     INSERT INTO tipo_documento
     (nome, dia_limite_envio, periodicidade)
     VALUES (?, ?, ?)
   `;
 
-  db.query(sql, [nome, diaLimite, periodicidade], (err, result) => {
+  db.query(sql, [nome, data_limite, periodicidade], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -809,6 +833,153 @@ app.delete('/documentos/:id', autenticarToken, (req, res) => {
       sucesso: true,
       mensagem: 'Documento excluído com sucesso'
     });
+  });
+});
+
+async function verificarPrazosDocumentos() {
+
+  console.log('Verificando documentos próximos do vencimento...');
+
+  const sql = `
+    SELECT
+      ec.razao_social,
+      td.nome,
+      td.dia_limite_envio
+    FROM envio_documento ed
+    INNER JOIN empresa_cliente ec
+      ON ec.id_cliente = ed.id_cliente
+    INNER JOIN tipo_documento td
+      ON td.id_tipo_documento = ed.id_tipo_documento
+    WHERE ed.status = 'PENDENTE'
+  `;
+
+  db.query(sql, async (err, documentos) => {
+
+    console.log('Documentos encontrados:', documentos.length);
+    console.log(documentos);
+
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    const hoje = new Date();
+
+    for (const documento of documentos) {
+
+      const vencimento = new Date(documento.dia_limite_envio);
+
+      const diferencaDias = Math.ceil(
+        (vencimento - hoje) /
+        (1000 * 60 * 60 * 24)
+      );
+
+      console.log('Dias restantes:', diferencaDias);
+
+      /*if (
+        diferencaDias < 0 ||
+        (diferencaDias !== 7 && diferencaDias !== 1)
+      ) {
+        continue;
+      } */
+
+      db.query(
+        'SELECT email FROM contador',
+        async (erroEmails, contadores) => {
+
+          if (erroEmails) {
+            console.error(erroEmails);
+            return;
+          }
+
+          const destinatarios =
+            contadores.map(c => c.email);
+
+          if (destinatarios.length === 0) {
+            return;
+          }
+
+          try {
+
+            await transporter.sendMail({
+
+              from: process.env.EMAIL_USER,
+
+              to: destinatarios.join(','),
+
+              subject:
+                diferencaDias === 7
+                  ? '⚠ Documento vence em 7 dias'
+                  : '🚨 Documento vence amanhã',
+
+              text: `
+Empresa: ${documento.razao_social}
+
+Documento: ${documento.nome}
+
+Prazo final:
+${vencimento.toLocaleDateString('pt-BR')}
+
+Dias restantes:
+${diferencaDias}
+
+Acesse o sistema para verificar os documentos pendentes.
+              `
+            });
+
+            console.log(
+              `Email enviado para documento ${documento.nome}`
+            );
+
+          } catch (erroEnvio) {
+
+            console.error(
+              'Erro ao enviar email:',
+              erroEnvio
+            );
+          }
+        }
+      );
+    }
+  });
+}
+
+cron.schedule('0 0 * * *', () => {
+
+  console.log(
+    'Executando rotina automática de notificações'
+  );
+
+  verificarPrazosDocumentos();
+
+});
+
+verificarPrazosDocumentos();
+
+app.get('/empresa/:id/documentos/status', (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT 
+      id_tipo_documento,
+      status,
+      data_envio
+    FROM envio_documento
+    WHERE id_cliente = ?
+      AND mes_referencia = DATE_FORMAT(CURDATE(), '%Y-%m-01')
+  `;
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar status dos documentos'
+      });
+    }
+
+    res.json(result);
   });
 });
 

@@ -4,11 +4,15 @@ import logoIcon from '../../assets/IconeContabilidade.jpeg';
 import './AnexoDocumentos.css';
 
 function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
+    const { showToast } = useToast();
     const [documentos, setDocumentos] = useState([]);
 
     const [empresas, setEmpresas] = useState([]);
     const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const [arquivosSelecionados, setArquivosSelecionados] = useState({});
+    const [documentosEnviados, setDocumentosEnviados] = useState({});
 
     const apiBaseUrl =
         import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -66,10 +70,100 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         }
     };
 
+
+    const carregarStatusDocumentos = async (idCliente) => {
+        try {
+            const resposta = await fetch(
+                `${apiBaseUrl}/empresa/${idCliente}/documentos/status`
+            );
+
+            if (!resposta.ok) {
+                throw new Error('Erro ao buscar status dos documentos');
+            }
+
+            const dados = await resposta.json();
+
+            const enviados = {};
+
+            dados.forEach((item) => {
+                if (item.status === 'ENVIADO') {
+                    enviados[item.id_tipo_documento] = true;
+                }
+            });
+
+            setDocumentosEnviados(enviados);
+
+        } catch (erro) {
+            console.log(erro);
+        }
+    };
     useEffect(() => {
         carregarEmpresas();
         carregarDocumentos();
     }, []);
+
+    useEffect(() => {
+        carregarEmpresas();
+        carregarDocumentos();
+    }, []);
+
+    const enviarDocumentos = async () => {
+        const idsComArquivo = Object.keys(arquivosSelecionados);
+
+        if (idsComArquivo.length === 0) {
+            showToast('Anexe pelo menos um documento antes de enviar.', 'error', {
+                title: 'Erro'
+            });
+            return;
+        }
+
+        try {
+            const enviados = {};
+
+            for (const idDocumento of idsComArquivo) {
+
+                const arquivo = arquivosSelecionados[idDocumento];
+
+                const formData = new FormData();
+
+                formData.append('documento', arquivo);
+                formData.append('id_tipo_documento', idDocumento);
+
+                console.log('Empresa selecionada:', empresaSelecionada);
+                console.log('ID empresa:', empresaSelecionada?.id_cliente);
+
+                const resposta = await fetch(
+                    `${apiBaseUrl}/empresa/${empresaSelecionada.id_cliente}/documentos`,
+                    {
+                        method: 'POST',
+                        body: formData
+                    }
+                );
+
+                if (!resposta.ok) {
+                    throw new Error('Erro ao enviar documento');
+                }
+
+                enviados[idDocumento] = true;
+            }
+
+            setDocumentosEnviados((prev) => ({
+                ...prev,
+                ...enviados
+            }));
+
+            showToast('Documentos enviados com sucesso!', 'success', {
+                title: 'Sucesso'
+            });
+
+        } catch (erro) {
+            console.error(erro);
+
+            showToast('Erro ao enviar documentos.', 'error', {
+                title: 'Erro'
+            });
+        }
+    };
 
     return (
         <div className="empresa-page">
@@ -186,7 +280,10 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                 {empresas.map((empresa) => (
                                     <li
                                         key={empresa.id_cliente}
-                                        onClick={() => setEmpresaSelecionada(empresa)}
+                                        onClick={() => {
+                                            setEmpresaSelecionada(empresa);
+                                            carregarStatusDocumentos(empresa.id_cliente);
+                                        }}
                                         style={{
                                             cursor: 'pointer',
                                             border:
@@ -252,11 +349,31 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                     <input
                                                         type="file"
                                                         hidden
+                                                        accept="image/*,.pdf"
+                                                        onChange={(e) => {
+                                                            const arquivo = e.target.files[0];
+                                                            if (!arquivo) return;
+
+                                                            setArquivosSelecionados((prev) => ({
+                                                                ...prev,
+                                                                [doc.id]: arquivo
+                                                            }));
+                                                        }}
                                                     />
                                                 </label>
 
+                                                {arquivosSelecionados[doc.id] && (
+                                                    <span>
+                                                        {arquivosSelecionados[doc.id].name}
+                                                    </span>
+                                                )}
+
                                                 <span className="empresa-status">
-                                                    Pendente
+                                                    {documentosEnviados[doc.id]
+                                                        ? 'Enviado'
+                                                        : arquivosSelecionados[doc.id]
+                                                            ? 'Anexado'
+                                                            : 'Pendente'}
                                                 </span>
                                             </div>
                                         </li>
@@ -270,6 +387,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                     <button
                                         type="button"
                                         className="empresa-primary"
+                                        onClick={enviarDocumentos}
                                     >
                                         Enviar Documentos
                                     </button>
