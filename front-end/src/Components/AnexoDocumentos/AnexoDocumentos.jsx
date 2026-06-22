@@ -353,6 +353,8 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                                         setCompetencia(novaCompetencia);
 
+                                        setArquivosSelecionados({});
+
                                         if (empresaSelecionada) {
                                             carregarStatusDocumentos(
                                                 empresaSelecionada.id_cliente,
