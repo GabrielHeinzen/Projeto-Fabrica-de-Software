@@ -14,6 +14,14 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [arquivosSelecionados, setArquivosSelecionados] = useState({});
     const [documentosEnviados, setDocumentosEnviados] = useState({});
 
+    const [competencia, setCompetencia] = useState(
+        new Date().toISOString().slice(0, 7)
+    );
+
+    const [competencia, setCompetencia] = useState(
+        new Date().toISOString().slice(0, 7)
+    );
+
     const apiBaseUrl =
         import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -71,10 +79,13 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     };
 
 
-    const carregarStatusDocumentos = async (idCliente) => {
+    const carregarStatusDocumentos = async (
+        idCliente,
+        competenciaSelecionada = competencia
+    ) => {
         try {
             const resposta = await fetch(
-                `${apiBaseUrl}/empresa/${idCliente}/documentos/status`
+                `${apiBaseUrl}/empresa/${idCliente}/documentos/status?competencia=${competenciaSelecionada}`
             );
 
             if (!resposta.ok) {
@@ -279,10 +290,12 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                                 {empresas.map((empresa) => (
                                     <li
-                                        key={empresa.id_cliente}
                                         onClick={() => {
                                             setEmpresaSelecionada(empresa);
-                                            carregarStatusDocumentos(empresa.id_cliente);
+                                            carregarStatusDocumentos(
+                                                empresa.id_cliente,
+                                                competencia
+                                            );
                                         }}
                                         style={{
                                             cursor: 'pointer',
@@ -312,6 +325,28 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                         <div className="empresa-card-header">
                             <h2>Documentos Necessários</h2>
+                        </div>
+
+                        <div style={{ marginBottom: '12px' }}>
+                            <label>
+                                Competência:{' '}
+                                <input
+                                    type="month"
+                                    value={competencia}
+                                    onChange={(e) => {
+                                        const novaCompetencia = e.target.value;
+
+                                        setCompetencia(novaCompetencia);
+
+                                        if (empresaSelecionada) {
+                                            carregarStatusDocumentos(
+                                                empresaSelecionada.id_cliente,
+                                                novaCompetencia
+                                            );
+                                        }
+                                    }}
+                                />
+                            </label>
                         </div>
 
 

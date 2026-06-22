@@ -560,34 +560,34 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   VALUES (?, ?, 'ENVIADO', ?, ?, ?, ?)
 `;
 
- db.query(
-  sql,
-  [
-    mesReferenciaFormatado,
-    hoje,
-    id,
-    id_tipo_documento,
-    nomeArquivo,
-    urlArquivo
-  ],
-  (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        sucesso: false,
-        mensagem: 'Erro ao registrar envio do documento'
-      });
-    }
-
-    res.json({
-      sucesso: true,
-      mensagem: 'Documento enviado com sucesso',
-      id_envio: result.insertId,
-      id_empresa: id,
+  db.query(
+    sql,
+    [
+      mesReferenciaFormatado,
+      hoje,
+      id,
       id_tipo_documento,
-      status: 'ENVIADO'
+      nomeArquivo,
+      urlArquivo
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao registrar envio do documento'
+        });
+      }
+
+      res.json({
+        sucesso: true,
+        mensagem: 'Documento enviado com sucesso',
+        id_envio: result.insertId,
+        id_empresa: id,
+        id_tipo_documento,
+        status: 'ENVIADO'
+      });
     });
-  });
 });
 
 app.get('/dashboard', autenticarToken, (req, res) => {
@@ -887,20 +887,25 @@ verificarPrazosDocumentos();
 
 app.get('/empresa/:id/documentos/status', (req, res) => {
   const { id } = req.params;
+  const { competencia } = req.query;
+
+  const mesReferencia = competencia || new Date().toISOString().slice(0, 7);
 
   const sql = `
-    SELECT 
+    SELECT
       id_tipo_documento,
       status,
-      data_envio
+      data_envio,
+      mes_referencia
     FROM envio_documento
     WHERE id_cliente = ?
-      AND mes_referencia = DATE_FORMAT(CURDATE(), '%Y-%m-01')
+      AND mes_referencia = CONCAT(?, '-01')
   `;
 
-  db.query(sql, [id], (err, result) => {
+  db.query(sql, [id, mesReferencia], (err, result) => {
     if (err) {
       console.error(err);
+
       return res.status(500).json({
         sucesso: false,
         mensagem: 'Erro ao buscar status dos documentos'
