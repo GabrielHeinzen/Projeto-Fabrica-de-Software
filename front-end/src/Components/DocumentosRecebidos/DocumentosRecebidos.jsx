@@ -105,16 +105,6 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                         </div>
 
                         <label className="empresa-field">
-                            <span>Nome do documento</span>
-                            <input
-                                type="text"
-                                placeholder="Digite o nome do documento"
-                                value={novoDocumento}
-                                onChange={(e) => setNovoDocumento(e.target.value)}
-                            />
-                        </label>
-
-                        <label className="empresa-field">
                             Empresa:
                             {doc.empresa}
                         </label>
