@@ -17,11 +17,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [competencia, setCompetencia] = useState(
         new Date().toISOString().slice(0, 7)
     );
-
-    const [competencia, setCompetencia] = useState(
-        new Date().toISOString().slice(0, 7)
-    );
-
+    
     const apiBaseUrl =
         import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
