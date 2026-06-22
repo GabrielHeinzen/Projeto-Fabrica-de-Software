@@ -428,6 +428,7 @@
         opacity: 0;
         transform: translateY(16px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -439,6 +440,7 @@
         opacity: 0;
         transform: translateX(-12px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -499,35 +501,39 @@
         flex-direction: column;
     }
 }
+
 .empresa-upload-button {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #0f4c4c;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  transition: 0.2s;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #0f4c4c;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: 0.2s;
 }
 
 .empresa-upload-button:hover {
-  opacity: 0.85;
+    opacity: 0.85;
 }
+
 .empresa-doc-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
 .empresa-datas {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
 }
+
 .empresa-delete-button {
     width: 30px;
     height: 30px;
@@ -543,4 +549,22 @@
 .empresa-delete-button:hover {
     opacity: 0.85;
     transform: scale(1.05);
+}
+
+.competencia-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.competencia-field input {
+    padding: 10px 14px;
+    border: 1px solid #dbe4ea;
+    border-radius: 12px;
+    background: #f7fafc;
+    color: var(--ink);
+    font-family: inherit;
 }

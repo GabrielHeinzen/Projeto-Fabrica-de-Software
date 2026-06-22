@@ -17,7 +17,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [competencia, setCompetencia] = useState(
         new Date().toISOString().slice(0, 7)
     );
-    
+
     const apiBaseUrl =
         import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -109,11 +109,6 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         carregarDocumentos();
     }, []);
 
-    useEffect(() => {
-        carregarEmpresas();
-        carregarDocumentos();
-    }, []);
-
     const enviarDocumentos = async () => {
         const idsComArquivo = Object.keys(arquivosSelecionados);
 
@@ -170,6 +165,22 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                 title: 'Erro'
             });
         }
+    };
+
+    const formatarDataPorCompetencia = (dataLimite) => {
+        if (!dataLimite || !competencia) return '';
+
+        const dia = new Date(dataLimite).getDate();
+
+        const [ano, mes] = competencia.split('-');
+
+        const data = new Date(
+            Number(ano),
+            Number(mes) - 1,
+            dia
+        );
+
+        return data.toLocaleDateString('pt-BR');
     };
 
     return (
@@ -286,6 +297,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                                 {empresas.map((empresa) => (
                                     <li
+                                        key={empresa.id_cliente}
                                         onClick={() => {
                                             setEmpresaSelecionada(empresa);
                                             carregarStatusDocumentos(
@@ -368,7 +380,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                                                 <span>
                                                     Data limite: {
-                                                        new Date(doc.validade).toLocaleDateString('pt-BR')
+                                                        formatarDataPorCompetencia(doc.validade)
                                                     }
                                                 </span>
                                             </div>
