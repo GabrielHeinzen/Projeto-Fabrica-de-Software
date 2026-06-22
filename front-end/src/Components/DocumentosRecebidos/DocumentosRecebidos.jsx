@@ -68,9 +68,9 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('empresas')}>Minhas Empresas</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('cadastro')}>Cadastro Empresa</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('usuarios')}>Usuários</button>
-                    <button type="button" className="empresa-nav-item is-active" onClick={() => onNavigate && onNavigate('documentos')}>Documentos</button>
+                    <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('documentos')}>Documentos</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('anexo')}>Anexo de Documentos</button>
-                    <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('recebidos')}>Documentos Recebidos
+                    <button type="button" className="empresa-nav-item is-active" onClick={() => onNavigate && onNavigate('recebidos')}>Documentos Recebidos
                     </button>
                 </nav>
             </aside>
