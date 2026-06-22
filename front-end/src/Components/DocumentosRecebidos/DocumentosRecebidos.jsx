@@ -101,28 +101,6 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                 <div className="empresa-grid">
                     <section className="empresa-card">
                         <div className="empresa-card-header">
-                            <h2>Novo Documento</h2>
-                        </div>
-
-                        <label className="empresa-field">
-                            Empresa:
-                            {doc.empresa}
-                        </label>
-
-                        <label className="empresa-field">
-                            <span>Enviado em:
-                                {formatarData(doc.data)}</span>
-                        </label>
-
-                        <div className="empresa-actions">
-                            <button type="button" className="empresa-primary" onClick={cadastrarDocumento}>
-                                Cadastrar Documento
-                            </button>
-                        </div>
-                    </section>
-
-                    <section className="empresa-card">
-                        <div className="empresa-card-header">
                             <h2>Documentos Cadastrados</h2>
                             <span className="empresa-badge">{documentos.length} ativos</span>
                         </div>
@@ -133,7 +111,6 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                                     <div>
                                         <strong>{doc.nome}</strong>
                                         <span>Data limite: {formatarData(doc.validade)}</span>
-                                        <span>Periodicidade: {doc.periodicidade}</span>
                                     </div>
                                     <div className="empresa-doc-actions">
                                         <span className="empresa-status">Ativo</span>
@@ -152,77 +129,6 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                     </section>
                 </div>
             </div>
-
-            {/* Modal de edição */}
-            {documentoParaEditar && (
-                <div className="empresa-modal" role="dialog" aria-modal="true">
-                    <div className="empresa-modal__backdrop" onClick={handleEditCancel} />
-                    <div className="empresa-modal__content empresa-modal__content--edit" role="document">
-                        <div className="empresa-modal__icon empresa-modal__icon--edit" aria-hidden="true">✎</div>
-                        <div className="empresa-modal__text">
-                            <span className="empresa-modal__title empresa-modal__title--edit">Editar documento</span>
-                            <span className="empresa-modal__message">Altere os dados do documento abaixo.</span>
-                        </div>
-
-                        <div className="empresa-modal__fields">
-                            <label className="empresa-field">
-                                <span>Nome do documento</span>
-                                <input
-                                    type="text"
-                                    value={editNome}
-                                    onChange={(e) => setEditNome(e.target.value)}
-                                />
-                            </label>
-                            <label className="empresa-field">
-                                <span>Data limite</span>
-                                <input
-                                    type="date"
-                                    value={editValidade}
-                                    onChange={(e) => setEditValidade(e.target.value)}
-                                />
-                            </label>
-                            <label className="empresa-field">
-                                <span>Periodicidade</span>
-                                <select value={editPeriodicidade} onChange={(e) => setEditPeriodicidade(e.target.value)}>
-                                    <option value="UNICO">Único</option>
-                                    <option value="MENSAL">Mensal</option>
-                                    <option value="TRIMESTRAL">Trimestral</option>
-                                    <option value="SEMESTRAL">Semestral</option>
-                                    <option value="ANUAL">Anual</option>
-                                </select>
-                            </label>
-                        </div>
-
-                        <div className="empresa-modal__actions">
-                            <button type="button" className="empresa-secondary" onClick={handleEditCancel} disabled={salvandoEdicao}>
-                                Cancelar
-                            </button>
-                            <button type="button" className="empresa-primary" onClick={handleEditConfirm} disabled={salvandoEdicao}>
-                                {salvandoEdicao ? 'Salvando...' : 'Salvar'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal de exclusão */}
-            {documentoParaExcluir && (
-                <div className="empresa-modal" role="dialog" aria-modal="true">
-                    <div className="empresa-modal__backdrop" onClick={handleDeleteCancel} />
-                    <div className="empresa-modal__content" role="document">
-                        <div className="empresa-modal__icon" aria-hidden="true">!</div>
-                        <div className="empresa-modal__text">
-                            <span className="empresa-modal__title">Confirmar exclusão</span>
-                            <span className="empresa-modal__message">Deseja realmente excluir este documento?</span>
-                            <span className="empresa-modal__empresa">{documentoParaExcluir.nome || 'Documento selecionado'}</span>
-                        </div>
-                        <div className="empresa-modal__actions">
-                            <button type="button" className="empresa-secondary" onClick={handleDeleteCancel}>Cancelar</button>
-                            <button type="button" className="empresa-danger" onClick={handleDeleteConfirm}>Excluir</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
