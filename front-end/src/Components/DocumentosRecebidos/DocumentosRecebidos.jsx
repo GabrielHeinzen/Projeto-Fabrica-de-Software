@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '../Toast/ToastProvider';
 import logoIcon from '../../assets/IconeContabilidade.jpeg';
-import './Documentos.css';
+import './DocumentosRecebidos.css';
 
 const getApiBaseUrl = () => {
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
