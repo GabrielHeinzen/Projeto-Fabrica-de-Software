@@ -56,7 +56,7 @@ function App() {
   const handleLoginSuccess = (user) => {
     setAuthUser(user);
     window.localStorage.setItem('authUser', JSON.stringify(user));
-    navigate('/Cadastro-de-Empresa', { replace: true });
+    navigate('/Dashboard', { replace: true });
   };
 
   const handleLogout = () => {
@@ -80,7 +80,7 @@ function App() {
             path="/"
             element={(
               <Navigate
-                to={isAuthed ? '/Cadastro-de-Empresa' : '/Login'}
+                to={isAuthed ? '/Dashboard' : '/Login'}
                 replace
               />
             )}
@@ -173,7 +173,7 @@ function App() {
             path="*"
             element={(
               <Navigate
-                to={isAuthed ? '/Cadastro-de-Empresa' : '/Login'}
+                to={isAuthed ? '/Dashboard' : '/Login'}
                 replace
               />
             )}
