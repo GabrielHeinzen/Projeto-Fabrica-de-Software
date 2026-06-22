@@ -9,6 +9,7 @@ import Login from './Components/Login/Login';
 import Documentos from './Components/Documentos/Documentos';
 import AnexoDocumentos from './Components/AnexoDocumentos/AnexoDocumentos';
 import Dashboard from './Components/Dashboard/Dashboard_1';
+import DocumentosRecebidos from './Components/DocumentosRecebidos/DocumentosRecebidos'
 
 const loadStoredUser = () => {
   if (typeof window === 'undefined') {
@@ -51,6 +52,7 @@ function App() {
     documentos: '/Documentos',
     anexo: '/AnexoDocumentos',
     dashboard: '/Dashboard',
+    recebidos: '/DocumentosRecebidos',
   };
 
   const handleLoginSuccess = (user) => {
@@ -112,15 +114,15 @@ function App() {
           <Route
             path="/Dashboard"
             element={(
-            <RequireAuth authed={isAuthed}>
-            <Dashboard
-           userName={authUser?.name}
-            onLogout={handleLogout}
-            onNavigate={handleNavigate}
+              <RequireAuth authed={isAuthed}>
+                <Dashboard
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
           />
-         </RequireAuth>
-        )}
-        />
           <Route
             path="/Minhas-Empresas"
             element={(
@@ -162,6 +164,18 @@ function App() {
             element={(
               <RequireAuth authed={isAuthed}>
                 <AnexoDocumentos
+                  userName={authUser?.name}
+                  onLogout={handleLogout}
+                  onNavigate={handleNavigate}
+                />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/DocumentosRecebidos"
+            element={(
+              <RequireAuth authed={isAuthed}>
+                <DocumentosRecebidos
                   userName={authUser?.name}
                   onLogout={handleLogout}
                   onNavigate={handleNavigate}

@@ -45,10 +45,10 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
       .finally(() => setLoading(false));
   }, []);
 
-  const total     = geral?.total_obrigacoes ?? 0;
-  const enviados  = geral?.total_enviados   ?? 0;
-  const pendentes = geral?.total_pendentes  ?? 0;
-  const taxaPct   = total > 0 ? Math.round((enviados / total) * 100) : 0;
+  const total = geral?.total_obrigacoes ?? 0;
+  const enviados = geral?.total_enviados ?? 0;
+  const pendentes = geral?.total_pendentes ?? 0;
+  const taxaPct = total > 0 ? Math.round((enviados / total) * 100) : 0;
 
   return (
     <div className="empresa-page">
@@ -105,6 +105,13 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
             onClick={() => onNavigate && onNavigate('anexo')}
           >
             Anexo de Documentos
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate('recebidos')}
+          >
+            Documentos Recebidos
           </button>
         </nav>
       </aside>

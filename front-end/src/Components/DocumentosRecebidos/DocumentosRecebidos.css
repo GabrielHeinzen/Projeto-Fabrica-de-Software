@@ -1,0 +1,48 @@
+/* Botão editar */
+.empresa-edit-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empresa-edit-button:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
+/* Estados desabilitados dos botões */
+.empresa-primary:disabled,
+.empresa-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modal de edição — largura maior e coluna única para os campos */
+.empresa-modal__content--edit {
+    width: min(480px, calc(100vw - 32px));
+}
+
+.empresa-modal__icon--edit {
+    background: var(--primary);
+    box-shadow: 0 12px 20px rgba(47, 111, 115, 0.25);
+}
+
+.empresa-modal__title--edit {
+    color: var(--primary);
+}
+
+.empresa-modal__fields {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
