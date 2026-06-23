@@ -665,6 +665,39 @@ app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
+app.get('/documentos-recebidos', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT
+      ed.id_envio,
+      ec.razao_social,
+      td.nome AS documento,
+      ed.nome_arquivo,
+      ed.url_arquivo,
+      ed.data_envio
+    FROM envio_documento ed
+    INNER JOIN empresa_cliente ec
+      ON ec.id_cliente = ed.id_cliente
+    INNER JOIN tipo_documento td
+      ON td.id_tipo_documento = ed.id_tipo_documento
+    WHERE ed.url_arquivo IS NOT NULL
+    ORDER BY ed.data_envio DESC
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar documentos recebidos'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+
 app.get('/documentos', autenticarToken, (req, res) => {
   const sql = `
     SELECT 
