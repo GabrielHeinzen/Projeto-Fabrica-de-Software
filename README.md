@@ -80,10 +80,8 @@ git push
 
 ---
 
-## Collection Postman
+## Documentação da API
 
-A collection utilizada para testes da API está disponível em:
+A documentação completa da API está disponível no Postman:
 
-`/postman/API Sistema Cont.postman_collection.json`
-
-Para utilizar, basta abrir o Postman, clicar em **Import** e selecionar o arquivo.
+https://documenter.getpostman.com/view/54547988/2sBXwwmSvj

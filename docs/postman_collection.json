@@ -1,0 +1,481 @@
+{
+  "info": {
+    "_postman_id": "f20b678f-4d68-4179-b7fa-8ddbc4abcf92",
+    "name": "Sistema Contábil - API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54547988",
+    "_collection_link": "https://go.postman.co/collection/54547988-f20b678f-4d68-4179-b7fa-8ddbc4abcf92?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "POST /login",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supabase_service_role_api_key_0729}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"teste@gmail.com\",\r\n  \"senha\": \"1234\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/login",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Realiza login do usuário contador. Caso as credenciais estejam corretas, retorna os dados do usuário e um token JWT utilizado nas rotas protegidas."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Empresas",
+      "item": [
+        {
+          "name": "GET /empresa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/empresa",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "empresa"
+              ]
+            },
+            "description": "Lista todas as empresas cadastradas no sistema."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /empresa",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"cnpj\": \"12345678000199\",\r\n  \"razao_social\": \"Empresa Teste LTDA\",\r\n  \"regime_tributario\": \"Simples Nacional\",\r\n  \"possui_funcionarios\": true,\r\n  \"possui_notas_venda\": true,\r\n  \"presta_servicos\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/empresa",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "empresa"
+              ]
+            },
+            "description": "Cadastra uma nova empresa cliente."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /empresa/:id",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"cnpj\": \"12345678000199\",\r\n  \"razao_social\": \"Empresa Teste LTDA\",\r\n  \"regime_tributario\": \"Simples Nacional\",\r\n  \"possui_funcionarios\": true,\r\n  \"possui_notas_venda\": true,\r\n  \"presta_servicos\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/empresa/1",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "empresa",
+                "1"
+              ]
+            },
+            "description": "Atualiza os dados de uma empresa existente."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /empresa/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"cnpj\": \"12345678000199\",\r\n  \"razao_social\": \"Empresa Teste LTDA\",\r\n  \"regime_tributario\": \"Simples Nacional\",\r\n  \"possui_funcionarios\": true,\r\n  \"possui_notas_venda\": true,\r\n  \"presta_servicos\": true\r\n}"
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/empresa/5",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "empresa",
+                "5"
+              ]
+            },
+            "description": "Remove uma empresa cadastrada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documentos",
+      "item": [
+        {
+          "name": "GET /documentos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{bearer_token_1e37}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/documentos",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "documentos"
+              ]
+            },
+            "description": "Lista os documentos/obrigações cadastrados no sistema."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /documentos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0729}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"PGDAS\",\r\n  \"data_limite\": \"2026-06-20\",\r\n  \"periodicidade\": \"MENSAL\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/documentos",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "documentos"
+              ]
+            },
+            "description": "Cadastra um novo documento com data limite e periodicidade."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /documentos/:id",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0729}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"PGDAS\",\r\n  \"data_limite\": \"2026-07-20\",\r\n  \"periodicidade\": \"MENSAL\"\r\n}"
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/documentos/46",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "documentos",
+                "46"
+              ]
+            },
+            "description": "Atualiza as informações de um documento previamente cadastrado, permitindo alterar nome, data limite e periodicidade."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /documentos/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supabase_service_role_api_key_0729}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"PGDAS\",\r\n  \"data_limite\": \"2026-06-20\",\r\n  \"periodicidade\": \"MENSAL\"\r\n}"
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/documentos/46",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "documentos",
+                "46"
+              ]
+            },
+            "description": "Exclui um documento cadastrado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Anexo de Documentos",
+      "item": [
+        {
+          "name": "POST /empresa/:id/documentos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0729}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documento",
+                  "type": "file",
+                  "src": "ZeomXvtrJ/Codigo_Limpo_Capitulos_14_17.pdf"
+                },
+                {
+                  "key": "id_tipo_documento",
+                  "value": "2",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/empresa/1/documentos",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "empresa",
+                "1",
+                "documentos"
+              ]
+            },
+            "description": "Registra o envio de um documento para uma empresa. Apenas documentos com arquivo anexado são enviados. O sistema salva status ENVIADO, data de envio, competência, nome do arquivo e URL/caminho do arquivo."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /empresa/:id/documentos/status?competencia=2026-06",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0729}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documento",
+                  "type": "file",
+                  "src": "ZeomXvtrJ/Codigo_Limpo_Capitulos_14_17.pdf"
+                },
+                {
+                  "key": "id_tipo_documento",
+                  "value": "2",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/empresa/1/documentos/status?competencia=2026-06",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "empresa",
+                "1",
+                "documentos",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "competencia",
+                  "value": "2026-06"
+                }
+              ]
+            },
+            "description": "Consulta o status dos documentos enviados por empresa e competência. Retorna quais documentos estão ENVIADOS no mês selecionado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "GET /dashboard",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supabase_service_role_api_key_0r69}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documento",
+                  "type": "file",
+                  "src": "ZeomXvtrJ/Codigo_Limpo_Capitulos_14_17.pdf"
+                },
+                {
+                  "key": "id_tipo_documento",
+                  "type": "text",
+                  "value": "2"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://backend-contabil.onrender.com/dashboard",
+              "protocol": "https",
+              "host": [
+                "backend-contabil",
+                "onrender",
+                "com"
+              ],
+              "path": [
+                "dashboard"
+              ]
+            },
+            "description": "Retorna os indicadores gerais do dashboard, como total de obrigações enviadas, pendentes e total de obrigações."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "supabase_service_role_api_key_0729",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_1e37",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0729",
+      "secret": true
+    },
+    {
+      "key": "supabase_service_role_api_key_0r69",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_0mie",
+      "secret": true
+    }
+  ]
+}
