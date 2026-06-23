@@ -25,7 +25,7 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
 
         try {
             const apiBaseUrl = getApiBaseUrl();
-            const resposta = await fetch(`${apiBaseUrl}/documentos-enviados`, {
+            const resposta = await fetch(`${apiBaseUrl}/documentos-recebidos`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

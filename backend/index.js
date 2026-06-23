@@ -665,7 +665,7 @@ app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.get('/documentos-enviados', autenticarToken, (req, res) => {
+app.get('/documentos-recebidos', autenticarToken, (req, res) => {
   const sql = `
     SELECT
       ed.id_envio,
