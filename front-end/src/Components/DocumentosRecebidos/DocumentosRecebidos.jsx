@@ -108,29 +108,29 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                         <ul className="empresa-doc-list">
                             {documentos.map((doc) => (
                                 <li key={doc.id}>
-    <div>
-        <strong>{doc.documento}</strong>
+                                    <div>
+                                        <strong>{doc.documento}</strong>
 
-        <span>Empresa: {doc.empresa}</span>
+                                        <span>Empresa: {doc.empresa}</span>
 
-        <span>Arquivo: {doc.arquivo}</span>
+                                        <span>Arquivo: {doc.arquivo}</span>
 
-        <span>Enviado em: {formatarData(doc.data)}</span>
-    </div>
+                                        <span>Enviado em: {formatarData(doc.data)}</span>
+                                    </div>
 
-    <div className="empresa-doc-actions">
-        <span className="empresa-status">Recebido</span>
+                                    <div className="empresa-doc-actions">
+                                        <span className="empresa-status">Recebido</span>
 
-        <a
-            href={`${getApiBaseUrl()}${doc.url}`}
-            target="_blank"
-            rel="noreferrer"
-            className="empresa-primary"
-        >
-            Visualizar
-        </a>
-    </div>
-</li>
+                                        <a
+                                            href={`${getApiBaseUrl()}${doc.url}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="empresa-primary"
+                                        >
+                                            Visualizar
+                                        </a>
+                                    </div>
+                                </li>
                             ))}
                         </ul>
                     </section>
