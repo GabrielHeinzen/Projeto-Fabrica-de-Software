@@ -74,7 +74,7 @@ Para salvar alterações:
 
 ```
 git add .
-git commit -m "mensagem"
+git commit -m "docsrecebidospt2"
 git push
 ```
 

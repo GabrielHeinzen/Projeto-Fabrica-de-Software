@@ -93,7 +93,7 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                         <p>Visualize todos os arquivos enviados pelas empresas.</p>
                     </div>
                     <div className="empresa-hero-badge">
-                        <span>Total cadastrados</span>
+                        <span>Documentos Recebidos</span>
                         <strong>{documentos.length}</strong>
                     </div>
                 </section>
@@ -101,29 +101,36 @@ function DocumentosRecebidos({ userName = 'Usuario', onLogout, onNavigate }) {
                 <div className="empresa-grid">
                     <section className="empresa-card">
                         <div className="empresa-card-header">
-                            <h2>Documentos Cadastrados</h2>
-                            <span className="empresa-badge">{documentos.length} ativos</span>
+                            <h2>Documentos Recebidos</h2>
+                            <span className="empresa-badge">{documentos.length} recebidos</span>
                         </div>
 
                         <ul className="empresa-doc-list">
                             {documentos.map((doc) => (
                                 <li key={doc.id}>
-                                    <div>
-                                        <strong>{doc.nome}</strong>
-                                        <span>Data limite: {formatarData(doc.validade)}</span>
-                                    </div>
-                                    <div className="empresa-doc-actions">
-                                        <span className="empresa-status">Ativo</span>
-                                        <a
-                                            href={`${getApiBaseUrl()}${doc.url}`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="empresa-primary"
-                                        >
-                                            Visualizar
-                                        </a>
-                                    </div>
-                                </li>
+    <div>
+        <strong>{doc.documento}</strong>
+
+        <span>Empresa: {doc.empresa}</span>
+
+        <span>Arquivo: {doc.arquivo}</span>
+
+        <span>Enviado em: {formatarData(doc.data)}</span>
+    </div>
+
+    <div className="empresa-doc-actions">
+        <span className="empresa-status">Recebido</span>
+
+        <a
+            href={`${getApiBaseUrl()}${doc.url}`}
+            target="_blank"
+            rel="noreferrer"
+            className="empresa-primary"
+        >
+            Visualizar
+        </a>
+    </div>
+</li>
                             ))}
                         </ul>
                     </section>
