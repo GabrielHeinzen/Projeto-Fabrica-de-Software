@@ -198,9 +198,10 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                 </div>
 
                 <nav className="empresa-nav">
-                    <button type="button" className="empresa-nav-item">
-                        Dashboard
-                    </button>
+                    <button
+                        type="button"
+                        className="empresa-nav-item"
+                        onClick={() => onNavigate && onNavigate('dashboard')}>Dashboard</button>
 
                     <button
                         type="button"
