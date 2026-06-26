@@ -4,15 +4,20 @@ import '../CadastroEmpresa/CadastroEmpresa.css';
 import './MinhasEmpresas.css';
 import { useToast } from '../Toast/ToastProvider';
 
+// Mapa de labels amigáveis para os regimes tributários
 const regimeLabels = {
   simples: 'Simples Nacional',
   presumido: 'Lucro Presumido',
   real: 'Lucro Real',
   mei: 'MEI'
 };
-
+// Normaliza o campo booleano que pode vir como true, 1, '1' ou 'true' do banco
 const parseFlag = (value) => value === true || value === 1 || value === '1' || value === 'true';
+
+// Suporta APIs que retornam id_cliente ou id
 const getEmpresaId = (empresa) => empresa.id_cliente ?? empresa.id;
+
+// Monta o objeto do formulário de edição a partir dos dados da empresa
 const buildEditForm = (empresa) => ({
   cnpj: empresa.cnpj || '',
   razao_social: empresa.razao_social || '',
@@ -33,6 +38,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [empresaParaExcluir, setEmpresaParaExcluir] = useState(null);
   const { showToast } = useToast();
 
+
+    // useCallback evita loop infinito no useEffect que depende desta função
   const carregarEmpresas = useCallback(async (mostrarToast = false) => {
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -70,6 +77,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     carregarEmpresas();
   }, [carregarEmpresas]);
 
+  // useMemo recalcula o resumo apenas quando a lista de empresas muda
   const resumo = useMemo(() => {
     const total = empresas.length;
     const comFuncionarios = empresas.filter((empresa) => parseFlag(empresa.possui_funcionarios)).length;
@@ -87,6 +95,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const formatRegime = (value) => regimeLabels[value] || value || 'Nao informado';
   const formatSimNao = (value) => (parseFlag(value) ? 'Sim' : 'Nao');
 
+    // Abre o formulário inline de edição para a empresa clicada
   const handleEditStart = (empresa) => {
     const empresaId = getEmpresaId(empresa);
 
@@ -106,6 +115,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     setEditForm(null);
   };
 
+    // Handler genérico para atualizar qualquer campo do formulário de edição
   const handleEditChange = (field) => (event) => {
     setEditForm((prev) => ({
       ...prev,
@@ -126,6 +136,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     }
 
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    
+    // Preserva o id_contador original da empresa ao salvar
     const empresaAtual = empresas.find((item) => getEmpresaId(item) === empresaId);
     const idContadorAtual = empresaAtual?.id_contador ?? null;
 
@@ -141,6 +153,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           cnpj: editForm.cnpj,
           razao_social: editForm.razao_social,
           regime_tributario: editForm.regime_tributario,
+          // Converte 'sim'/'nao' de volta para booleano
           possui_funcionarios: editForm.possui_funcionarios === 'sim',
           possui_notas_venda: editForm.possui_notas_venda === 'sim',
           presta_servicos: editForm.presta_servicos === 'sim',
@@ -156,7 +169,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
         });
         return;
       }
-
+      // Atualiza a empresa localmente sem precisar recarregar toda a lista
       setEmpresas((prev) => prev.map((empresa) => (
         getEmpresaId(empresa) === empresaId
           ? {
@@ -185,6 +198,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     }
   };
 
+  // Abre o modal de confirmação antes de excluir
   const handleDeleteRequest = (empresa) => {
     const empresaId = getEmpresaId(empresa);
 
@@ -198,6 +212,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     setEmpresaParaExcluir(empresa);
   };
 
+  // Bloqueia fechar o modal enquanto a exclusão está em andamento
   const handleDeleteCancel = () => {
     if (deletingId) {
       return;
@@ -234,6 +249,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
         return false;
       }
 
+
+      // Remove da lista local e fecha o formulário de edição se estiver aberto
       setEmpresas((prev) => prev.filter((item) => getEmpresaId(item) !== empresaId));
 
       if (editingId === empresaId) {
@@ -254,7 +271,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       setDeletingId(null);
     }
   };
-
+// Só fecha o modal se a exclusão foi bem-sucedida
   const handleDeleteConfirm = async () => {
     if (!empresaParaExcluir) {
       return;
@@ -266,7 +283,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       setEmpresaParaExcluir(null);
     }
   };
-
+  // ... JSX de renderização omitido (estrutura idêntica aos demais componentes)
   return (
     <div className="empresa-page">
       <aside className="empresa-sidebar">
@@ -676,6 +693,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       )}
     </div>
   );
+    // ... JSX de renderização omitido (estrutura idêntica aos demais componentes)
 }
 
 export default MinhasEmpresas;

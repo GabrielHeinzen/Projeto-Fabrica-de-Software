@@ -3,16 +3,21 @@ import { useState } from 'react';
 import { useToast } from '../Toast/ToastProvider';
 import './Login.css';
 
+  // Estados para os campos do formulário
 function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { showToast } = useToast();
+
   const handleSubmit = async (event) => {
+     // Evita o recarregamento da página ao enviar o formulário
     event.preventDefault();
 
+     // Usa a variável de ambiente ou cai no endereço local como fallback
     const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     try {
+      // Envia as credenciais para a API de login
       const resposta = await fetch(`${apiBaseUrl}/login`, {
         method: 'POST',
         headers: {
@@ -31,6 +36,7 @@ function Login({ onLoginSuccess }) {
       console.log(dados);
 
       if (dados.sucesso) {
+        // Monta o objeto do usuário logado com nome, email e token JWT
         const nomeUsuario = dados.usuario || username;
 
         const usuarioLogado = {
@@ -38,23 +44,26 @@ function Login({ onLoginSuccess }) {
           email: username,
           token: dados.token
         };
-
+         // Persiste a sessão no localStorage para uso em outras telas
         localStorage.setItem(
           'authUser',
           JSON.stringify(usuarioLogado)
         );
 
+        // Notifica o componente pai sobre o login bem-sucedido
         if (onLoginSuccess) {
           onLoginSuccess(usuarioLogado);
         }
 
       } else {
+         // Exibe a mensagem de erro retornada pela API
         showToast(dados.mensagem || 'Falha no login', 'error', {
           title: 'Erro'
         });
       }
 
     } catch (erro) {
+      // Erro de rede ou servidor indisponível
       console.log(erro);
       showToast('Erro ao conectar com backend', 'error', {
         title: 'Erro'
@@ -69,6 +78,7 @@ function Login({ onLoginSuccess }) {
         <br />
         <h6>Acesse o sistema:</h6>
 
+        {/* Campo de e-mail com ícone */}
         <div className="input-field">
           <FaUser className="icon" />
           <input
@@ -78,6 +88,7 @@ function Login({ onLoginSuccess }) {
           />
         </div>
 
+        {/* Campo de senha com ícone */}
         <div className="input-field">
           <FaLock className="icon" />
           <input
