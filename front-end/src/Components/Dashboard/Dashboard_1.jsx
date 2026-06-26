@@ -6,23 +6,22 @@ import './Dashboard.css';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }) {
-  const [geral, setGeral] = useState(null);
-  const [obrigacoes, setObrigacoes] = useState([]);
-  const [empresas, setEmpresas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState(null);
+  const [geral, setGeral]         = useState(null);  // totais gerais (obrigações, enviados, pendentes)
+  const [obrigacoes, setObrigacoes] = useState([]);  // breakdown por tipo de obrigação
+  const [empresas, setEmpresas]   = useState([]);    // breakdown por empresa
+  const [loading, setLoading]     = useState(true);
+  const [erro, setErro]           = useState(null);
 
   useEffect(() => {
-    // Pega o token salvo no login — fica dentro do objeto authUser
+    // Recupera o token JWT salvo no login
     const authUser = JSON.parse(localStorage.getItem('authUser') || 'null');
     const token = authUser?.token;
-
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
 
-    // Dispara as 3 requisições em paralelo
+    // Dispara as 3 requisições em paralelo para reduzir tempo de carregamento
     Promise.all([
       fetch(`${API_URL}/dashboard`, { headers }),
       fetch(`${API_URL}/dashboard/obrigacoes`, { headers }),
@@ -32,6 +31,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
         if (!resGeral.ok || !resObrig.ok || !resEmpresas.ok) {
           throw new Error('Erro ao carregar dados do dashboard.');
         }
+        // Aguarda o parse de todos os JSONs antes de atualizar o estado
         const [dataGeral, dataObrig, dataEmpresas] = await Promise.all([
           resGeral.json(),
           resObrig.json(),
@@ -45,9 +45,12 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
       .finally(() => setLoading(false));
   }, []);
 
-  const total = geral?.total_obrigacoes ?? 0;
-  const enviados = geral?.total_enviados ?? 0;
+  // Valores com fallback para zero caso a API retorne nulo
+  const total    = geral?.total_obrigacoes ?? 0;
+  const enviados = geral?.total_enviados   ?? 0;
   const pendentes = geral?.total_pendentes ?? 0;
+
+  // Taxa de envio em percentual, evitando divisão por zero
   const taxaPct = total > 0 ? Math.round((enviados / total) * 100) : 0;
 
   return (
@@ -64,55 +67,13 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
         </div>
 
         <nav className="empresa-nav">
-          <button
-            type="button"
-            className="empresa-nav-item is-active"
-            onClick={() => onNavigate && onNavigate('dashboard')}
-          >
-            Dashboard
-          </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('empresas')}
-          >
-            Minhas Empresas
-          </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('cadastro')}
-          >
-            Cadastro Empresa
-          </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('usuarios')}
-          >
-            Usuarios
-          </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('documentos')}
-          >
-            Documentos
-          </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('anexo')}
-          >
-            Anexo de Documentos
-          </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('recebidos')}
-          >
-            Documentos Recebidos
-          </button>
+          <button type="button" className="empresa-nav-item is-active" onClick={() => onNavigate && onNavigate('dashboard')}>Dashboard</button>
+          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('empresas')}>Minhas Empresas</button>
+          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('cadastro')}>Cadastro Empresa</button>
+          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('usuarios')}>Usuarios</button>
+          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('documentos')}>Documentos</button>
+          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('anexo')}>Anexo de Documentos</button>
+          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('recebidos')}>Documentos Recebidos</button>
         </nav>
       </aside>
 
@@ -122,9 +83,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
-              <button type="button" className="empresa-logout" onClick={onLogout}>
-                Sair
-              </button>
+              <button type="button" className="empresa-logout" onClick={onLogout}>Sair</button>
             )}
           </div>
         </header>
@@ -136,6 +95,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
           </div>
         </section>
 
+        {/* Renderização condicional: loading → erro → conteúdo */}
         {loading ? (
           <div className="db-loading">
             <div className="db-spinner" />
@@ -148,7 +108,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
           </div>
         ) : (
           <div className="db-wrapper">
-            {/* Cards de resumo */}
+            {/* Cards de resumo geral */}
             <section className="db-cards">
               <div className="db-card db-card--total">
                 <span className="db-card-label">Total de obrigações</span>
@@ -165,6 +125,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
               <div className="db-card db-card--taxa">
                 <span className="db-card-label">Taxa de envio</span>
                 <span className="db-card-valor">{taxaPct}%</span>
+                {/* Barra de progresso visual proporcional à taxa */}
                 <div className="db-barra">
                   <div className="db-barra-fill" style={{ width: `${taxaPct}%` }} />
                 </div>
@@ -172,7 +133,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
             </section>
 
             <div className="db-grid">
-              {/* Tabela por obrigação */}
+              {/* Tabela de progresso por tipo de obrigação */}
               <section className="db-secao">
                 <h2 className="db-secao-titulo">Por tipo de obrigação</h2>
                 {obrigacoes.length === 0 ? (
@@ -190,6 +151,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                     <tbody>
                       {obrigacoes.map((item) => {
                         const tot = (item.enviados ?? 0) + (item.pendentes ?? 0);
+                        // Percentual individual por tipo de obrigação
                         const pct = tot > 0 ? Math.round(((item.enviados ?? 0) / tot) * 100) : 0;
                         return (
                           <tr key={item.nome}>
@@ -210,7 +172,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                 )}
               </section>
 
-              {/* Lista por empresa */}
+              {/* Lista de progresso por empresa */}
               <section className="db-secao">
                 <h2 className="db-secao-titulo">Por empresa</h2>
                 {empresas.length === 0 ? (
