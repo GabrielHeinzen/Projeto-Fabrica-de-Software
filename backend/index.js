@@ -1,3 +1,6 @@
+// IMPORTAÇÃO DAS DEPENDÊNCIAS UTILIZADAS PELA APLICAÇÃO
+// Bibliotecas responsáveis pelo servidor, banco de dados,
+// autenticação, upload de arquivos, envio de e-mails e agendamentos.
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
@@ -8,7 +11,8 @@ const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-
+// Inicializa a aplicação Express e configura os middlewares globais,
+// permitindo requisições entre aplicações e o recebimento de JSON.
 const app = express();
 
 app.use(cors({
@@ -16,6 +20,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
+// Middleware responsável por validar o token JWT enviado nas
+// requisições protegidas, garantindo que apenas usuários
+// autenticados possam acessar determinadas funcionalidades.
 function autenticarToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
@@ -47,14 +55,23 @@ function autenticarToken(req, res, next) {
   }
 }
 
+
+// Disponibiliza a pasta de uploads para acesso aos arquivos
+// enviados pelos usuários através da API.
 app.use('/uploads', express.static('uploads'));
 
 const fs = require('fs');
 
+
+// Cria automaticamente a pasta de armazenamento dos arquivos,
+// caso ela ainda não exista no servidor.
 if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }
 
+
+// Define como os arquivos enviados serão armazenados,
+// gerando um nome único para evitar conflitos entre uploads.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -65,6 +82,8 @@ const storage = multer.diskStorage({
   }
 });
 
+// Valida os tipos de arquivos permitidos para upload,
+// aceitando apenas formatos suportados pelo sistema.
 const fileFilter = (req, file, cb) => {
   const tiposPermitidos = [
     'application/pdf',
@@ -86,6 +105,8 @@ const upload = multer({
   }
 });
 
+// Realiza a conexão com o banco de dados ao iniciar a API,
+// exibindo uma mensagem de sucesso ou erro no console.
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -103,6 +124,8 @@ db.connect((erro) => {
   }
 });
 
+// Configuração do serviço responsável pelo envio automático
+// de notificações por e-mail aos usuários do sistema.
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -111,10 +134,14 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Endpoint utilizado apenas para verificar se a API
+// está em funcionamento.
 app.get('/', (req, res) => {
   res.send('API rodando 🚀');
 });
 
+// Realiza a autenticação dos usuários cadastrados,
+// validando as credenciais e retornando um token JWT.
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
@@ -156,6 +183,8 @@ app.post('/login', (req, res) => {
   });
 });
 
+// Efetua o cadastro de novos contadores,
+// verificando previamente se o e-mail já existe.
 app.post('/register', (req, res) => {
   const { nome, email, senha, telefone } = req.body;
 
@@ -213,6 +242,8 @@ app.post('/register', (req, res) => {
   });
 });
 
+// Rotas responsáveis pelo gerenciamento dos contadores,
+// permitindo consultar, editar e remover usuários.
 app.get('/contador', (req, res) => {
   const sql = `
     SELECT id_contador, Nome AS nome, email, telefone
@@ -371,6 +402,9 @@ app.put('/contador/:id', (req, res) => {
   });
 });
 
+
+// Rotas responsáveis pelo gerenciamento das empresas,
+// contemplando cadastro, consulta, edição e exclusão.
 app.post('/empresa', (req, res) => {
   const {
     cnpj,
@@ -519,8 +553,14 @@ app.put('/empresa/:id', (req, res) => {
   );
 });
 
+// Importa a função responsável pelo cálculo das datas
+// de vencimento conforme a periodicidade definida.
 const { calcularProximoVencimento } = require('./utils/periodicidade');
 
+
+// Recebe o upload do documento enviado pela empresa,
+// registra as informações do arquivo e grava o envio
+// na base de dados.
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const { id } = req.params;
   const { id_tipo_documento } = req.body;
@@ -595,6 +635,8 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
     });
 });
 
+// Rotas responsáveis por fornecer os indicadores
+// utilizados no dashboard da aplicação.
 app.get('/dashboard', autenticarToken, (req, res) => {
   const sql = `
     SELECT
@@ -670,6 +712,9 @@ app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
+
+// Lista todos os documentos enviados pelas empresas,
+// permitindo a consulta dos anexos registrados.
 app.get('/documentos-recebidos', autenticarToken, (req, res) => {
   const sql = `
     SELECT
@@ -702,7 +747,8 @@ app.get('/documentos-recebidos', autenticarToken, (req, res) => {
   });
 });
 
-
+// Rotas responsáveis pelo gerenciamento dos documentos
+// obrigatórios cadastrados no sistema.
 app.get('/documentos', autenticarToken, (req, res) => {
   const sql = `
     SELECT 
@@ -795,7 +841,7 @@ app.delete('/documentos/:id', autenticarToken, (req, res) => {
   });
 });
 
-// ✏️ NOVO — Editar documento
+// Atualiza as informações de um documento cadastrado
 app.put('/documentos/:id', autenticarToken, (req, res) => {
   const { id } = req.params;
   const { nome, data_limite, periodicidade } = req.body;
@@ -838,6 +884,9 @@ app.put('/documentos/:id', autenticarToken, (req, res) => {
   });
 });
 
+// Verifica diariamente os documentos pendentes,
+// identificando aqueles próximos ao vencimento e
+// enviando notificações por e-mail aos contadores.
 async function verificarPrazosDocumentos() {
   console.log('Verificando documentos próximos do vencimento...');
 
@@ -923,6 +972,8 @@ cron.schedule('0 0 * * *', () => {
 
 verificarPrazosDocumentos();
 
+// Consulta o status dos documentos enviados por empresa,
+// considerando a competência informada na requisição.
 app.get('/empresa/:id/documentos/status', (req, res) => {
   const { id } = req.params;
   const { competencia } = req.query;
@@ -954,6 +1005,8 @@ app.get('/empresa/:id/documentos/status', (req, res) => {
   });
 });
 
+// Inicializa o servidor da API na porta configurada,
+// permitindo o acesso às rotas da aplicação.
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
