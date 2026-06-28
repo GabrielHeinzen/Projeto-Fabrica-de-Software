@@ -262,7 +262,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       setDeletingId(null);
     }
   };
-  
+
   // Só fecha o modal se a exclusão foi bem-sucedida
   const handleDeleteConfirm = async () => {
     if (!empresaParaExcluir) {
@@ -367,6 +367,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
               <h2>Empresas cadastradas</h2>
               <div className="empresa-card-actions">
                 <span className="empresa-badge">{resumo.total} empresas</span>
+                <button type="button"className="empresa-primary">
+                  + Cadastrar Empresa
+                </button>
                 <button
                   type="button"
                   className="empresa-secondary"
