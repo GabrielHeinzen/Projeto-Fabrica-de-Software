@@ -369,9 +369,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
               <div className="empresa-card-actions">
                 <span className="empresa-badge">{resumo.total} empresas</span>
                 <button type="button"
-                  className="empresa-primary" 
+                  className="empresa-primary"
                   onClick={() => setShowCadastroModal(true)}>
-                    + Cadastrar Empresa
+                  + Cadastrar Empresa
                 </button>
                 <button
                   type="button"
@@ -684,6 +684,30 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                 disabled={Boolean(deletingId)}
               >
                 {deletingId ? 'Excluindo...' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showCadastroModal && (
+        <div className="empresa-modal" role="dialog" aria-modal="true">
+          <div
+            className="empresa-modal__backdrop"
+            onClick={() => setShowCadastroModal(false)}
+          />
+
+          <div className="empresa-modal__content" role="document">
+            <h2>Cadastrar Empresa</h2>
+
+            <p>Conteúdo do formulário virá aqui.</p>
+
+            <div className="empresa-modal__actions">
+              <button
+                type="button"
+                className="empresa-secondary"
+                onClick={() => setShowCadastroModal(false)}
+              >
+                Cancelar
               </button>
             </div>
           </div>
