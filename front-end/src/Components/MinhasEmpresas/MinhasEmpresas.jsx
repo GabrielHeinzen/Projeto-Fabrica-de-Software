@@ -288,6 +288,67 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       setEmpresaParaExcluir(null);
     }
   };
+  const handleCreateEmpresa = async () => {
+    if (
+      !cadastroForm.razaoSocial ||
+      !cadastroForm.cnpj ||
+      !cadastroForm.regimeTributario ||
+      !cadastroForm.possuiFuncionarios ||
+      !cadastroForm.possuiNotasVenda ||
+      !cadastroForm.prestaServicos
+    ) {
+      showToast('Preencha todos os campos obrigatórios.', 'warning', {
+        title: 'Atenção'
+      });
+      return;
+    }
+
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+    setIsCreating(true);
+
+    try {
+      const resposta = await fetch(`${apiBaseUrl}/empresa`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cnpj: cadastroForm.cnpj,
+          razao_social: cadastroForm.razaoSocial,
+          regime_tributario: cadastroForm.regimeTributario,
+          possui_funcionarios: cadastroForm.possuiFuncionarios === 'sim',
+          possui_notas_venda: cadastroForm.possuiNotasVenda === 'sim',
+          presta_servicos: cadastroForm.prestaServicos === 'sim'
+        })
+      });
+
+      const dados = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok || !dados.sucesso) {
+        showToast(dados.mensagem || 'Erro ao cadastrar empresa.', 'error', {
+          title: 'Erro'
+        });
+        return;
+      }
+
+      showToast('Empresa cadastrada com sucesso.', 'success', {
+        title: 'Sucesso'
+      });
+
+      setCadastroForm(initialCadastroForm);
+      setShowCadastroModal(false);
+      carregarEmpresas();
+
+    } catch (erro) {
+      console.log(erro);
+      showToast('Erro ao conectar com backend.', 'error', {
+        title: 'Erro'
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <div className="empresa-page">
@@ -875,8 +936,10 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
               <button
                 type="button"
                 className="empresa-primary"
+                onClick={handleCreateEmpresa}
+                disabled={isCreating}
               >
-                Salvar Empresa
+                {isCreating ? 'Salvando...' : 'Salvar Empresa'}
               </button>
 
             </div>
