@@ -35,6 +35,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [deletingId, setDeletingId] = useState(null);
   const [empresaParaExcluir, setEmpresaParaExcluir] = useState(null);
   const { showToast } = useToast();
+  const [showCadastroModal, setShowCadastroModal] = useState(false);
 
   // useCallback evita loop infinito no useEffect que depende desta função
   const carregarEmpresas = useCallback(async (mostrarToast = false) => {
@@ -367,8 +368,10 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
               <h2>Empresas cadastradas</h2>
               <div className="empresa-card-actions">
                 <span className="empresa-badge">{resumo.total} empresas</span>
-                <button type="button"className="empresa-primary">
-                  + Cadastrar Empresa
+                <button type="button"
+                  className="empresa-primary" 
+                  onClick={() => setShowCadastroModal(true)}>
+                    + Cadastrar Empresa
                 </button>
                 <button
                   type="button"
