@@ -278,3 +278,21 @@
     flex: 1;
   }
 }
+
+.empresa-modal__content--form {
+  display: block;
+  width: min(640px, 92vw);
+  padding: 32px;
+}
+
+.empresa-modal__content--form h2 {
+  margin: 0 0 8px;
+}
+
+.empresa-modal__content--form p {
+  margin: 0 0 24px;
+}
+
+.empresa-modal__content--form .empresa-modal__actions {
+  justify-content: flex-end;
+}

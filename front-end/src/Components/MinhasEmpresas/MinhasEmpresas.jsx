@@ -11,6 +11,14 @@ const regimeLabels = {
   real: 'Lucro Real',
   mei: 'MEI'
 };
+const initialCadastroForm = {
+  razaoSocial: '',
+  cnpj: '',
+  regimeTributario: '',
+  possuiFuncionarios: '',
+  possuiNotasVenda: '',
+  prestaServicos: ''
+};
 // Normaliza o campo booleano que pode vir como true, 1, '1' ou 'true' do banco
 const parseFlag = (value) => value === true || value === 1 || value === '1' || value === 'true';
 // Suporta APIs que retornam id_cliente ou id
@@ -25,6 +33,8 @@ const buildEditForm = (empresa) => ({
   presta_servicos: parseFlag(empresa.presta_servicos) ? 'sim' : 'nao'
 });
 
+
+
 function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [empresas, setEmpresas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +46,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [empresaParaExcluir, setEmpresaParaExcluir] = useState(null);
   const { showToast } = useToast();
   const [showCadastroModal, setShowCadastroModal] = useState(false);
+  const [cadastroForm, setCadastroForm] = useState(initialCadastroForm);
+  const [isCreating, setIsCreating] = useState(false);
 
   // useCallback evita loop infinito no useEffect que depende desta função
   const carregarEmpresas = useCallback(async (mostrarToast = false) => {
@@ -696,7 +708,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
             onClick={() => setShowCadastroModal(false)}
           />
 
-          <div className="empresa-modal__content" role="document">
+          <div className="empresa-modal__content empresa-modal__content--form" role="document">
             <h2>Cadastrar Empresa</h2>
 
             <p>Conteúdo do formulário virá aqui.</p>
