@@ -777,6 +777,33 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
 
                 </select>
               </label>
+              <div className="empresa-toggle-group">
+                <span>Possui funcionários? *</span>
+
+                <div className="empresa-toggle-options">
+                  <label className={`empresa-toggle-option ${cadastroForm.possuiFuncionarios === 'sim' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="cadastroFuncionarios"
+                      value="sim"
+                      checked={cadastroForm.possuiFuncionarios === 'sim'}
+                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiFuncionarios: e.target.value })}
+                    />
+                    Sim
+                  </label>
+
+                  <label className={`empresa-toggle-option ${cadastroForm.possuiFuncionarios === 'nao' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="cadastroFuncionarios"
+                      value="nao"
+                      checked={cadastroForm.possuiFuncionarios === 'nao'}
+                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiFuncionarios: e.target.value })}
+                    />
+                    Não
+                  </label>
+                </div>
+              </div>
 
             </div>
 
