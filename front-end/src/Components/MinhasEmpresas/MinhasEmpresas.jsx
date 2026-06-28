@@ -804,6 +804,61 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   </label>
                 </div>
               </div>
+              <div className="empresa-toggle-group">
+                <span>Possui notas de venda? *</span>
+
+                <div className="empresa-toggle-options">
+                  <label className={`empresa-toggle-option ${cadastroForm.possuiNotasVenda === 'sim' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="cadastroNotasVenda"
+                      value="sim"
+                      checked={cadastroForm.possuiNotasVenda === 'sim'}
+                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiNotasVenda: e.target.value })}
+                    />
+                    Sim
+                  </label>
+
+                  <label className={`empresa-toggle-option ${cadastroForm.possuiNotasVenda === 'nao' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="cadastroNotasVenda"
+                      value="nao"
+                      checked={cadastroForm.possuiNotasVenda === 'nao'}
+                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiNotasVenda: e.target.value })}
+                    />
+                    Não
+                  </label>
+                </div>
+              </div>
+
+              <div className="empresa-toggle-group">
+                <span>Presta serviços? *</span>
+
+                <div className="empresa-toggle-options">
+                  <label className={`empresa-toggle-option ${cadastroForm.prestaServicos === 'sim' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="cadastroPrestaServicos"
+                      value="sim"
+                      checked={cadastroForm.prestaServicos === 'sim'}
+                      onChange={(e) => setCadastroForm({ ...cadastroForm, prestaServicos: e.target.value })}
+                    />
+                    Sim
+                  </label>
+
+                  <label className={`empresa-toggle-option ${cadastroForm.prestaServicos === 'nao' ? 'is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="cadastroPrestaServicos"
+                      value="nao"
+                      checked={cadastroForm.prestaServicos === 'nao'}
+                      onChange={(e) => setCadastroForm({ ...cadastroForm, prestaServicos: e.target.value })}
+                    />
+                    Não
+                  </label>
+                </div>
+              </div>
 
             </div>
 
