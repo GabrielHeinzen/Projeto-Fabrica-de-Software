@@ -862,7 +862,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
 
             </div>
 
-            <div className="empresa-modal__actions">
+            <div className="empresa-modal__actions empresa-modal__actions--cadastro">
+
               <button
                 type="button"
                 className="empresa-secondary"
@@ -870,6 +871,14 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
               >
                 Cancelar
               </button>
+
+              <button
+                type="button"
+                className="empresa-primary"
+              >
+                Salvar Empresa
+              </button>
+
             </div>
           </div>
         </div>
