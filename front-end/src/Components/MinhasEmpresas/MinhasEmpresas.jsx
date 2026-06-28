@@ -711,7 +711,74 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           <div className="empresa-modal__content empresa-modal__content--form" role="document">
             <h2>Cadastrar Empresa</h2>
 
-            <p>Conteúdo do formulário virá aqui.</p>
+            <div className="empresa-edit-grid">
+
+              <label className="empresa-field">
+                <span>Razão Social *</span>
+
+                <input
+                  type="text"
+                  value={cadastroForm.razaoSocial}
+                  onChange={(e) =>
+                    setCadastroForm({
+                      ...cadastroForm,
+                      razaoSocial: e.target.value
+                    })
+                  }
+                />
+              </label>
+
+              <label className="empresa-field">
+                <span>CNPJ *</span>
+
+                <input
+                  type="text"
+                  value={cadastroForm.cnpj}
+                  onChange={(e) =>
+                    setCadastroForm({
+                      ...cadastroForm,
+                      cnpj: e.target.value
+                    })
+                  }
+                />
+              </label>
+
+              <label className="empresa-field">
+                <span>Regime Tributário *</span>
+
+                <select
+                  value={cadastroForm.regimeTributario}
+                  onChange={(e) =>
+                    setCadastroForm({
+                      ...cadastroForm,
+                      regimeTributario: e.target.value
+                    })
+                  }
+                >
+                  <option value="">
+                    Selecione
+                  </option>
+
+                  <option value="simples">
+                    Simples Nacional
+                  </option>
+
+                  <option value="presumido">
+                    Lucro Presumido
+                  </option>
+
+                  <option value="real">
+                    Lucro Real
+                  </option>
+
+                  <option value="mei">
+                    MEI
+                  </option>
+
+                </select>
+              </label>
+
+            </div>
 
             <div className="empresa-modal__actions">
               <button
