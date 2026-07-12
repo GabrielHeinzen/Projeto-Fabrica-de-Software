@@ -4,6 +4,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
@@ -60,8 +61,6 @@ function autenticarToken(req, res, next) {
 // enviados pelos usuários através da API.
 app.use('/uploads', express.static('uploads'));
 
-const fs = require('fs');
-
 
 // Cria automaticamente a pasta de armazenamento dos arquivos,
 // caso ela ainda não exista no servidor.
@@ -112,7 +111,16 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  port: Number(process.env.DB_PORT),
+
+  ssl: {
+    ca: process.env.DB_CA_CERT
+      ? process.env.DB_CA_CERT.replace(/\\n/g, '\n')
+      : undefined,
+    rejectUnauthorized: true
+  },
+
+  connectTimeout: 20000
 });
 
 db.connect((erro) => {
