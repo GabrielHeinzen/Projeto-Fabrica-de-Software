@@ -106,7 +106,7 @@ const upload = multer({
 
 // Realiza a conexão com o banco de dados ao iniciar a API,
 // exibindo uma mensagem de sucesso ou erro no console.
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -120,16 +120,25 @@ const db = mysql.createConnection({
     rejectUnauthorized: true
   },
 
+  waitForConnections: true,
+  connectionLimit: 10,
+  maxIdle: 5,
+  idleTimeout: 60000,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
   connectTimeout: 20000
 });
 
-db.connect((erro) => {
+// Testa a conexão com o banco ao iniciar o servidor
+db.getConnection((erro, conexao) => {
   if (erro) {
-    console.log('Erro ao conectar no banco');
-    console.log(erro);
-  } else {
-    console.log('Banco conectado 🚀');
+    console.error('Erro ao conectar no banco:', erro);
+    return;
   }
+
+  console.log('Banco conectado 🚀');
+  conexao.release();
 });
 
 // Configuração do serviço responsável pelo envio automático
@@ -912,13 +921,13 @@ async function verificarPrazosDocumentos() {
   `;
 
   db.query(sql, async (err, documentos) => {
-    console.log('Documentos encontrados:', documentos.length);
-    console.log(documentos);
-
     if (err) {
-      console.error(err);
+      console.error('Erro ao verificar documentos:', err);
       return;
     }
+
+    console.log('Documentos encontrados:', documentos.length);
+    console.log(documentos);
 
     const hoje = new Date();
 
