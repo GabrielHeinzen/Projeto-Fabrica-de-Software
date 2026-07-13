@@ -408,12 +408,23 @@
 }
 
 .empresa-status {
-    background: rgba(242, 160, 61, 0.2);
-    color: #a85b12;
     padding: 4px 10px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
+}
+
+/* Status pendente */
+.empresa-status--pendente {
+    background: rgba(242, 160, 61, 0.2);
+    color: #a85b12;
+}
+
+/* Status enviado */
+.empresa-status--enviado {
+    background: rgba(46, 125, 50, 0.14);
+    color: #2e7d32;
+    border: 1px solid rgba(46, 125, 50, 0.25);
 }
 
 .empresa-doc-footer {

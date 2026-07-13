@@ -14,7 +14,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
     const [arquivosSelecionados, setArquivosSelecionados] = useState({}); // { idDocumento: File }
     const [documentosEnviados, setDocumentosEnviados] = useState({}); // { idDocumento: true }
 
-      // Competência padrão: mês atual no formato YYYY-MM
+    // Competência padrão: mês atual no formato YYYY-MM
     const [competencia, setCompetencia] = useState(
         new Date().toISOString().slice(0, 7)
     );
@@ -78,7 +78,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
         }
     };
 
-// Verifica quais documentos já foram enviados para uma empresa em uma competência
+    // Verifica quais documentos já foram enviados para uma empresa em uma competência
     const carregarStatusDocumentos = async (
         idCliente,
         competenciaSelecionada = competencia
@@ -157,7 +157,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                 enviados[idDocumento] = true;
             }
-// Marca os documentos recém-enviados sem sobrescrever os anteriores
+            // Marca os documentos recém-enviados sem sobrescrever os anteriores
             setDocumentosEnviados((prev) => ({
                 ...prev,
                 ...enviados
@@ -316,7 +316,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                         key={empresa.id_cliente}
                                         onClick={() => {
                                             setEmpresaSelecionada(empresa);
-                                             // Ao selecionar, carrega o status dos documentos da competência atual
+                                            // Ao selecionar, carrega o status dos documentos da competência atual
                                             carregarStatusDocumentos(
                                                 empresa.id_cliente,
                                                 competencia
@@ -405,7 +405,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                             </div>
 
                                             <div className="empresa-doc-actions">
-                                            {/* Botão de upload — o input fica oculto e o label o aciona */}
+                                                {/* Botão de upload — o input fica oculto e o label o aciona */}
                                                 <label className="empresa-upload-button">
                                                     +
 
@@ -430,8 +430,13 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                         {arquivosSelecionados[doc.id].name}
                                                     </span>
                                                 )}
-                                            {/* Status: Enviado → Anexado → Pendente */}
-                                                <span className="empresa-status">
+                                                {/* Status: Enviado → Anexado → Pendente */}
+                                                <span
+                                                    className={`empresa-status ${documentosEnviados[doc.id]
+                                                            ? 'empresa-status--enviado'
+                                                            : 'empresa-status--pendente'
+                                                        }`}
+                                                >
                                                     {documentosEnviados[doc.id]
                                                         ? 'Enviado'
                                                         : arquivosSelecionados[doc.id]
