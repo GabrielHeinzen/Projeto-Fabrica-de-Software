@@ -235,6 +235,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           title: 'Sucesso'
         });
         setFormData(initialForm);
+        setShowCadastroModal(false);
         carregarUsuarios();
       } else {
         showToast(dados.mensagem || 'Erro ao cadastrar contador', 'error', {
@@ -650,21 +651,20 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
         <div className="empresa-modal" role="dialog" aria-modal="true">
           <div
             className="empresa-modal__backdrop"
-            onClick={() => setShowCadastroModal(false)}
+            onClick={() => {
+              if (!isSubmitting) {
+                setShowCadastroModal(false);
+              }
+            }}
           />
 
-          <div
+          <form
             className="empresa-modal__content empresa-modal__content--usuario"
             role="document"
+            onSubmit={handleSubmit}
+            
           >
-            <div
-              className="empresa-modal__icon empresa-modal__icon--edit"
-              aria-hidden="true"
-            >
-              +
-            </div>
-
-            <div className="empresa-modal__text">
+            <div className="empresa-modal__text empresa-modal__text--cadastro">
               <span className="empresa-modal__title empresa-modal__title--edit">
                 Cadastrar usuário
               </span>
@@ -674,16 +674,73 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
               </span>
             </div>
 
+            <div className="empresa-modal__fields">
+              <label className="empresa-field">
+                <span>Nome *</span>
+                <input
+                  type="text"
+                  placeholder="Digite o nome do usuário"
+                  value={formData.nome}
+                  onChange={handleChange('nome')}
+                  required
+                />
+              </label>
+
+              <label className="empresa-field">
+                <span>Email *</span>
+                <input
+                  type="email"
+                  placeholder="nome@contabilidade.com"
+                  value={formData.email}
+                  onChange={handleChange('email')}
+                  required
+                />
+              </label>
+
+              <label className="empresa-field">
+                <span>Telefone</span>
+                <input
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={formData.telefone}
+                  onChange={handleChange('telefone')}
+                />
+              </label>
+
+              <label className="empresa-field">
+                <span>Senha *</span>
+                <input
+                  type="password"
+                  placeholder="Defina uma senha"
+                  value={formData.senha}
+                  onChange={handleChange('senha')}
+                  required
+                />
+              </label>
+            </div>
+
             <div className="empresa-modal__actions">
               <button
                 type="button"
                 className="empresa-secondary"
-                onClick={() => setShowCadastroModal(false)}
+                onClick={() => {
+                  handleClear();
+                  setShowCadastroModal(false);
+                }}
+                disabled={isSubmitting}
               >
                 Cancelar
               </button>
+
+              <button
+                type="submit"
+                className="empresa-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Salvando...' : 'Salvar usuário'}
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
       {usuarioParaExcluir && (
