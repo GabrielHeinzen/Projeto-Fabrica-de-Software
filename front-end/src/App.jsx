@@ -2,7 +2,6 @@ import './App.css'
 import { useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ToastProvider } from './Components/Toast/ToastProvider';
-import CadastroEmpresa from './Components/CadastroEmpresa/CadastroEmpresa';
 import MinhasEmpresas from './Components/MinhasEmpresas/MinhasEmpresas';
 import Usuarios from './Components/Usuarios/Usuarios';
 import Login from './Components/Login/Login';
@@ -46,7 +45,6 @@ function App() {
   const isAuthed = Boolean(authUser);
 
   const routeMap = {
-    cadastro: '/Cadastro-de-Empresa',
     empresas: '/Minhas-Empresas',
     usuarios: '/Usuarios',
     documentos: '/Documentos',
@@ -91,7 +89,7 @@ function App() {
             path="/Login"
             element={(
               isAuthed ? (
-                <Navigate to="/Cadastro-de-Empresa" replace />
+                <Navigate to="/Dashboard" replace />
               ) : (
                 <Login
                   onLoginSuccess={handleLoginSuccess}
@@ -99,29 +97,17 @@ function App() {
               )
             )}
           />
-          <Route
-            path="/Cadastro-de-Empresa"
-            element={(
-              <RequireAuth authed={isAuthed}>
-                <CadastroEmpresa
-                  userName={authUser?.name}
-                  onLogout={handleLogout}
-                  onNavigate={handleNavigate}
-                />
-              </RequireAuth>
-            )}
-          />
-          <Route
-            path="/Dashboard"
-            element={(
-              <RequireAuth authed={isAuthed}>
-                <Dashboard
-                  userName={authUser?.name}
-                  onLogout={handleLogout}
-                  onNavigate={handleNavigate}
-                />
-              </RequireAuth>
-            )}
+
+          path="/Dashboard"
+          element={(
+            <RequireAuth authed={isAuthed}>
+              <Dashboard
+                userName={authUser?.name}
+                onLogout={handleLogout}
+                onNavigate={handleNavigate}
+              />
+            </RequireAuth>
+          )}
           />
           <Route
             path="/Minhas-Empresas"
