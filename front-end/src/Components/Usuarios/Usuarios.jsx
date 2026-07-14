@@ -421,7 +421,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           </div>
         </section>
 
-        <div className="empresa-grid">
+        <div className="empresa-grid usuarios-grid">
           <section className="empresa-card empresa-card--list">
             <div className="empresa-card-header">
               <h2>Lista de contadores</h2>

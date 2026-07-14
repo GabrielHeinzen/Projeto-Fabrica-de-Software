@@ -74,3 +74,12 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+
+.usuarios-grid {
+  grid-template-columns: 1fr;
+}
+
+.usuarios-grid .empresa-card--list {
+  width: 100%;
+  max-width: none;
+}
