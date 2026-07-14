@@ -397,7 +397,6 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
 
       <div className="empresa-content">
         <header className="empresa-topbar">
-          <div className="empresa-breadcrumb">Usuarios</div>
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
