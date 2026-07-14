@@ -367,7 +367,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           >
             Minhas Empresas
           </button>
-          
+
           <button type="button" className="empresa-nav-item is-active">Usuarios</button>
           <button
             type="button"
@@ -423,6 +423,12 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           <section className="empresa-card empresa-card--list">
             <div className="empresa-card-header">
               <h2>Lista de contadores</h2>
+              <div className="empresa-info-banner">
+                <span className="empresa-info-icon">ℹ️</span>
+                <span>
+                  O e-mail e a senha cadastrados serão utilizados para acessar o sistema.
+                </span>
+              </div>
               <div className="empresa-card-actions">
                 <span className="empresa-badge">{resumo.total} usuarios</span>
                 <button
@@ -559,6 +565,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
             )}
           </section>
 
+          {/*
           <form className="empresa-card empresa-card--form" onSubmit={handleSubmit}>
             <div className="empresa-card-header">
               <h2>Novo contador</h2>
@@ -626,6 +633,9 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
               Os dados cadastrados ficam disponiveis para acesso no login do sistema.
             </div>
           </form>
+          */}
+
+
         </div>
       </div>
       {usuarioParaExcluir && (
