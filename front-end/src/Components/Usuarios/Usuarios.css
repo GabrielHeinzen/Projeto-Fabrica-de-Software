@@ -86,3 +86,7 @@
   width: 100%;
   max-width: none;
 }
+
+.empresa-topbar {
+  justify-content: flex-end;
+}
