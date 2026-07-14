@@ -367,13 +367,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
           >
             Minhas Empresas
           </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('cadastro')}
-          >
-            Cadastro Empresa
-          </button>
+          
           <button type="button" className="empresa-nav-item is-active">Usuarios</button>
           <button
             type="button"

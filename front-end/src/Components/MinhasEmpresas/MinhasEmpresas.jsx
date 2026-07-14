@@ -371,13 +371,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           <button type="button" className="empresa-nav-item is-active">
             Minhas Empresas
           </button>
-          <button
-            type="button"
-            className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('cadastro')}
-          >
-            Cadastro Empresa
-          </button>
+
           <button
             type="button"
             className="empresa-nav-item"

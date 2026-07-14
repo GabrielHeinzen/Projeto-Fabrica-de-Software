@@ -222,14 +222,6 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                     <button
                         type="button"
                         className="empresa-nav-item"
-                        onClick={() => onNavigate && onNavigate('cadastro')}
-                    >
-                        Cadastro Empresa
-                    </button>
-
-                    <button
-                        type="button"
-                        className="empresa-nav-item"
                         onClick={() => onNavigate && onNavigate('usuarios')}
                     >
                         Usuários
@@ -433,8 +425,8 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
                                                 {/* Status: Enviado → Anexado → Pendente */}
                                                 <span
                                                     className={`empresa-status ${documentosEnviados[doc.id]
-                                                            ? 'empresa-status--enviado'
-                                                            : 'empresa-status--pendente'
+                                                        ? 'empresa-status--enviado'
+                                                        : 'empresa-status--pendente'
                                                         }`}
                                                 >
                                                     {documentosEnviados[doc.id]

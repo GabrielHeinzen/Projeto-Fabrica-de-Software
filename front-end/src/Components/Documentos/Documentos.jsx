@@ -196,7 +196,6 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                 <nav className="empresa-nav">
                     <button type="button" className="empresa-nav-item">Dashboard</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('empresas')}>Minhas Empresas</button>
-                    <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('cadastro')}>Cadastro Empresa</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('usuarios')}>Usuários</button>
                     <button type="button" className="empresa-nav-item is-active" onClick={() => onNavigate && onNavigate('documentos')}>Documentos</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('anexo')}>Anexo de Documentos</button>
