@@ -75,11 +75,12 @@
   flex-wrap: wrap;
 }
 
-.usuarios-grid {
-  grid-template-columns: 1fr;
+.empresa-content .usuarios-grid {
+  display: block;
+  width: 100%;
 }
 
-.usuarios-grid .empresa-card--list {
+.empresa-content .usuarios-grid > .empresa-card--list {
   width: 100%;
   max-width: none;
 }
