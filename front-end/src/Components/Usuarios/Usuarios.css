@@ -48,3 +48,6 @@
   font-weight: 600;
 }
 
+.empresa-modal__content--usuario {
+  width: min(520px, calc(100vw - 32px));
+}

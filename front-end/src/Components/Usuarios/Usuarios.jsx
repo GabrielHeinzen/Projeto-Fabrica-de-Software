@@ -58,6 +58,7 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
   const [savingId, setSavingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [usuarioParaExcluir, setUsuarioParaExcluir] = useState(null);
+  const [showCadastroModal, setShowCadastroModal] = useState(false);
   const { showToast } = useToast();
 
   const carregarUsuarios = useCallback(async () => {
@@ -439,6 +440,13 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
                 >
                   {isLoading ? 'Atualizando...' : 'Atualizar lista'}
                 </button>
+                <button
+                  type="button"
+                  className="empresa-primary"
+                  onClick={() => setShowCadastroModal(true)}
+                >
+                  + Cadastrar usuário
+                </button>
               </div>
             </div>
 
@@ -638,6 +646,46 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
 
         </div>
       </div>
+      {showCadastroModal && (
+        <div className="empresa-modal" role="dialog" aria-modal="true">
+          <div
+            className="empresa-modal__backdrop"
+            onClick={() => setShowCadastroModal(false)}
+          />
+
+          <div
+            className="empresa-modal__content empresa-modal__content--usuario"
+            role="document"
+          >
+            <div
+              className="empresa-modal__icon empresa-modal__icon--edit"
+              aria-hidden="true"
+            >
+              +
+            </div>
+
+            <div className="empresa-modal__text">
+              <span className="empresa-modal__title empresa-modal__title--edit">
+                Cadastrar usuário
+              </span>
+
+              <span className="empresa-modal__message">
+                Preencha os dados abaixo para cadastrar um novo usuário.
+              </span>
+            </div>
+
+            <div className="empresa-modal__actions">
+              <button
+                type="button"
+                className="empresa-secondary"
+                onClick={() => setShowCadastroModal(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {usuarioParaExcluir && (
         <div className="empresa-modal" role="dialog" aria-modal="true">
           <div
