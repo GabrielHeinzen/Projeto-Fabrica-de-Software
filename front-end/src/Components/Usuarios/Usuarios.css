@@ -35,6 +35,8 @@
   background: linear-gradient(135deg, rgba(47, 111, 115, 0.08), rgba(255, 255, 255, 0.9));
   color: var(--muted);
   font-size: 13px;
+  width: fit-content;
+  min-width: 220px;
 }
 
 .usuarios-telefone__value {
@@ -80,7 +82,7 @@
   width: 100%;
 }
 
-.empresa-content .usuarios-grid > .empresa-card--list {
+.empresa-content .usuarios-grid>.empresa-card--list {
   width: 100%;
   max-width: none;
 }
