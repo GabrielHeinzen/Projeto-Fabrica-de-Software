@@ -108,7 +108,6 @@ function App() {
               />
             </RequireAuth>
           )}
-          />
           <Route
             path="/Minhas-Empresas"
             element={(
