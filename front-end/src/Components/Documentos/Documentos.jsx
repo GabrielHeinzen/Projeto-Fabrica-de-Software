@@ -49,7 +49,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
             const dados = await resposta.json().catch(() => []);
             if (!resposta.ok) { console.error('Erro ao buscar documentos:', dados); return; }
-             // Normaliza os campos para o padrão interno do componente
+            // Normaliza os campos para o padrão interno do componente
             const documentosFormatados = Array.isArray(dados) ? dados.map((doc) => ({
                 id: doc.id,
                 nome: doc.nome,
@@ -194,6 +194,7 @@ function Documentos({ userName = 'Usuario', onLogout, onNavigate }) {
                 </div>
 
                 <nav className="empresa-nav">
+                    <button type="button"className="empresa-nav-item"onClick={() => onNavigate && onNavigate('dashboard')}>Dashboard</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('empresas')}>Minhas Empresas</button>
                     <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('usuarios')}>Usuários</button>
                     <button type="button" className="empresa-nav-item is-active" onClick={() => onNavigate && onNavigate('documentos')}>Documentos</button>
