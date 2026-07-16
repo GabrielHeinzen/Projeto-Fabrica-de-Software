@@ -19,9 +19,10 @@
 .db-wrapper {
   font-family: var(--c2r-sans);
   color: var(--c2r-ink);
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 8px 4px 48px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 8px 0 48px;
 }
 
 .db-titulo {
@@ -59,7 +60,8 @@
   background: var(--c2r-paper);
   border: 1px solid var(--c2r-linha);
   border-radius: 14px;
-  padding: 20px 22px;
+  padding: 24px 26px;
+  min-height: 120px;
   box-shadow: var(--c2r-sombra);
   display: flex;
   flex-direction: column;
@@ -67,9 +69,17 @@
   border-top: 4px solid var(--c2r-teal-700);
 }
 
-.db-card--enviado { border-top-color: var(--c2r-verde); }
-.db-card--pendente { border-top-color: var(--c2r-ambar); }
-.db-card--taxa { border-top-color: var(--c2r-terracota); }
+.db-card--enviado {
+  border-top-color: var(--c2r-verde);
+}
+
+.db-card--pendente {
+  border-top-color: var(--c2r-ambar);
+}
+
+.db-card--taxa {
+  border-top-color: var(--c2r-terracota);
+}
 
 .db-card-label {
   font-size: 0.78rem;
@@ -121,8 +131,8 @@
 
 .db-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 22px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
@@ -177,8 +187,15 @@
   color: var(--c2r-ink);
 }
 
-.db-td-env { color: var(--c2r-verde); font-weight: 600; }
-.db-td-pend { color: var(--c2r-ambar); font-weight: 600; }
+.db-td-env {
+  color: var(--c2r-verde);
+  font-weight: 600;
+}
+
+.db-td-pend {
+  color: var(--c2r-ambar);
+  font-weight: 600;
+}
 
 /* ---------------- Lista por empresa ---------------- */
 
@@ -265,7 +282,9 @@
 }
 
 @keyframes db-girar {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .db-erro span {
@@ -296,6 +315,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .db-barra-fill,
   .db-spinner {
     transition: none;
