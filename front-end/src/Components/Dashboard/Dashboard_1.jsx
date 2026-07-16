@@ -11,6 +11,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
   const [empresas, setEmpresas] = useState([]);    // breakdown por empresa
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [competencia, setCompetencia] = useState('2026-07');
 
   useEffect(() => {
     // Recupera o token JWT salvo no login
