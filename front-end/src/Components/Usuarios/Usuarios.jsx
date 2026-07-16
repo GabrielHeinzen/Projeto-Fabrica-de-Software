@@ -396,7 +396,9 @@ function Usuarios({ userName = 'Usuario', onLogout, onNavigate }) {
       </aside>
 
       <div className="empresa-content">
-        <header className="empresa-topbar usuarios-topbar">
+        <header className="empresa-topbar">
+          <div></div>
+          
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
