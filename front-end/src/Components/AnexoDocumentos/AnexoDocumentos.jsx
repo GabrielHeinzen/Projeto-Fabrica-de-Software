@@ -139,6 +139,7 @@ function AnexoDocumentos({ userName = 'Usuario', onLogout, onNavigate }) {
 
                 formData.append('documento', arquivo);
                 formData.append('id_tipo_documento', idDocumento);
+                formData.append('competencia', competencia);
 
                 console.log('Empresa selecionada:', empresaSelecionada);
                 console.log('ID empresa:', empresaSelecionada?.id_cliente);

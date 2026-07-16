@@ -580,7 +580,7 @@ const { calcularProximoVencimento } = require('./utils/periodicidade');
 // na base de dados.
 app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
   const { id } = req.params;
-  const { id_tipo_documento } = req.body;
+  const { id_tipo_documento, competencia } = req.body;
 
   if (!req.file) {
     return res.status(400).json({
@@ -589,10 +589,17 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
     });
   }
 
-  if (!id_tipo_documento) {
+  if (!id_tipo_documento || !competencia) {
     return res.status(400).json({
       sucesso: false,
-      mensagem: 'Informe o tipo do documento'
+      mensagem: 'Informe o tipo do documento e a competência'
+    });
+  }
+
+  if (!/^\d{4}-\d{2}$/.test(competencia)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Competência inválida'
     });
   }
 
@@ -602,12 +609,10 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
       timeZone: 'America/Sao_Paulo'
     }
   );
-  const mesReferencia = new Date();
+  
+  const mesReferenciaFormatado = `${competencia}-01`;
   const urlArquivo = `/uploads/${req.file.filename}`;
   const nomeArquivo = req.file.originalname;
-  mesReferencia.setDate(1);
-  const mesReferenciaFormatado = mesReferencia.toISOString().slice(0, 10);
-
   const sql = `
   INSERT INTO envio_documento
   (
