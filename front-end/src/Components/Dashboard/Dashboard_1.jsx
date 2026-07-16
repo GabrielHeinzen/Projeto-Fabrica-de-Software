@@ -6,11 +6,11 @@ import './Dashboard.css';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }) {
-  const [geral, setGeral]         = useState(null);  // totais gerais (obrigações, enviados, pendentes)
+  const [geral, setGeral] = useState(null);  // totais gerais (obrigações, enviados, pendentes)
   const [obrigacoes, setObrigacoes] = useState([]);  // breakdown por tipo de obrigação
-  const [empresas, setEmpresas]   = useState([]);    // breakdown por empresa
-  const [loading, setLoading]     = useState(true);
-  const [erro, setErro]           = useState(null);
+  const [empresas, setEmpresas] = useState([]);    // breakdown por empresa
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(null);
 
   useEffect(() => {
     // Recupera o token JWT salvo no login
@@ -46,8 +46,8 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
   }, []);
 
   // Valores com fallback para zero caso a API retorne nulo
-  const total    = geral?.total_obrigacoes ?? 0;
-  const enviados = geral?.total_enviados   ?? 0;
+  const total = geral?.total_obrigacoes ?? 0;
+  const enviados = geral?.total_enviados ?? 0;
   const pendentes = geral?.total_pendentes ?? 0;
 
   // Taxa de envio em percentual, evitando divisão por zero
@@ -87,10 +87,29 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
           </div>
         </header>
 
-        <section className="empresa-hero">
-          <div>
-            <h1>Dashboard</h1>
-            <p>Acompanhe o status das obrigações e empresas em tempo real.</p>
+        <section className="empresa-hero dashboard-hero">
+          <div className="dashboard-hero-content">
+
+            <div>
+              <span className="empresa-kicker">
+                Painel de acompanhamento
+              </span>
+
+              <h1>Dashboard</h1>
+
+              <p>
+                Acompanhe o status das obrigações das empresas cadastradas.
+              </p>
+            </div>
+
+            <select
+              className="dashboard-competencia"
+              value={competencia}
+              onChange={(e) => setCompetencia(e.target.value)}
+            >
+              <option value="2026-07">Julho/2026</option>
+            </select>
+
           </div>
         </section>
 

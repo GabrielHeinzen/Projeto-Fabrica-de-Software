@@ -47,6 +47,22 @@
   border-radius: 2px;
 }
 
+.dashboard-competencia {
+  padding: 10px 16px;
+  border: 1px solid rgba(47, 111, 115, .25);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.dashboard-competencia:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(47, 111, 115, .12);
+}
+
 /* ---------------- Cards de resumo ---------------- */
 
 .db-cards {
