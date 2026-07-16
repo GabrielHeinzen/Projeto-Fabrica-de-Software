@@ -61,7 +61,7 @@
   border: 1px solid var(--c2r-linha);
   border-radius: 14px;
   padding: 24px 26px;
-  min-height: 120px;
+  min-height: 135px;
   box-shadow: var(--c2r-sombra);
   display: flex;
   flex-direction: column;
@@ -116,15 +116,18 @@
 
 .db-barra--inline {
   display: inline-block;
-  width: 90px;
+  width: 150px;
   vertical-align: middle;
   margin-right: 8px;
 }
 
 .db-pct {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--c2r-ink-soft);
+  display: inline-block;
+  min-width: 42px;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--c2r-teal-900);
 }
 
 /* ---------------- Grid principal ---------------- */
@@ -141,6 +144,7 @@
   border: 1px solid var(--c2r-linha);
   border-radius: 14px;
   padding: 22px 24px;
+  min-height: 250px;
   box-shadow: var(--c2r-sombra);
 }
 
@@ -232,6 +236,7 @@
 
 .db-empresa-pct {
   font-family: var(--c2r-serif);
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--c2r-teal-900);
 }
