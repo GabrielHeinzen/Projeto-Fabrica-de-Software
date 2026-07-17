@@ -248,15 +248,18 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                       </tr>
                     </thead>
                     <tbody>
-                      {obrigacoes.map((item) => {
-                        const tot = (item.enviados ?? 0) + (item.pendentes ?? 0);
-                        // Percentual individual por tipo de obrigação
-                        const pct = tot > 0 ? Math.round(((item.enviados ?? 0) / tot) * 100) : 0;
+                      {obrigacoes.map((item) => { // Percentual individual por tipo de obrigação
+                        const enviadosItem = Number(item.enviados ?? 0);
+                        const pendentesItem = Number(item.pendentes ?? 0);
+                        const tot = enviadosItem + pendentesItem;
+                        const pct = tot > 0
+                          ? Math.round((enviadosItem / tot) * 100)
+                          : 0;
                         return (
                           <tr key={item.nome}>
                             <td className="db-td-nome">{item.nome}</td>
-                            <td className="db-td-env">{item.enviados ?? 0}</td>
-                            <td className="db-td-pend">{item.pendentes ?? 0}</td>
+                            <td className="db-td-env">{enviadosItem}</td>
+                            <td className="db-td-pend">{pendentesItem}</td>
                             <td>
                               <div className="db-barra db-barra--inline">
                                 <div className="db-barra-fill" style={{ width: `${pct}%` }} />
@@ -282,7 +285,9 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                   <ul className="db-empresas">
                     {empresas.map((item) => {
                       const tot = (item.enviados ?? 0) + (item.pendentes ?? 0);
-                      const pct = tot > 0 ? Math.round(((item.enviados ?? 0) / tot) * 100) : 0;
+                      const pct = tot > 0
+                        ? Math.round(((item.enviados ?? 0) / tot) * 100)
+                        : 0;
                       return (
                         <li key={item.razao_social} className="db-empresa">
                           <div className="db-empresa-header">
