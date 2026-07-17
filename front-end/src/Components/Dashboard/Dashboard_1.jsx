@@ -261,7 +261,9 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                               <div className="db-barra db-barra--inline">
                                 <div className="db-barra-fill" style={{ width: `${pct}%` }} />
                               </div>
-                              <span className="db-pct">{pct}%</span>
+                              <span className="db-pct">
+                                {item.enviados}/{item.pendentes} = {pct}
+                              </span>
                             </td>
                           </tr>
                         );
@@ -285,7 +287,9 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                         <li key={item.razao_social} className="db-empresa">
                           <div className="db-empresa-header">
                             <span className="db-empresa-nome">{item.razao_social}</span>
-                            <span className="db-empresa-pct">{pct}%</span>
+                            <span className="db-empresa-pct">
+                              enviados={item.enviados} | pendentes={item.pendentes} | pct={pct}
+                            </span>
                           </div>
                           <div className="db-badges">
                             <span className="db-badge db-badge--env">{item.enviados ?? 0} enviados</span>
