@@ -284,21 +284,28 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                 ) : (
                   <ul className="db-empresas">
                     {empresas.map((item) => {
-                      const tot = (item.enviados ?? 0) + (item.pendentes ?? 0);
+                      const enviadosItem = Number(item.enviados ?? 0);
+                      const pendentesItem = Number(item.pendentes ?? 0);
+
+                      const tot = enviadosItem + pendentesItem;
+
                       const pct = tot > 0
-                        ? Math.round(((item.enviados ?? 0) / tot) * 100)
+                        ? Math.round((enviadosItem / tot) * 100)
                         : 0;
                       return (
                         <li key={item.razao_social} className="db-empresa">
                           <div className="db-empresa-header">
                             <span className="db-empresa-nome">{item.razao_social}</span>
-                            <span className="db-empresa-pct">
-                              enviados={item.enviados} | pendentes={item.pendentes} | pct={pct}
-                            </span>
+                            <span className="db-empresa-pct">{pct}%</span>
                           </div>
                           <div className="db-badges">
-                            <span className="db-badge db-badge--env">{item.enviados ?? 0} enviados</span>
-                            <span className="db-badge db-badge--pend">{item.pendentes ?? 0} pendentes</span>
+                            <span className="db-badge db-badge--env">
+                              {enviadosItem} enviados
+                            </span>
+
+                            <span className="db-badge db-badge--pend">
+                              {pendentesItem} pendentes
+                            </span>
                           </div>
                           <div className="db-barra">
                             <div className="db-barra-fill" style={{ width: `${pct}%` }} />
