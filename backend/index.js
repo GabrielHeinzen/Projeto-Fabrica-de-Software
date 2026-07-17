@@ -660,15 +660,18 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
 // Rotas responsáveis por fornecer os indicadores
 // utilizados no dashboard da aplicação.
 app.get('/dashboard', autenticarToken, (req, res) => {
+  const { competencia } = req.query;
+  const mesReferencia = `${competencia}-01`;
   const sql = `
     SELECT
       SUM(CASE WHEN status = 'ENVIADO' THEN 1 ELSE 0 END) AS total_enviados,
       SUM(CASE WHEN status = 'PENDENTE' THEN 1 ELSE 0 END) AS total_pendentes,
       COUNT(*) AS total_obrigacoes
     FROM envio_documento
+    WHERE mes_referencia = ?
   `;
 
-  db.query(sql, (err, result) => {
+  db.query(sql, [mesReferencia], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({
@@ -683,6 +686,17 @@ app.get('/dashboard', autenticarToken, (req, res) => {
 });
 
 app.get('/dashboard/empresas', autenticarToken, (req, res) => {
+  const { competencia } = req.query;
+
+  if (!competencia || !/^\d{4}-\d{2}$/.test(competencia)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Competência inválida'
+    });
+  }
+
+  const mesReferencia = `${competencia}-01`;
+
   const sql = `
     SELECT
       e.razao_social,
@@ -691,12 +705,15 @@ app.get('/dashboard/empresas', autenticarToken, (req, res) => {
     FROM empresa_cliente e
     LEFT JOIN envio_documento ed
       ON e.id_cliente = ed.id_cliente
+      AND ed.mes_referencia = ?
     GROUP BY e.id_cliente, e.razao_social
     ORDER BY e.razao_social
   `;
 
-  db.query(sql, (err, result) => {
+  db.query(sql, [mesReferencia], (err, result) => {
     if (err) {
+      console.error(err);
+
       return res.status(500).json({
         sucesso: false,
         mensagem: 'Erro ao buscar dashboard empresas'
@@ -708,6 +725,17 @@ app.get('/dashboard/empresas', autenticarToken, (req, res) => {
 });
 
 app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
+  const { competencia } = req.query;
+
+  if (!competencia || !/^\d{4}-\d{2}$/.test(competencia)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: 'Competência inválida'
+    });
+  }
+
+  const mesReferencia = `${competencia}-01`;
+
   const sql = `
     SELECT
       td.nome,
@@ -716,12 +744,15 @@ app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
     FROM tipo_documento td
     LEFT JOIN envio_documento ed
       ON td.id_tipo_documento = ed.id_tipo_documento
+      AND ed.mes_referencia = ?
     GROUP BY td.id_tipo_documento, td.nome
     ORDER BY td.nome
   `;
 
-  db.query(sql, (err, result) => {
+  db.query(sql, [mesReferencia], (err, result) => {
     if (err) {
+      console.error(err);
+
       return res.status(500).json({
         sucesso: false,
         mensagem: 'Erro ao buscar dashboard obrigações'

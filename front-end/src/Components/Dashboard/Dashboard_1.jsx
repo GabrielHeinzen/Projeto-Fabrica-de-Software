@@ -53,6 +53,9 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
 
 
   useEffect(() => {
+    if (!competencia) {
+      return;
+    }
     // Recupera o token JWT salvo no login
     const authUser = JSON.parse(localStorage.getItem('authUser') || 'null');
     const token = authUser?.token;
@@ -63,9 +66,20 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
 
     // Dispara as 3 requisições em paralelo para reduzir tempo de carregamento
     Promise.all([
-      fetch(`${API_URL}/dashboard`, { headers }),
-      fetch(`${API_URL}/dashboard/obrigacoes`, { headers }),
-      fetch(`${API_URL}/dashboard/empresas`, { headers }),
+      fetch(
+        `${API_URL}/dashboard?competencia=${competencia}`,
+        { headers }
+      ),
+
+      fetch(
+        `${API_URL}/dashboard/obrigacoes?competencia=${competencia}`,
+        { headers }
+      ),
+
+      fetch(
+        `${API_URL}/dashboard/empresas?competencia=${competencia}`,
+        { headers }
+      ),
     ])
       .then(async ([resGeral, resObrig, resEmpresas]) => {
         if (!resGeral.ok || !resObrig.ok || !resEmpresas.ok) {
@@ -83,7 +97,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
       })
       .catch((err) => setErro(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [competencia]);
 
   // Valores com fallback para zero caso a API retorne nulo
   const total = geral?.total_obrigacoes ?? 0;
