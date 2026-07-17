@@ -11,7 +11,46 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
   const [empresas, setEmpresas] = useState([]);    // breakdown por empresa
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
-  const [competencia, setCompetencia] = useState('2026-07');
+  const [competencia, setCompetencia] = useState('');
+  const [competencias, setCompetencias] = useState([]);
+
+  useEffect(() => {
+    const authUser = JSON.parse(
+      localStorage.getItem('authUser') || 'null'
+    );
+
+    const token = authUser?.token;
+
+    if (!token) {
+      return;
+    }
+
+    fetch(`${API_URL}/dashboard/competencias`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(async (resposta) => {
+        if (!resposta.ok) {
+          throw new Error('Erro ao carregar competências');
+        }
+
+        return resposta.json();
+      })
+      .then((dados) => {
+        const lista = Array.isArray(dados) ? dados : [];
+
+        setCompetencias(lista);
+
+        if (lista.length > 0) {
+          setCompetencia(lista[0].competencia);
+        }
+      })
+      .catch((erro) => {
+        console.error(erro);
+      });
+  }, []);
+
 
   useEffect(() => {
     // Recupera o token JWT salvo no login
@@ -107,8 +146,35 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
               className="dashboard-competencia"
               value={competencia}
               onChange={(e) => setCompetencia(e.target.value)}
+              disabled={competencias.length === 0}
             >
-              <option value="2026-07">Julho/2026</option>
+              {competencias.length === 0 ? (
+                <option value="">
+                  Nenhuma competência
+                </option>
+              ) : (
+                competencias.map((item) => {
+                  const [ano, mes] = item.competencia.split('-');
+
+                  const nomeMes = new Date(
+                    Number(ano),
+                    Number(mes) - 1,
+                    1
+                  ).toLocaleDateString('pt-BR', {
+                    month: 'long',
+                    year: 'numeric'
+                  });
+
+                  return (
+                    <option
+                      key={item.competencia}
+                      value={item.competencia}
+                    >
+                      {nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)}
+                    </option>
+                  );
+                })
+              )}
             </select>
 
           </div>

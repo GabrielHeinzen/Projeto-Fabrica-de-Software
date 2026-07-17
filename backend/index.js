@@ -609,7 +609,7 @@ app.post('/empresa/:id/documentos', upload.single('documento'), (req, res) => {
       timeZone: 'America/Sao_Paulo'
     }
   );
-  
+
   const mesReferenciaFormatado = `${competencia}-01`;
   const urlArquivo = `/uploads/${req.file.filename}`;
   const nomeArquivo = req.file.originalname;
@@ -725,6 +725,29 @@ app.get('/dashboard/obrigacoes', autenticarToken, (req, res) => {
       return res.status(500).json({
         sucesso: false,
         mensagem: 'Erro ao buscar dashboard obrigações'
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+app.get('/dashboard/competencias', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT DISTINCT
+      DATE_FORMAT(mes_referencia, '%Y-%m') AS competencia
+    FROM envio_documento
+    WHERE mes_referencia IS NOT NULL
+    ORDER BY competencia DESC
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: 'Erro ao buscar competências do dashboard'
       });
     }
 
