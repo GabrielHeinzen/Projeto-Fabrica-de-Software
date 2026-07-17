@@ -265,7 +265,7 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                                 <div className="db-barra-fill" style={{ width: `${pct}%` }} />
                               </div>
                               <span className="db-pct">
-                                {item.enviados}/{item.pendentes} = {pct}
+                                {pct}%
                               </span>
                             </td>
                           </tr>
