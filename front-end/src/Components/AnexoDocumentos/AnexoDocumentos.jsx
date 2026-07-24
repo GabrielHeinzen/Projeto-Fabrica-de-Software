@@ -345,16 +345,12 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
                   <li
                     key={empresa.id_cliente}
                     onClick={() => {
+                      setDocumentosSelecionados({});
+                      setArquivosSelecionados({});
+
                       setEmpresaSelecionada(empresa);
-                      // Ao selecionar, carrega o status dos documentos da competência atual
+
                       carregarStatusDocumentos(empresa.id_cliente, competencia);
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      border:
-                        empresaSelecionada?.id_cliente === empresa.id_cliente
-                          ? "2px solid #0f766e"
-                          : "",
                     }}
                   >
                     <div>
