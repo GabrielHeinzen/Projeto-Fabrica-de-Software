@@ -121,25 +121,35 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
       (id) => documentosSelecionados[id],
     );
 
-    if (idsComArquivo.length === 0) {
-      showToast("Anexe pelo menos um documento antes de enviar.", "error", {
+    if (idsSelecionados.length === 0) {
+      showToast("Selecione pelo menos um documento.", "error", {
         title: "Erro",
       });
       return;
     }
 
+    // Valida quais documentos realmente precisam de anexo
     for (const idDocumento of idsSelecionados) {
       const documento = documentos.find(
-        (doc) => doc.id === Number(idDocumento),
+        (doc) => String(doc.id) === String(idDocumento),
       );
 
-      const possuiArquivo = !!arquivosSelecionados[idDocumento];
+      if (!documento) {
+        showToast("Documento não encontrado.", "error", {
+          title: "Erro",
+        });
+        return;
+      }
+
+      const possuiArquivo = Boolean(arquivosSelecionados[idDocumento]);
 
       if (!possuiArquivo && !documento.permiteSemAnexo) {
         showToast(
           `O documento "${documento.nome}" precisa de um anexo.`,
           "error",
-          { title: "Erro" },
+          {
+            title: "Erro",
+          },
         );
         return;
       }
@@ -148,18 +158,18 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
     try {
       const enviados = {};
 
-      // Envia cada arquivo individualmente via multipart/form-data
-      for (const idDocumento of idsComArquivo) {
+      for (const idDocumento of idsSelecionados) {
         const arquivo = arquivosSelecionados[idDocumento];
 
         const formData = new FormData();
 
-        formData.append("documento", arquivo);
+        // Só adiciona o campo documento quando realmente existir arquivo
+        if (arquivo) {
+          formData.append("documento", arquivo);
+        }
+
         formData.append("id_tipo_documento", idDocumento);
         formData.append("competencia", competencia);
-
-        console.log("Empresa selecionada:", empresaSelecionada);
-        console.log("ID empresa:", empresaSelecionada?.id_cliente);
 
         const resposta = await fetch(
           `${apiBaseUrl}/empresa/${empresaSelecionada.id_cliente}/documentos`,
@@ -170,16 +180,25 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
         );
 
         if (!resposta.ok) {
-          throw new Error("Erro ao enviar documento");
+          const erroBackend = await resposta.json().catch(() => null);
+
+          throw new Error(
+            erroBackend?.erro ||
+              erroBackend?.message ||
+              "Erro ao enviar documento",
+          );
         }
 
         enviados[idDocumento] = true;
       }
-      // Marca os documentos recém-enviados sem sobrescrever os anteriores
+
       setDocumentosEnviados((prev) => ({
         ...prev,
         ...enviados,
       }));
+
+      setArquivosSelecionados({});
+      setDocumentosSelecionados({});
 
       showToast("Documentos enviados com sucesso!", "success", {
         title: "Sucesso",
@@ -187,7 +206,7 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
     } catch (erro) {
       console.error(erro);
 
-      showToast("Erro ao enviar documentos.", "error", {
+      showToast(erro.message || "Erro ao enviar documentos.", "error", {
         title: "Erro",
       });
     }
