@@ -190,10 +190,11 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
       ...prev,
       [idDocumento]: !prev[idDocumento],
     }));
-    const quantidadeSelecionados = Object.values(documentosSelecionados).filter(
-      Boolean,
-    ).length;
   };
+
+  const quantidadeSelecionados = Object.values(documentosSelecionados).filter(
+    Boolean,
+  ).length;
 
   return (
     <div className="empresa-page">
