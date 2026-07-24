@@ -69,6 +69,7 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
         nome: doc.nome,
         validade: doc.dia_limite_envio,
         periodicidade: doc.periodicidade,
+        permiteSemAnexo: Boolean(doc.permite_sem_anexo),
       }));
 
       setDocumentos(documentosFormatados);
@@ -116,13 +117,32 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
 
   // Envia todos os arquivos selecionados para a empresa ativa
   const enviarDocumentos = async () => {
-    const idsComArquivo = Object.keys(arquivosSelecionados);
+    const idsSelecionados = Object.keys(documentosSelecionados).filter(
+      (id) => documentosSelecionados[id],
+    );
 
     if (idsComArquivo.length === 0) {
       showToast("Anexe pelo menos um documento antes de enviar.", "error", {
         title: "Erro",
       });
       return;
+    }
+
+    for (const idDocumento of idsSelecionados) {
+      const documento = documentos.find(
+        (doc) => doc.id === Number(idDocumento),
+      );
+
+      const possuiArquivo = !!arquivosSelecionados[idDocumento];
+
+      if (!possuiArquivo && !documento.permiteSemAnexo) {
+        showToast(
+          `O documento "${documento.nome}" precisa de um anexo.`,
+          "error",
+          { title: "Erro" },
+        );
+        return;
+      }
     }
 
     try {
