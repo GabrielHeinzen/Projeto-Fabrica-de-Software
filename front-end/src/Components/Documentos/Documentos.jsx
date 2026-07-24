@@ -475,6 +475,17 @@ function Documentos({ userName = "Usuario", onLogout, onNavigate }) {
                   <option value="ANUAL">Anual</option>
                 </select>
               </label>
+
+              <label className="documento-checkbox">
+                <input
+                  type="checkbox"
+                  checked={editPermiteSemAnexo}
+                  onChange={(e) => setEditPermiteSemAnexo(e.target.checked)}
+                />
+
+                <span>Permitir envio sem anexo</span>
+              </label>
+              
             </div>
 
             <div className="empresa-modal__actions">
