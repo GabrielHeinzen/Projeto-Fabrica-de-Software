@@ -831,7 +831,8 @@ app.get('/documentos', autenticarToken, (req, res) => {
       id_tipo_documento AS id,
       nome,
       dia_limite_envio,
-      periodicidade
+      periodicidade,
+      permite_sem_anexo
     FROM tipo_documento
     ORDER BY nome
   `;
@@ -850,7 +851,12 @@ app.get('/documentos', autenticarToken, (req, res) => {
 });
 
 app.post('/documentos', autenticarToken, (req, res) => {
-  const { nome, data_limite, periodicidade } = req.body;
+  const {
+    nome,
+    data_limite,
+    periodicidade,
+    permite_sem_anexo
+  } = req.body;
 
   if (!nome || !data_limite || !periodicidade) {
     return res.status(400).json({
@@ -859,27 +865,47 @@ app.post('/documentos', autenticarToken, (req, res) => {
     });
   }
 
+  const permiteSemAnexoNormalizado =
+    permite_sem_anexo === true ||
+    permite_sem_anexo === 1 ||
+    permite_sem_anexo === '1';
+
   const sql = `
     INSERT INTO tipo_documento
-    (nome, dia_limite_envio, periodicidade)
-    VALUES (?, ?, ?)
+    (
+      nome,
+      dia_limite_envio,
+      periodicidade,
+      permite_sem_anexo
+    )
+    VALUES (?, ?, ?, ?)
   `;
 
-  db.query(sql, [nome, data_limite, periodicidade], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        sucesso: false,
-        mensagem: 'Erro ao cadastrar documento'
+  db.query(
+    sql,
+    [
+      nome,
+      data_limite,
+      periodicidade,
+      permiteSemAnexoNormalizado ? 1 : 0
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao cadastrar documento'
+        });
+      }
+
+      res.status(201).json({
+        sucesso: true,
+        mensagem: 'Documento cadastrado com sucesso',
+        id: result.insertId
       });
     }
-
-    res.status(201).json({
-      sucesso: true,
-      mensagem: 'Documento cadastrado com sucesso',
-      id: result.insertId
-    });
-  });
+  );
 });
 
 app.delete('/documentos/:id', autenticarToken, (req, res) => {
@@ -920,7 +946,13 @@ app.delete('/documentos/:id', autenticarToken, (req, res) => {
 // Atualiza as informações de um documento cadastrado
 app.put('/documentos/:id', autenticarToken, (req, res) => {
   const { id } = req.params;
-  const { nome, data_limite, periodicidade } = req.body;
+
+  const {
+    nome,
+    data_limite,
+    periodicidade,
+    permite_sem_anexo
+  } = req.body;
 
   if (!nome || !data_limite || !periodicidade) {
     return res.status(400).json({
@@ -929,35 +961,52 @@ app.put('/documentos/:id', autenticarToken, (req, res) => {
     });
   }
 
+  const permiteSemAnexoNormalizado =
+    permite_sem_anexo === true ||
+    permite_sem_anexo === 1 ||
+    permite_sem_anexo === '1';
+
   const sql = `
     UPDATE tipo_documento
     SET nome = ?,
         dia_limite_envio = ?,
-        periodicidade = ?
+        periodicidade = ?,
+        permite_sem_anexo = ?
     WHERE id_tipo_documento = ?
   `;
 
-  db.query(sql, [nome, data_limite, periodicidade, id], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        sucesso: false,
-        mensagem: 'Erro ao atualizar documento'
+  db.query(
+    sql,
+    [
+      nome,
+      data_limite,
+      periodicidade,
+      permiteSemAnexoNormalizado ? 1 : 0,
+      id
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          sucesso: false,
+          mensagem: 'Erro ao atualizar documento'
+        });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          sucesso: false,
+          mensagem: 'Documento não encontrado'
+        });
+      }
+
+      res.json({
+        sucesso: true,
+        mensagem: 'Documento atualizado com sucesso'
       });
     }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        sucesso: false,
-        mensagem: 'Documento não encontrado'
-      });
-    }
-
-    res.json({
-      sucesso: true,
-      mensagem: 'Documento atualizado com sucesso'
-    });
-  });
+  );
 });
 
 // Verifica diariamente os documentos pendentes,
