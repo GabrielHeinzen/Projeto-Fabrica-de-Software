@@ -371,16 +371,6 @@ function Documentos({ userName = "Usuario", onLogout, onNavigate }) {
               <span>Permitir envio sem anexo</span>
             </label>
 
-            <label className="documento-checkbox">
-              <input
-                type="checkbox"
-                checked={permiteSemAnexo}
-                onChange={(e) => setPermiteSemAnexo(e.target.checked)}
-              />
-
-              <span>Permitir envio sem anexo</span>
-            </label>
-
             <div className="empresa-actions">
               <button
                 type="button"
