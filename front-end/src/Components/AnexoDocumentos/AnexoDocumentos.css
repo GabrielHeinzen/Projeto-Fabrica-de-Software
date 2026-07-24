@@ -1,581 +1,611 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap");
 
 .empresa-page {
-    --primary: #2f6f73;
-    --primary-dark: #0f3d3e;
-    --accent: #f2a03d;
-    --ink: #102a43;
-    --muted: #5c6b73;
-    --card: #ffffff;
-    --border: #e1e8ef;
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    background: radial-gradient(circle at top left, #f0f7f5 0%, #f8fbff 45%, #fef7ef 100%);
-    color: var(--ink);
-    font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --primary: #2f6f73;
+  --primary-dark: #0f3d3e;
+  --accent: #f2a03d;
+  --ink: #102a43;
+  --muted: #5c6b73;
+  --card: #ffffff;
+  --border: #e1e8ef;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  background: radial-gradient(
+    circle at top left,
+    #f0f7f5 0%,
+    #f8fbff 45%,
+    #fef7ef 100%
+  );
+  color: var(--ink);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
 }
 
 .empresa-page,
 .empresa-page * {
-    box-sizing: border-box;
-    text-shadow: none;
-    font-family: inherit;
+  box-sizing: border-box;
+  text-shadow: none;
+  font-family: inherit;
 }
 
 .empresa-sidebar {
-    background: linear-gradient(180deg, #0f3d3e 0%, #1a5153 100%);
-    color: #e9f1f1;
-    padding: 28px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    position: relative;
-    overflow: hidden;
+  background: linear-gradient(180deg, #0f3d3e 0%, #1a5153 100%);
+  color: #e9f1f1;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
 }
 
 .empresa-sidebar::after {
-    content: '';
-    position: absolute;
-    bottom: -120px;
-    left: -40px;
-    width: 240px;
-    height: 240px;
-    background: radial-gradient(circle, rgba(242, 160, 61, 0.35), transparent 70%);
-    pointer-events: none;
+  content: "";
+  position: absolute;
+  bottom: -120px;
+  left: -40px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(
+    circle,
+    rgba(242, 160, 61, 0.35),
+    transparent 70%
+  );
+  pointer-events: none;
 }
 
 .empresa-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 .empresa-brand strong {
-    display: block;
-    font-size: 18px;
-    color: #ffffff;
+  display: block;
+  font-size: 18px;
+  color: #ffffff;
 }
 
 .empresa-brand span {
-    color: #cde3e3;
-    font-size: 12px;
+  color: #cde3e3;
+  font-size: 12px;
 }
 
 .empresa-logo {
-    width: 64px;
-    height: 64px;
-    border-radius: 14px;
-    background: #0f3d3e;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: #0f3d3e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .empresa-logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .empresa-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    animation: slideIn 0.6s ease both;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideIn 0.6s ease both;
 }
 
 .empresa-nav-item {
-    background: transparent;
-    border: 1px solid transparent;
-    color: #d6e6e6;
-    text-align: left;
-    padding: 10px 12px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #d6e6e6;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
 }
 
 .empresa-nav-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
 }
 
 .empresa-nav-item.is-active {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-    font-weight: 600;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .empresa-support {
-    margin-top: auto;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    color: #e4f0f0;
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #e4f0f0;
 }
 
 .empresa-support p {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .empresa-support span {
-    font-size: 13px;
-    color: #cde3e3;
+  font-size: 13px;
+  color: #cde3e3;
 }
 
 .empresa-support-button {
-    background: #ffffff;
-    color: #0f3d3e;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-weight: 600;
-    cursor: pointer;
+  background: #ffffff;
+  color: #0f3d3e;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .empresa-content {
-    padding: 32px 40px 48px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+  padding: 32px 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .empresa-topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .empresa-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
 }
 
 .empresa-user-name {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .empresa-logout {
-    border: 1px solid var(--border);
-    background: #ffffff;
-    border-radius: 999px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-size: 13px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .empresa-hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    background: linear-gradient(120deg, rgba(47, 111, 115, 0.08), rgba(242, 160, 61, 0.12));
-    border-radius: 20px;
-    padding: 24px 28px;
-    border: 1px solid rgba(47, 111, 115, 0.2);
-    animation: fadeUp 0.6s ease both;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(
+    120deg,
+    rgba(47, 111, 115, 0.08),
+    rgba(242, 160, 61, 0.12)
+  );
+  border-radius: 20px;
+  padding: 24px 28px;
+  border: 1px solid rgba(47, 111, 115, 0.2);
+  animation: fadeUp 0.6s ease both;
 }
 
 .empresa-hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 32px;
-    margin-top: 6px;
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  margin-top: 6px;
 }
 
 .empresa-hero p {
-    color: var(--muted);
-    margin-top: 8px;
-    max-width: 480px;
+  color: var(--muted);
+  margin-top: 8px;
+  max-width: 480px;
 }
 
 .empresa-kicker {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: var(--primary);
-    font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--primary);
+  font-weight: 600;
 }
 
 .empresa-hero-badge {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 14px 18px;
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    color: var(--muted);
-    font-size: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .empresa-hero-badge strong {
-    color: var(--ink);
-    font-size: 16px;
+  color: var(--ink);
+  font-size: 16px;
 }
 
 .empresa-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 24px;
 }
 
 .empresa-card {
-    background: var(--card);
-    border-radius: 20px;
-    padding: 24px;
-    border: 1px solid var(--border);
-    box-shadow: 0 18px 40px rgba(15, 61, 62, 0.08);
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    animation: fadeUp 0.6s ease both;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 40px rgba(15, 61, 62, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeUp 0.6s ease both;
 }
 
 .empresa-card--docs {
-    animation-delay: 0.1s;
+  animation-delay: 0.1s;
 }
 
 .empresa-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .empresa-card-header h2 {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .empresa-badge {
-    background: rgba(47, 111, 115, 0.15);
-    color: var(--primary);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+  background: rgba(47, 111, 115, 0.15);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .empresa-field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .empresa-field span {
-    color: var(--ink);
-    font-weight: 600;
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .empresa-field input,
 .empresa-field select {
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 14px;
-    outline: none;
-    background: #fbfdff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  background: #fbfdff;
 }
 
 .empresa-field input:focus,
 .empresa-field select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(47, 111, 115, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(47, 111, 115, 0.15);
 }
 
 .empresa-toggle-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-size: 14px;
-    color: var(--ink);
-    font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .empresa-toggle-options {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .empresa-toggle-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: #ffffff;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--muted);
-    transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all 0.2s ease;
 }
 
 .empresa-toggle-option input {
-    accent-color: var(--primary);
+  accent-color: var(--primary);
 }
 
 .empresa-toggle-option.is-selected {
-    background: rgba(47, 111, 115, 0.12);
-    border-color: rgba(47, 111, 115, 0.4);
-    color: var(--ink);
+  background: rgba(47, 111, 115, 0.12);
+  border-color: rgba(47, 111, 115, 0.4);
+  color: var(--ink);
 }
 
 .empresa-note {
-    background: rgba(47, 111, 115, 0.08);
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 13px;
-    color: var(--muted);
+  background: rgba(47, 111, 115, 0.08);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--muted);
 }
 
 .empresa-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .empresa-primary {
-    background: var(--primary);
-    color: #ffffff;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 12px 20px rgba(47, 111, 115, 0.2);
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 20px rgba(47, 111, 115, 0.2);
 }
 
 .empresa-secondary {
-    background: #ffffff;
-    color: var(--ink);
-    border: 1px solid var(--border);
-    padding: 12px 18px;
-    border-radius: 14px;
-    font-weight: 600;
-    cursor: pointer;
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .empresa-doc-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
 }
 
 .empresa-doc-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 16px;
-    background: #f7fafc;
-    border-radius: 14px;
-    border: 1px solid #edf2f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #f7fafc;
+  border-radius: 14px;
+  border: 1px solid #edf2f7;
 }
 
 .empresa-doc-list li span {
-    display: block;
+  display: block;
 }
 
 .empresa-doc-list strong {
-    display: block;
-    font-size: 14px;
-    color: var(--ink);
+  display: block;
+  font-size: 14px;
+  color: var(--ink);
 }
 
 .empresa-doc-list span {
-    font-size: 12px;
-    color: var(--muted);
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .empresa-status {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* Status pendente */
 .empresa-status--pendente {
-    background: rgba(242, 160, 61, 0.2);
-    color: #a85b12;
+  background: rgba(242, 160, 61, 0.2);
+  color: #a85b12;
 }
 
 /* Status enviado */
 .empresa-status--enviado {
-    background: rgba(46, 125, 50, 0.14);
-    color: #2e7d32;
-    border: 1px solid rgba(46, 125, 50, 0.25);
+  background: rgba(46, 125, 50, 0.14);
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.25);
 }
 
 .empresa-doc-footer {
-    font-size: 13px;
-    color: var(--muted);
-    border-top: 1px dashed var(--border);
-    padding-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
 }
 
 @keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-12px);
-    }
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @media (max-width: 1024px) {
-    .empresa-page {
-        grid-template-columns: 1fr;
-    }
+  .empresa-page {
+    grid-template-columns: 1fr;
+  }
 
-    .empresa-sidebar {
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: center;
-    }
+  .empresa-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 
-    .empresa-nav {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
+  .empresa-nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
-    .empresa-support {
-        width: 100%;
-    }
+  .empresa-support {
+    width: 100%;
+  }
 
-    .empresa-content {
-        padding: 28px 24px 40px;
-    }
+  .empresa-content {
+    padding: 28px 24px 40px;
+  }
 
-    .empresa-grid {
-        grid-template-columns: 1fr;
-    }
+  .empresa-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {
-    .empresa-content {
-        padding: 24px 18px 36px;
-    }
+  .empresa-content {
+    padding: 24px 18px 36px;
+  }
 
-    .empresa-topbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .empresa-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    .empresa-hero {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .empresa-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    .empresa-hero-badge {
-        width: 100%;
-    }
+  .empresa-hero-badge {
+    width: 100%;
+  }
 
-    .empresa-actions {
-        flex-direction: column;
-    }
+  .empresa-actions {
+    flex-direction: column;
+  }
 }
 
 .empresa-upload-button {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #0f4c4c;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    transition: 0.2s;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0f4c4c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
 .empresa-upload-button:hover {
-    opacity: 0.85;
+  opacity: 0.85;
 }
 
 .empresa-doc-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .empresa-datas {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .empresa-delete-button {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: none;
-    background: #d64545;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #d64545;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .empresa-delete-button:hover {
-    opacity: 0.85;
-    transform: scale(1.05);
+  opacity: 0.85;
+  transform: scale(1.05);
 }
 
 .competencia-field {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-    font-weight: 600;
-    color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .competencia-field input {
-    padding: 10px 14px;
-    border: 1px solid #dbe4ea;
-    border-radius: 12px;
-    background: #f7fafc;
-    color: var(--ink);
-    font-family: inherit;
+  padding: 10px 14px;
+  border: 1px solid #dbe4ea;
+  border-radius: 12px;
+  background: #f7fafc;
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.empresa-documento {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.empresa-doc-checkbox input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.empresa-documento--selecionado {
+  border: 2px solid #0f766e;
+  background: #eef8f7;
 }
