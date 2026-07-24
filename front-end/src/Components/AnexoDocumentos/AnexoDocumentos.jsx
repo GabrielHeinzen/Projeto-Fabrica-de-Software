@@ -385,7 +385,7 @@ function AnexoDocumentos({ userName = "Usuario", onLogout, onNavigate }) {
                         />
                       </div>
 
-                      <div>
+                      <div className="empresa-doc-info">
                         <strong>{doc.nome}</strong>
 
                         <span>

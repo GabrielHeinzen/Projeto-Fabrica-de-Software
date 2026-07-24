@@ -609,3 +609,36 @@
   border: 2px solid #0f766e;
   background: #eef8f7;
 }
+
+.empresa-documento {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.empresa-doc-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.empresa-doc-info strong {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.empresa-doc-info span {
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.empresa-doc-checkbox {
+  margin-right: 6px;
+}
+
+.empresa-doc-checkbox input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
