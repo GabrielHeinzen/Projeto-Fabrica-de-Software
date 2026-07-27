@@ -285,11 +285,13 @@ export default function Dashboard({
                         const tot = enviadosItem + pendentesItem;
                         const pct =
                           tot > 0 ? Math.round((enviadosItem / tot) * 100) : 0;
+                        const abrirModalEmpresa = (empresa) => {
+                          console.log("Empresa clicada:", empresa);
+                        };
                         return (
                           <tr
-                            key={tipo.id}
+                            key={item.id_tipo_documento ?? item.nome}
                             className="dashboard-linha-clicavel"
-                            onClick={() => abrirModalTipo(tipo)}
                           >
                             <td className="db-td-nome">{item.nome}</td>
                             <td className="db-td-env">{enviadosItem}</td>
@@ -324,15 +326,11 @@ export default function Dashboard({
 
                       const tot = enviadosItem + pendentesItem;
 
-                      const abrirModalEmpresa = (empresa) => {
-                        console.log(empresa);
-                      };
-
                       const pct =
                         tot > 0 ? Math.round((enviadosItem / tot) * 100) : 0;
                       return (
                         <li
-                          key={item.razao_social}
+                          key={item.id_empresa ?? item.razao_social}
                           className="db-empresa db-item-clicavel"
                           onClick={() => abrirModalEmpresa(item)}
                         >
