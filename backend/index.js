@@ -1152,6 +1152,46 @@ app.get("/empresa/:id/documentos/status", (req, res) => {
   });
 });
 
+app.get(
+  "/dashboard/empresas-sem-vinculo",
+  autenticarToken,
+  async (req, res) => {
+    try {
+      const idContador = req.user.id_contador;
+
+      const [empresas] = await pool.query(
+        `
+          SELECT
+            ec.id_cliente,
+            ec.razao_social
+          FROM empresa_cliente ec
+          LEFT JOIN cliente_tipo_documento ctd
+            ON ctd.id_cliente = ec.id_cliente
+           AND ctd.ativo = 1
+          WHERE ec.id_contador = ?
+          GROUP BY
+            ec.id_cliente,
+            ec.razao_social
+          HAVING COUNT(ctd.id_cliente_tipo_documento) = 0
+          ORDER BY ec.razao_social
+        `,
+        [idContador],
+      );
+
+      return res.json({
+        quantidade: empresas.length,
+        empresas,
+      });
+    } catch (erro) {
+      console.error("Erro ao buscar empresas sem vínculo:", erro);
+
+      return res.status(500).json({
+        erro: "Erro ao buscar empresas sem documentos vinculados.",
+      });
+    }
+  },
+);
+
 // Inicializa o servidor da API na porta configurada,
 // permitindo o acesso às rotas da aplicação.
 app.listen(PORT, () => {
