@@ -328,10 +328,6 @@ export default function Dashboard({
                         console.log(empresa);
                       };
 
-                      const abrirModalEmpresa = (empresa) => {
-                        console.log("Empresa clicada:", empresa);
-                      };
-
                       const pct =
                         tot > 0 ? Math.round((enviadosItem / tot) * 100) : 0;
                       return (
