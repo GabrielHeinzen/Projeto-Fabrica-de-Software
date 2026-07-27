@@ -12,8 +12,8 @@
   --c2r-ambar: #c2792e;
   --c2r-linha: #e7e0d2;
   --c2r-sombra: 0 10px 30px -18px rgba(14, 54, 51, 0.35);
-  --c2r-serif: 'Georgia', 'Iowan Old Style', 'Times New Roman', serif;
-  --c2r-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --c2r-serif: "Georgia", "Iowan Old Style", "Times New Roman", serif;
+  --c2r-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 .db-wrapper {
@@ -37,7 +37,7 @@
 }
 
 .db-titulo::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   bottom: 0;
@@ -49,18 +49,18 @@
 
 .dashboard-competencia {
   padding: 10px 16px;
-  border: 1px solid rgba(47, 111, 115, .25);
+  border: 1px solid rgba(47, 111, 115, 0.25);
   border-radius: 10px;
   background: #fff;
   color: var(--primary);
   font-weight: 600;
   cursor: pointer;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .dashboard-competencia:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(47, 111, 115, .12);
+  box-shadow: 0 4px 12px rgba(47, 111, 115, 0.12);
 }
 
 /* ---------------- Cards de resumo ---------------- */
@@ -336,10 +336,24 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .db-barra-fill,
   .db-spinner {
     transition: none;
     animation: none;
   }
+}
+
+.db-item-clicavel {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.db-item-clicavel:hover {
+  background-color: #f8f7f3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.db-item-clicavel:active {
+  transform: translateY(0);
 }

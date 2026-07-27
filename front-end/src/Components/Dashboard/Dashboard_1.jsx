@@ -1,23 +1,25 @@
-import { useEffect, useState } from 'react';
-import logoIcon from '../../assets/IconeContabilidade.jpeg';
-import '../../Components/CadastroEmpresa/CadastroEmpresa.css';
-import './Dashboard.css';
+import { useEffect, useState } from "react";
+import logoIcon from "../../assets/IconeContabilidade.jpeg";
+import "../../Components/CadastroEmpresa/CadastroEmpresa.css";
+import "./Dashboard.css";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }) {
-  const [geral, setGeral] = useState(null);  // totais gerais (obrigações, enviados, pendentes)
-  const [obrigacoes, setObrigacoes] = useState([]);  // breakdown por tipo de obrigação
-  const [empresas, setEmpresas] = useState([]);    // breakdown por empresa
+export default function Dashboard({
+  userName = "Usuario",
+  onLogout,
+  onNavigate,
+}) {
+  const [geral, setGeral] = useState(null); // totais gerais (obrigações, enviados, pendentes)
+  const [obrigacoes, setObrigacoes] = useState([]); // breakdown por tipo de obrigação
+  const [empresas, setEmpresas] = useState([]); // breakdown por empresa
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
-  const [competencia, setCompetencia] = useState('');
+  const [competencia, setCompetencia] = useState("");
   const [competencias, setCompetencias] = useState([]);
 
   useEffect(() => {
-    const authUser = JSON.parse(
-      localStorage.getItem('authUser') || 'null'
-    );
+    const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
 
     const token = authUser?.token;
 
@@ -27,12 +29,12 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
 
     fetch(`${API_URL}/dashboard/competencias`, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then(async (resposta) => {
         if (!resposta.ok) {
-          throw new Error('Erro ao carregar competências');
+          throw new Error("Erro ao carregar competências");
         }
 
         return resposta.json();
@@ -51,39 +53,33 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
       });
   }, []);
 
-
   useEffect(() => {
     if (!competencia) {
       return;
     }
     // Recupera o token JWT salvo no login
-    const authUser = JSON.parse(localStorage.getItem('authUser') || 'null');
+    const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
     const token = authUser?.token;
     const headers = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
 
     // Dispara as 3 requisições em paralelo para reduzir tempo de carregamento
     Promise.all([
-      fetch(
-        `${API_URL}/dashboard?competencia=${competencia}`,
-        { headers }
-      ),
+      fetch(`${API_URL}/dashboard?competencia=${competencia}`, { headers }),
 
-      fetch(
-        `${API_URL}/dashboard/obrigacoes?competencia=${competencia}`,
-        { headers }
-      ),
+      fetch(`${API_URL}/dashboard/obrigacoes?competencia=${competencia}`, {
+        headers,
+      }),
 
-      fetch(
-        `${API_URL}/dashboard/empresas?competencia=${competencia}`,
-        { headers }
-      ),
+      fetch(`${API_URL}/dashboard/empresas?competencia=${competencia}`, {
+        headers,
+      }),
     ])
       .then(async ([resGeral, resObrig, resEmpresas]) => {
         if (!resGeral.ok || !resObrig.ok || !resEmpresas.ok) {
-          throw new Error('Erro ao carregar dados do dashboard.');
+          throw new Error("Erro ao carregar dados do dashboard.");
         }
         // Aguarda o parse de todos os JSONs antes de atualizar o estado
         const [dataGeral, dataObrig, dataEmpresas] = await Promise.all([
@@ -121,12 +117,48 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
         </div>
 
         <nav className="empresa-nav">
-          <button type="button" className="empresa-nav-item is-active" onClick={() => onNavigate && onNavigate('dashboard')}>Dashboard</button>
-          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('empresas')}>Minhas Empresas</button>
-          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('usuarios')}>Usuarios</button>
-          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('documentos')}>Documentos</button>
-          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('anexo')}>Anexo de Documentos</button>
-          <button type="button" className="empresa-nav-item" onClick={() => onNavigate && onNavigate('recebidos')}>Documentos Recebidos</button>
+          <button
+            type="button"
+            className="empresa-nav-item is-active"
+            onClick={() => onNavigate && onNavigate("dashboard")}
+          >
+            Dashboard
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate("empresas")}
+          >
+            Minhas Empresas
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate("usuarios")}
+          >
+            Usuarios
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate("documentos")}
+          >
+            Documentos
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate("anexo")}
+          >
+            Anexo de Documentos
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate("recebidos")}
+          >
+            Documentos Recebidos
+          </button>
         </nav>
       </aside>
 
@@ -136,24 +168,25 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
-              <button type="button" className="empresa-logout" onClick={onLogout}>Sair</button>
+              <button
+                type="button"
+                className="empresa-logout"
+                onClick={onLogout}
+              >
+                Sair
+              </button>
             )}
           </div>
         </header>
 
         <section className="empresa-hero dashboard-hero">
           <div className="dashboard-hero-content">
-
             <div>
-              <span className="empresa-kicker">
-                Painel de acompanhamento
-              </span>
+              <span className="empresa-kicker">Painel de acompanhamento</span>
 
               <h1>Dashboard</h1>
 
-              <p>
-                Acompanhe o status das obrigações das empresas cadastradas.
-              </p>
+              <p>Acompanhe o status das obrigações das empresas cadastradas.</p>
             </div>
 
             <select
@@ -163,34 +196,28 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
               disabled={competencias.length === 0}
             >
               {competencias.length === 0 ? (
-                <option value="">
-                  Nenhuma competência
-                </option>
+                <option value="">Nenhuma competência</option>
               ) : (
                 competencias.map((item) => {
-                  const [ano, mes] = item.competencia.split('-');
+                  const [ano, mes] = item.competencia.split("-");
 
                   const nomeMes = new Date(
                     Number(ano),
                     Number(mes) - 1,
-                    1
-                  ).toLocaleDateString('pt-BR', {
-                    month: 'long',
-                    year: 'numeric'
+                    1,
+                  ).toLocaleDateString("pt-BR", {
+                    month: "long",
+                    year: "numeric",
                   });
 
                   return (
-                    <option
-                      key={item.competencia}
-                      value={item.competencia}
-                    >
+                    <option key={item.competencia} value={item.competencia}>
                       {nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)}
                     </option>
                   );
                 })
               )}
             </select>
-
           </div>
         </section>
 
@@ -226,7 +253,10 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                 <span className="db-card-valor">{taxaPct}%</span>
                 {/* Barra de progresso visual proporcional à taxa */}
                 <div className="db-barra">
-                  <div className="db-barra-fill" style={{ width: `${taxaPct}%` }} />
+                  <div
+                    className="db-barra-fill"
+                    style={{ width: `${taxaPct}%` }}
+                  />
                 </div>
               </div>
             </section>
@@ -248,25 +278,30 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                       </tr>
                     </thead>
                     <tbody>
-                      {obrigacoes.map((item) => { // Percentual individual por tipo de obrigação
+                      {obrigacoes.map((item) => {
+                        // Percentual individual por tipo de obrigação
                         const enviadosItem = Number(item.enviados ?? 0);
                         const pendentesItem = Number(item.pendentes ?? 0);
                         const tot = enviadosItem + pendentesItem;
-                        const pct = tot > 0
-                          ? Math.round((enviadosItem / tot) * 100)
-                          : 0;
+                        const pct =
+                          tot > 0 ? Math.round((enviadosItem / tot) * 100) : 0;
                         return (
-                          <tr key={item.nome}>
+                          <tr
+                            key={tipo.id}
+                            className="dashboard-linha-clicavel"
+                            onClick={() => abrirModalTipo(tipo)}
+                          >
                             <td className="db-td-nome">{item.nome}</td>
                             <td className="db-td-env">{enviadosItem}</td>
                             <td className="db-td-pend">{pendentesItem}</td>
                             <td>
                               <div className="db-barra db-barra--inline">
-                                <div className="db-barra-fill" style={{ width: `${pct}%` }} />
+                                <div
+                                  className="db-barra-fill"
+                                  style={{ width: `${pct}%` }}
+                                />
                               </div>
-                              <span className="db-pct">
-                                {pct}%
-                              </span>
+                              <span className="db-pct">{pct}%</span>
                             </td>
                           </tr>
                         );
@@ -289,13 +324,22 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
 
                       const tot = enviadosItem + pendentesItem;
 
-                      const pct = tot > 0
-                        ? Math.round((enviadosItem / tot) * 100)
-                        : 0;
+                      const abrirModalEmpresa = (empresa) => {
+                        console.log(empresa);
+                      };
+                      
+                      const pct =
+                        tot > 0 ? Math.round((enviadosItem / tot) * 100) : 0;
                       return (
-                        <li key={item.razao_social} className="db-empresa">
+                        <li
+                          key={item.razao_social}
+                          className="db-empresa db-item-clicavel"
+                          onClick={() => abrirModalEmpresa(item)}
+                        >
                           <div className="db-empresa-header">
-                            <span className="db-empresa-nome">{item.razao_social}</span>
+                            <span className="db-empresa-nome">
+                              {item.razao_social}
+                            </span>
                             <span className="db-empresa-pct">{pct}%</span>
                           </div>
                           <div className="db-badges">
@@ -308,7 +352,10 @@ export default function Dashboard({ userName = 'Usuario', onLogout, onNavigate }
                             </span>
                           </div>
                           <div className="db-barra">
-                            <div className="db-barra-fill" style={{ width: `${pct}%` }} />
+                            <div
+                              className="db-barra-fill"
+                              style={{ width: `${pct}%` }}
+                            />
                           </div>
                         </li>
                       );
