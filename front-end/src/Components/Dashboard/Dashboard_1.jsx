@@ -17,6 +17,7 @@ export default function Dashboard({
   const [erro, setErro] = useState(null);
   const [competencia, setCompetencia] = useState("");
   const [competencias, setCompetencias] = useState([]);
+  const [modalDetalhe, setModalDetalhe] = useState(null);
 
   useEffect(() => {
     const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
@@ -104,8 +105,25 @@ export default function Dashboard({
   const taxaPct = total > 0 ? Math.round((enviados / total) * 100) : 0;
 
   const abrirModalEmpresa = (empresa) => {
-    console.log("Empresa clicada:", empresa);
+    setModalDetalhe({
+      tipo: "empresa",
+      titulo: empresa.razao_social,
+      dados: empresa,
+    });
   };
+
+  const abrirModalObrigacao = (obrigacao) => {
+    setModalDetalhe({
+      tipo: "obrigacao",
+      titulo: obrigacao.nome,
+      dados: obrigacao,
+    });
+  };
+
+  const fecharModal = () => {
+    setModalDetalhe(null);
+  };
+
   return (
     <div className="empresa-page">
       <aside className="empresa-sidebar">
@@ -292,6 +310,7 @@ export default function Dashboard({
                           <tr
                             key={item.id_tipo_documento ?? item.nome}
                             className="dashboard-linha-clicavel"
+                            onClick={() => abrirModalObrigacao(item)}
                           >
                             <td className="db-td-nome">{item.nome}</td>
                             <td className="db-td-env">{enviadosItem}</td>
@@ -365,6 +384,97 @@ export default function Dashboard({
           </div>
         )}
       </div>
+
+      {modalDetalhe && (
+        <div className="db-modal-overlay" onMouseDown={fecharModal}>
+          <div
+            className="db-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="db-modal-titulo"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="db-modal-header">
+              <div>
+                <span className="db-modal-kicker">
+                  {modalDetalhe.tipo === "empresa"
+                    ? "Detalhes da empresa"
+                    : "Detalhes da obrigação"}
+                </span>
+
+                <h2 id="db-modal-titulo">{modalDetalhe.titulo}</h2>
+              </div>
+
+              <button
+                type="button"
+                className="db-modal-fechar"
+                onClick={fecharModal}
+                aria-label="Fechar modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="db-modal-conteudo">
+              {modalDetalhe.tipo === "empresa" ? (
+                <>
+                  <div className="db-modal-resumo">
+                    <div>
+                      <span>Enviados</span>
+                      <strong className="db-modal-numero db-modal-numero--env">
+                        {Number(modalDetalhe.dados.enviados ?? 0)}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Pendentes</span>
+                      <strong className="db-modal-numero db-modal-numero--pend">
+                        {Number(modalDetalhe.dados.pendentes ?? 0)}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <p className="db-modal-aviso">
+                    A lista de documentos desta empresa será carregada aqui.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="db-modal-resumo">
+                    <div>
+                      <span>Empresas que enviaram</span>
+                      <strong className="db-modal-numero db-modal-numero--env">
+                        {Number(modalDetalhe.dados.enviados ?? 0)}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>Empresas pendentes</span>
+                      <strong className="db-modal-numero db-modal-numero--pend">
+                        {Number(modalDetalhe.dados.pendentes ?? 0)}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <p className="db-modal-aviso">
+                    A lista de empresas desta obrigação será carregada aqui.
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div className="db-modal-footer">
+              <button
+                type="button"
+                className="db-modal-botao"
+                onClick={fecharModal}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
