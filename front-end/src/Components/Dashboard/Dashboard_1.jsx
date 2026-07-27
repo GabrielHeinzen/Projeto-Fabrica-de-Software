@@ -103,6 +103,9 @@ export default function Dashboard({
   // Taxa de envio em percentual, evitando divisão por zero
   const taxaPct = total > 0 ? Math.round((enviados / total) * 100) : 0;
 
+  const abrirModalEmpresa = (empresa) => {
+    console.log("Empresa clicada:", empresa);
+  };
   return (
     <div className="empresa-page">
       <aside className="empresa-sidebar">
@@ -285,9 +288,6 @@ export default function Dashboard({
                         const tot = enviadosItem + pendentesItem;
                         const pct =
                           tot > 0 ? Math.round((enviadosItem / tot) * 100) : 0;
-                        const abrirModalEmpresa = (empresa) => {
-                          console.log("Empresa clicada:", empresa);
-                        };
                         return (
                           <tr
                             key={item.id_tipo_documento ?? item.nome}
