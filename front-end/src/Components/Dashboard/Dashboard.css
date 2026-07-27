@@ -343,17 +343,22 @@
   }
 }
 
-.db-item-clicavel {
+.dashboard-linha-clicavel {
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.db-item-clicavel:hover {
+.dashboard-linha-clicavel td {
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-linha-clicavel:hover td {
   background-color: #f8f7f3;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-.db-item-clicavel:active {
-  transform: translateY(0);
+.db-td-nome {
+  font-weight: 600;
+}
+
+.dashboard-linha-clicavel:hover .db-td-nome {
+  color: #0d6b5b;
 }
