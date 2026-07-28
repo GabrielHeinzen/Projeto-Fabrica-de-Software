@@ -18,6 +18,8 @@ export default function Dashboard({
   const [competencia, setCompetencia] = useState("");
   const [competencias, setCompetencias] = useState([]);
   const [modalDetalhe, setModalDetalhe] = useState(null);
+  const [empresasSemVinculo, setEmpresasSemVinculo] = useState([]);
+  const [avisoVinculoAberto, setAvisoVinculoAberto] = useState(false);
 
   useEffect(() => {
     const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
@@ -77,21 +79,41 @@ export default function Dashboard({
       fetch(`${API_URL}/dashboard/empresas?competencia=${competencia}`, {
         headers,
       }),
+
+      fetch(`${API_URL}/dashboard/empresas-sem-vinculo`, {
+        headers,
+      }),
     ])
-      .then(async ([resGeral, resObrig, resEmpresas]) => {
-        if (!resGeral.ok || !resObrig.ok || !resEmpresas.ok) {
-          throw new Error("Erro ao carregar dados do dashboard.");
-        }
-        // Aguarda o parse de todos os JSONs antes de atualizar o estado
-        const [dataGeral, dataObrig, dataEmpresas] = await Promise.all([
-          resGeral.json(),
-          resObrig.json(),
-          resEmpresas.json(),
-        ]);
-        setGeral(dataGeral);
-        setObrigacoes(dataObrig);
-        setEmpresas(dataEmpresas);
-      })
+      .then(
+        async ([resGeral, resObrig, resEmpresas, resEmpresasSemVinculo]) => {
+          if (
+            !resGeral.ok ||
+            !resObrig.ok ||
+            !resEmpresas.ok ||
+            !resEmpresasSemVinculo.ok
+          ) {
+            throw new Error("Erro ao carregar dados do dashboard.");
+          }
+          // Aguarda o parse de todos os JSONs antes de atualizar o estado
+          const [dataGeral, dataObrig, dataEmpresas, dataEmpresasSemVinculo] =
+            await Promise.all([
+              resGeral.json(),
+              resObrig.json(),
+              resEmpresas.json(),
+              resEmpresasSemVinculo.json(),
+            ]);
+
+          setGeral(dataGeral);
+          setObrigacoes(dataObrig);
+          setEmpresas(dataEmpresas);
+
+          setEmpresasSemVinculo(
+            Array.isArray(dataEmpresasSemVinculo.empresas)
+              ? dataEmpresasSemVinculo.empresas
+              : [],
+          );
+        },
+      )
       .catch((err) => setErro(err.message))
       .finally(() => setLoading(false));
   }, [competencia]);
@@ -239,6 +261,71 @@ export default function Dashboard({
                 })
               )}
             </select>
+            {empresasSemVinculo.length > 0 && (
+              <div className="dashboard-alerta-container">
+                <button
+                  type="button"
+                  className="dashboard-alerta-botao"
+                  onClick={() => setAvisoVinculoAberto((aberto) => !aberto)}
+                  title="Empresas sem documentos vinculados"
+                >
+                  ⚠
+                  <span className="dashboard-alerta-contador">
+                    {empresasSemVinculo.length}
+                  </span>
+                </button>
+
+                {avisoVinculoAberto && (
+                  <div className="dashboard-alerta-popover">
+                    <div className="dashboard-alerta-cabecalho">
+                      <div>
+                        <span className="dashboard-alerta-kicker">
+                          Configuração pendente
+                        </span>
+
+                        <h3>Empresas sem vínculo</h3>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="dashboard-alerta-fechar"
+                        onClick={() => setAvisoVinculoAberto(false)}
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <p className="dashboard-alerta-texto">
+                      {empresasSemVinculo.length === 1
+                        ? "Foi identificada 1 empresa sem documentos vinculados."
+                        : `Foram identificadas ${empresasSemVinculo.length} empresas sem documentos vinculados.`}
+                    </p>
+
+                    <p className="dashboard-alerta-explicacao">
+                      Essas empresas ainda não estão sendo consideradas no
+                      controle de documentos.
+                    </p>
+
+                    <ul className="dashboard-alerta-lista">
+                      {empresasSemVinculo.map((empresa) => (
+                        <li key={empresa.id_cliente}>{empresa.razao_social}</li>
+                      ))}
+                    </ul>
+
+                    <button
+                      type="button"
+                      className="dashboard-alerta-vincular"
+                      onClick={() => {
+                        setAvisoVinculoAberto(false);
+                        onNavigate?.("empresas");
+                      }}
+                    >
+                      Vincular agora
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 

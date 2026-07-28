@@ -1152,13 +1152,13 @@ app.get("/empresa/:id/documentos/status", (req, res) => {
   });
 });
 
+//Traz uma consulta que mostra empresas que
+//não possuem nenhum vínculo com algum documento
 app.get(
   "/dashboard/empresas-sem-vinculo",
   autenticarToken,
   async (req, res) => {
     try {
-      const idContador = req.user.id_contador;
-
       const [empresas] = await pool.query(
         `
           SELECT
