@@ -86,13 +86,33 @@ export default function Dashboard({
     ])
       .then(
         async ([resGeral, resObrig, resEmpresas, resEmpresasSemVinculo]) => {
-          if (
-            !resGeral.ok ||
-            !resObrig.ok ||
-            !resEmpresas.ok ||
-            !resEmpresasSemVinculo.ok
-          ) {
-            throw new Error("Erro ao carregar dados do dashboard.");
+          if (!resGeral.ok) {
+            const erro = await resGeral.text();
+            throw new Error(
+              `Erro no dashboard geral: ${resGeral.status} - ${erro}`,
+            );
+          }
+
+          if (!resObrig.ok) {
+            const erro = await resObrig.text();
+            throw new Error(
+              `Erro nas obrigações: ${resObrig.status} - ${erro}`,
+            );
+          }
+
+          if (!resEmpresas.ok) {
+            const erro = await resEmpresas.text();
+            throw new Error(
+              `Erro nas empresas: ${resEmpresas.status} - ${erro}`,
+            );
+          }
+
+          if (!resEmpresasSemVinculo.ok) {
+            const erro = await resEmpresasSemVinculo.text();
+
+            throw new Error(
+              `Erro nas empresas sem vínculo: ${resEmpresasSemVinculo.status} - ${erro}`,
+            );
           }
           // Aguarda o parse de todos os JSONs antes de atualizar o estado
           const [dataGeral, dataObrig, dataEmpresas, dataEmpresasSemVinculo] =
@@ -114,7 +134,10 @@ export default function Dashboard({
           );
         },
       )
-      .catch((err) => setErro(err.message))
+      .catch((err) => {
+        console.error("Erro ao carregar dashboard:", err);
+        setErro(err.message);
+      })
       .finally(() => setLoading(false));
   }, [competencia]);
 
