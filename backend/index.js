@@ -728,42 +728,37 @@ app.get("/dashboard", autenticarToken, (req, res) => {
   });
 });
 
-app.get("/dashboard/empresas", autenticarToken, (req, res) => {
-  const { competencia } = req.query;
-
-  if (!competencia || !/^\d{4}-\d{2}$/.test(competencia)) {
-    return res.status(400).json({
-      sucesso: false,
-      mensagem: "Competência inválida",
-    });
-  }
-
-  const mesReferencia = `${competencia}-01`;
-
+app.get("/dashboard/empresas-sem-vinculo", autenticarToken, (req, res) => {
   const sql = `
-    SELECT
-      e.razao_social,
-      SUM(CASE WHEN ed.status = 'ENVIADO' THEN 1 ELSE 0 END) AS enviados,
-      SUM(CASE WHEN ed.status = 'PENDENTE' THEN 1 ELSE 0 END) AS pendentes
-    FROM empresa_cliente e
-    LEFT JOIN envio_documento ed
-      ON e.id_cliente = ed.id_cliente
-      AND ed.mes_referencia = ?
-    GROUP BY e.id_cliente, e.razao_social
-    ORDER BY e.razao_social
-  `;
+      SELECT
+        e.id_cliente,
+        e.razao_social
+      FROM empresa_cliente e
+      LEFT JOIN cliente_tipo_documento ctd
+        ON e.id_cliente = ctd.id_cliente
+        AND ctd.ativo = 1
+      GROUP BY
+        e.id_cliente,
+        e.razao_social
+      HAVING COUNT(ctd.id_cliente_tipo_documento) = 0
+      ORDER BY e.razao_social
+    `;
 
-  db.query(sql, [mesReferencia], (err, result) => {
+  db.query(sql, (err, result) => {
     if (err) {
-      console.error(err);
+      console.error("Erro ao buscar empresas sem vínculo:", err);
 
       return res.status(500).json({
         sucesso: false,
-        mensagem: "Erro ao buscar dashboard empresas",
+        mensagem: "Erro ao buscar empresas sem documentos vinculados",
+        erro: err.message,
       });
     }
 
-    res.json(result);
+    return res.json({
+      quantidade: result.length,
+      empresas: result,
+    });
   });
 });
 

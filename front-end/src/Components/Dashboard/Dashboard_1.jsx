@@ -68,7 +68,7 @@ export default function Dashboard({
       Authorization: `Bearer ${token}`,
     };
 
-    // Dispara as 3 requisições em paralelo para reduzir tempo de carregamento
+    // Dispara as 4 requisições em paralelo para reduzir tempo de carregamento
     Promise.all([
       fetch(`${API_URL}/dashboard?competencia=${competencia}`, { headers }),
 
