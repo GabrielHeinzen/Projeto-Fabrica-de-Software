@@ -704,19 +704,52 @@ app.post("/empresa/:id/documentos", upload.single("documento"), (req, res) => {
 // utilizados no dashboard da aplicação.
 app.get("/dashboard", autenticarToken, (req, res) => {
   const { competencia } = req.query;
+
+  if (!competencia || !/^\d{4}-\d{2}$/.test(competencia)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: "Competência inválida",
+    });
+  }
+
   const mesReferencia = `${competencia}-01`;
+
   const sql = `
     SELECT
-      SUM(CASE WHEN status = 'ENVIADO' THEN 1 ELSE 0 END) AS total_enviados,
-      SUM(CASE WHEN status = 'PENDENTE' THEN 1 ELSE 0 END) AS total_pendentes,
-      COUNT(*) AS total_obrigacoes
-    FROM envio_documento
-    WHERE mes_referencia = ?
+      COUNT(*) AS total_obrigacoes,
+
+      SUM(
+        CASE
+          WHEN ed.id_envio IS NOT NULL
+           AND ed.status = 'ENVIADO'
+          THEN 1
+          ELSE 0
+        END
+      ) AS total_enviados,
+
+      SUM(
+        CASE
+          WHEN ed.id_envio IS NULL
+            OR ed.status <> 'ENVIADO'
+          THEN 1
+          ELSE 0
+        END
+      ) AS total_pendentes
+
+    FROM cliente_tipo_documento ctd
+
+    LEFT JOIN envio_documento ed
+      ON ed.id_cliente = ctd.id_cliente
+      AND ed.id_tipo_documento = ctd.id_tipo_documento
+      AND ed.mes_referencia = ?
+
+    WHERE ctd.ativo = 1
   `;
 
   db.query(sql, [mesReferencia], (err, result) => {
     if (err) {
-      console.error(err);
+      console.error("Erro ao buscar dashboard:", err);
+
       return res.status(500).json({
         sucesso: false,
         mensagem: "Erro ao buscar dashboard",
@@ -724,7 +757,13 @@ app.get("/dashboard", autenticarToken, (req, res) => {
       });
     }
 
-    res.json(result[0]);
+    const dados = result[0];
+
+    return res.json({
+      total_obrigacoes: Number(dados.total_obrigacoes) || 0,
+      total_enviados: Number(dados.total_enviados) || 0,
+      total_pendentes: Number(dados.total_pendentes) || 0,
+    });
   });
 });
 
