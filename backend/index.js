@@ -744,16 +744,42 @@ app.get("/dashboard/empresas", autenticarToken, (req, res) => {
     SELECT
       e.id_cliente,
       e.razao_social,
-      SUM(CASE WHEN ed.status = 'ENVIADO' THEN 1 ELSE 0 END) AS enviados,
-      SUM(CASE WHEN ed.status = 'PENDENTE' THEN 1 ELSE 0 END) AS pendentes
+
+      SUM(
+        CASE
+          WHEN ed.id_envio IS NOT NULL
+           AND ed.status = 'ENVIADO'
+          THEN 1
+          ELSE 0
+        END
+      ) AS enviados,
+
+      SUM(
+        CASE
+          WHEN ed.id_envio IS NULL
+            OR ed.status <> 'ENVIADO'
+          THEN 1
+          ELSE 0
+        END
+      ) AS pendentes
+
     FROM empresa_cliente e
+
+    INNER JOIN cliente_tipo_documento ctd
+      ON ctd.id_cliente = e.id_cliente
+      AND ctd.ativo = 1
+
     LEFT JOIN envio_documento ed
-      ON e.id_cliente = ed.id_cliente
+      ON ed.id_cliente = e.id_cliente
+      AND ed.id_tipo_documento = ctd.id_tipo_documento
       AND ed.mes_referencia = ?
+
     GROUP BY
       e.id_cliente,
       e.razao_social
-    ORDER BY e.razao_social
+
+    ORDER BY
+      e.razao_social
   `;
 
   db.query(sql, [mesReferencia], (err, result) => {
