@@ -845,28 +845,58 @@ app.get("/dashboard/obrigacoes", autenticarToken, (req, res) => {
 
   const sql = `
     SELECT
+      td.id_tipo_documento,
       td.nome,
-      SUM(CASE WHEN ed.status = 'ENVIADO' THEN 1 ELSE 0 END) AS enviados,
-      SUM(CASE WHEN ed.status = 'PENDENTE' THEN 1 ELSE 0 END) AS pendentes
+
+      SUM(
+        CASE
+          WHEN ed.id_envio IS NOT NULL
+           AND ed.status = 'ENVIADO'
+          THEN 1
+          ELSE 0
+        END
+      ) AS enviados,
+
+      SUM(
+        CASE
+          WHEN ed.id_envio IS NULL
+            OR ed.status <> 'ENVIADO'
+          THEN 1
+          ELSE 0
+        END
+      ) AS pendentes
+
     FROM tipo_documento td
+
+    INNER JOIN cliente_tipo_documento ctd
+      ON ctd.id_tipo_documento = td.id_tipo_documento
+      AND ctd.ativo = 1
+
     LEFT JOIN envio_documento ed
-      ON td.id_tipo_documento = ed.id_tipo_documento
+      ON ed.id_cliente = ctd.id_cliente
+      AND ed.id_tipo_documento = td.id_tipo_documento
       AND ed.mes_referencia = ?
-    GROUP BY td.id_tipo_documento, td.nome
-    ORDER BY td.nome
+
+    GROUP BY
+      td.id_tipo_documento,
+      td.nome
+
+    ORDER BY
+      td.nome
   `;
 
   db.query(sql, [mesReferencia], (err, result) => {
     if (err) {
-      console.error(err);
+      console.error("Erro ao buscar dashboard obrigações:", err);
 
       return res.status(500).json({
         sucesso: false,
         mensagem: "Erro ao buscar dashboard obrigações",
+        erro: err.message,
       });
     }
 
-    res.json(result);
+    return res.json(result);
   });
 });
 
