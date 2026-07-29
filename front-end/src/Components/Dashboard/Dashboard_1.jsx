@@ -247,14 +247,81 @@ export default function Dashboard({
 
         <section className="empresa-hero dashboard-hero">
           <div className="dashboard-hero-content">
-            <div>
-              <span className="empresa-kicker">Painel de acompanhamento</span>
+            <div className="dashboard-hero-topo">
+              <div>
+                <span className="empresa-kicker">Painel de acompanhamento</span>
 
-              <h1>Dashboard</h1>
+                <h1>Dashboard</h1>
 
-              <p>Acompanhe o status das obrigações das empresas cadastradas.</p>
+                <p>
+                  Acompanhe o status das obrigações das empresas cadastradas.
+                </p>
+              </div>
+              {empresasSemVinculo.length > 0 && (
+                <div className="dashboard-alerta-container">
+                  <button
+                    type="button"
+                    className="dashboard-alerta-botao"
+                    onClick={() => setAvisoVinculoAberto((aberto) => !aberto)}
+                    title="Empresas sem documentos vinculados"
+                  >
+                    ⚠
+                  </button>
+
+                  {avisoVinculoAberto && (
+                    <div className="dashboard-alerta-popover">
+                      <div className="dashboard-alerta-cabecalho">
+                        <div>
+                          <span className="dashboard-alerta-kicker">
+                            Configuração pendente
+                          </span>
+
+                          <h3>Empresas sem vínculo</h3>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="dashboard-alerta-fechar"
+                          onClick={() => setAvisoVinculoAberto(false)}
+                        >
+                          ×
+                        </button>
+                      </div>
+
+                      <p className="dashboard-alerta-texto">
+                        {empresasSemVinculo.length === 1
+                          ? "Foi identificada 1 empresa sem documentos vinculados."
+                          : `Foram identificadas ${empresasSemVinculo.length} empresas sem documentos vinculados.`}
+                      </p>
+
+                      <p className="dashboard-alerta-explicacao">
+                        Essas empresas ainda não estão sendo consideradas no
+                        controle de documentos.
+                      </p>
+
+                      <ul className="dashboard-alerta-lista">
+                        {empresasSemVinculo.map((empresa) => (
+                          <li key={empresa.id_cliente}>
+                            {empresa.razao_social}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <button
+                        type="button"
+                        className="dashboard-alerta-vincular"
+                        onClick={() => {
+                          setAvisoVinculoAberto(false);
+                          onNavigate?.("empresas");
+                        }}
+                      >
+                        Vincular agora
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-
             <select
               className="dashboard-competencia"
               value={competencia}
@@ -284,71 +351,6 @@ export default function Dashboard({
                 })
               )}
             </select>
-            {empresasSemVinculo.length > 0 && (
-              <div className="dashboard-alerta-container">
-                <button
-                  type="button"
-                  className="dashboard-alerta-botao"
-                  onClick={() => setAvisoVinculoAberto((aberto) => !aberto)}
-                  title="Empresas sem documentos vinculados"
-                >
-                  ⚠
-                  <span className="dashboard-alerta-contador">
-                    {empresasSemVinculo.length}
-                  </span>
-                </button>
-
-                {avisoVinculoAberto && (
-                  <div className="dashboard-alerta-popover">
-                    <div className="dashboard-alerta-cabecalho">
-                      <div>
-                        <span className="dashboard-alerta-kicker">
-                          Configuração pendente
-                        </span>
-
-                        <h3>Empresas sem vínculo</h3>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="dashboard-alerta-fechar"
-                        onClick={() => setAvisoVinculoAberto(false)}
-                      >
-                        ×
-                      </button>
-                    </div>
-
-                    <p className="dashboard-alerta-texto">
-                      {empresasSemVinculo.length === 1
-                        ? "Foi identificada 1 empresa sem documentos vinculados."
-                        : `Foram identificadas ${empresasSemVinculo.length} empresas sem documentos vinculados.`}
-                    </p>
-
-                    <p className="dashboard-alerta-explicacao">
-                      Essas empresas ainda não estão sendo consideradas no
-                      controle de documentos.
-                    </p>
-
-                    <ul className="dashboard-alerta-lista">
-                      {empresasSemVinculo.map((empresa) => (
-                        <li key={empresa.id_cliente}>{empresa.razao_social}</li>
-                      ))}
-                    </ul>
-
-                    <button
-                      type="button"
-                      className="dashboard-alerta-vincular"
-                      onClick={() => {
-                        setAvisoVinculoAberto(false);
-                        onNavigate?.("empresas");
-                      }}
-                    >
-                      Vincular agora
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </section>
 

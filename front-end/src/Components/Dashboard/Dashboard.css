@@ -572,3 +572,11 @@
     animation: none;
   }
 }
+
+.dashboard-hero-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
