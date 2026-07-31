@@ -20,6 +20,9 @@ export default function Dashboard({
   const [modalDetalhe, setModalDetalhe] = useState(null);
   const [empresasSemVinculo, setEmpresasSemVinculo] = useState([]);
   const [avisoVinculoAberto, setAvisoVinculoAberto] = useState(false);
+  const [detalhesEmpresa, setDetalhesEmpresa] = useState(null);
+  const [carregandoDetalhes, setCarregandoDetalhes] = useState(false);
+  const [erroDetalhes, setErroDetalhes] = useState(null);
 
   useEffect(() => {
     const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
@@ -149,12 +152,48 @@ export default function Dashboard({
   // Taxa de envio em percentual, evitando divisão por zero
   const taxaPct = total > 0 ? Math.round((enviados / total) * 100) : 0;
 
-  const abrirModalEmpresa = (empresa) => {
+  const abrirModalEmpresa = async (empresa) => {
     setModalDetalhe({
       tipo: "empresa",
       titulo: empresa.razao_social,
       dados: empresa,
     });
+
+    setDetalhesEmpresa(null);
+    setErroDetalhes(null);
+    setCarregandoDetalhes(true);
+
+    try {
+      const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
+
+      const token = authUser?.token;
+
+      const resposta = await fetch(
+        `${API_URL}/dashboard/empresa/${empresa.id_cliente}/documentos?competencia=${competencia}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!resposta.ok) {
+        const erroResposta = await resposta.text();
+
+        throw new Error(
+          `Erro ao carregar documentos: ${resposta.status} - ${erroResposta}`,
+        );
+      }
+
+      const dados = await resposta.json();
+
+      setDetalhesEmpresa(dados);
+    } catch (erro) {
+      console.error("Erro ao carregar detalhes da empresa:", erro);
+      setErroDetalhes(erro.message);
+    } finally {
+      setCarregandoDetalhes(false);
+    }
   };
 
   const abrirModalObrigacao = (obrigacao) => {
@@ -167,6 +206,9 @@ export default function Dashboard({
 
   const fecharModal = () => {
     setModalDetalhe(null);
+    setDetalhesEmpresa(null);
+    setErroDetalhes(null);
+    setCarregandoDetalhes(false);
   };
 
   return (
@@ -546,9 +588,62 @@ export default function Dashboard({
                     </div>
                   </div>
 
-                  <p className="db-modal-aviso">
-                    A lista de documentos desta empresa será carregada aqui.
-                  </p>
+                  {carregandoDetalhes ? (
+                    <div className="db-modal-carregando">
+                      <div className="db-spinner" />
+                      <p>Carregando documentos...</p>
+                    </div>
+                  ) : erroDetalhes ? (
+                    <div className="db-modal-erro">
+                      <strong>Não foi possível carregar os documentos.</strong>
+                      <span>{erroDetalhes}</span>
+                    </div>
+                  ) : detalhesEmpresa?.documentos?.length > 0 ? (
+                    <div className="db-modal-lista-documentos">
+                      {detalhesEmpresa.documentos.map((documento) => (
+                        <div
+                          key={documento.id_tipo_documento}
+                          className={`db-modal-documento ${
+                            documento.status === "ENVIADO"
+                              ? "db-modal-documento--enviado"
+                              : "db-modal-documento--pendente"
+                          }`}
+                        >
+                          <div>
+                            <strong>{documento.nome}</strong>
+
+                            {documento.status === "ENVIADO" &&
+                            documento.data_envio ? (
+                              <span>
+                                Enviado em{" "}
+                                {new Date(
+                                  `${documento.data_envio}T00:00:00`,
+                                ).toLocaleDateString("pt-BR")}
+                              </span>
+                            ) : (
+                              <span>Aguardando envio</span>
+                            )}
+                          </div>
+
+                          <span
+                            className={`db-modal-status ${
+                              documento.status === "ENVIADO"
+                                ? "db-modal-status--enviado"
+                                : "db-modal-status--pendente"
+                            }`}
+                          >
+                            {documento.status === "ENVIADO"
+                              ? "Enviado"
+                              : "Pendente"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="db-modal-aviso">
+                      Nenhum documento está vinculado a esta empresa.
+                    </p>
+                  )}
                 </>
               ) : (
                 <>
@@ -556,14 +651,22 @@ export default function Dashboard({
                     <div>
                       <span>Empresas que enviaram</span>
                       <strong className="db-modal-numero db-modal-numero--env">
-                        {Number(modalDetalhe.dados.enviados ?? 0)}
+                        {Number(
+                          detalhesEmpresa?.resumo?.enviados ??
+                            modalDetalhe.dados.enviados ??
+                            0,
+                        )}
                       </strong>
                     </div>
 
                     <div>
                       <span>Empresas pendentes</span>
                       <strong className="db-modal-numero db-modal-numero--pend">
-                        {Number(modalDetalhe.dados.pendentes ?? 0)}
+                        {Number(
+                          detalhesEmpresa?.resumo?.pendentes ??
+                            modalDetalhe.dados.pendentes ??
+                            0,
+                        )}
                       </strong>
                     </div>
                   </div>

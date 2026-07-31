@@ -836,6 +836,131 @@ app.get("/dashboard/empresas", autenticarToken, (req, res) => {
   });
 });
 
+app.get("/dashboard/empresa/:id/documentos", autenticarToken, (req, res) => {
+  const { id } = req.params;
+  const { competencia } = req.query;
+
+  if (!id || !/^\d+$/.test(id)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: "Empresa inválida",
+    });
+  }
+
+  if (!competencia || !/^\d{4}-\d{2}$/.test(competencia)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: "Competência inválida",
+    });
+  }
+
+  const mesReferencia = `${competencia}-01`;
+
+  const sqlEmpresa = `
+      SELECT
+        id_cliente,
+        razao_social
+      FROM empresa_cliente
+      WHERE id_cliente = ?
+      LIMIT 1
+    `;
+
+  db.query(sqlEmpresa, [id], (erroEmpresa, resultadoEmpresa) => {
+    if (erroEmpresa) {
+      console.error("Erro ao buscar empresa:", erroEmpresa);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: "Erro ao buscar empresa",
+        erro: erroEmpresa.message,
+      });
+    }
+
+    if (resultadoEmpresa.length === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: "Empresa não encontrada",
+      });
+    }
+
+    const sqlDocumentos = `
+        SELECT
+          td.id_tipo_documento,
+          td.nome,
+
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM envio_documento ed
+              WHERE ed.id_cliente = ctd.id_cliente
+                AND ed.id_tipo_documento = ctd.id_tipo_documento
+                AND ed.mes_referencia = ?
+                AND ed.status = 'ENVIADO'
+            )
+            THEN 'ENVIADO'
+            ELSE 'PENDENTE'
+          END AS status,
+
+          (
+            SELECT MAX(ed2.data_envio)
+            FROM envio_documento ed2
+            WHERE ed2.id_cliente = ctd.id_cliente
+              AND ed2.id_tipo_documento = ctd.id_tipo_documento
+              AND ed2.mes_referencia = ?
+              AND ed2.status = 'ENVIADO'
+          ) AS data_envio
+
+        FROM cliente_tipo_documento ctd
+
+        INNER JOIN tipo_documento td
+          ON td.id_tipo_documento = ctd.id_tipo_documento
+
+        WHERE ctd.id_cliente = ?
+          AND ctd.ativo = 1
+
+        ORDER BY td.nome
+      `;
+
+    db.query(
+      sqlDocumentos,
+      [mesReferencia, mesReferencia, id],
+      (erroDocumentos, documentos) => {
+        if (erroDocumentos) {
+          console.error(
+            "Erro ao buscar documentos da empresa:",
+            erroDocumentos,
+          );
+
+          return res.status(500).json({
+            sucesso: false,
+            mensagem: "Erro ao buscar documentos da empresa",
+            erro: erroDocumentos.message,
+          });
+        }
+
+        const enviados = documentos.filter(
+          (documento) => documento.status === "ENVIADO",
+        ).length;
+
+        const pendentes = documentos.filter(
+          (documento) => documento.status === "PENDENTE",
+        ).length;
+
+        return res.json({
+          sucesso: true,
+          empresa: resultadoEmpresa[0],
+          resumo: {
+            total: documentos.length,
+            enviados,
+            pendentes,
+          },
+          documentos,
+        });
+      },
+    );
+  });
+});
+
 app.get("/dashboard/empresas-sem-vinculo", autenticarToken, (req, res) => {
   const sql = `
       SELECT
