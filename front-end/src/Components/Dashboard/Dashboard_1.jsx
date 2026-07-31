@@ -617,7 +617,7 @@ export default function Dashboard({
                               <span>
                                 Enviado em{" "}
                                 {new Date(
-                                  `${documento.data_envio}T00:00:00`,
+                                  documento.data_envio,
                                 ).toLocaleDateString("pt-BR")}
                               </span>
                             ) : (
