@@ -961,6 +961,131 @@ app.get("/dashboard/empresa/:id/documentos", autenticarToken, (req, res) => {
   });
 });
 
+// Lista as empresas vinculadas a uma obrigação
+// e informa quais enviaram ou estão pendentes
+// na competência selecionada.
+app.get("/dashboard/obrigacao/:id/empresas", autenticarToken, (req, res) => {
+  const { id } = req.params;
+  const { competencia } = req.query;
+
+  if (!id || !/^\d+$/.test(id)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: "Obrigação inválida",
+    });
+  }
+
+  if (!competencia || !/^\d{4}-\d{2}$/.test(competencia)) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: "Competência inválida",
+    });
+  }
+
+  const mesReferencia = `${competencia}-01`;
+
+  const sqlObrigacao = `
+      SELECT
+        id_tipo_documento,
+        nome
+      FROM tipo_documento
+      WHERE id_tipo_documento = ?
+      LIMIT 1
+    `;
+
+  db.query(sqlObrigacao, [id], (erroObrigacao, resultadoObrigacao) => {
+    if (erroObrigacao) {
+      console.error("Erro ao buscar obrigação:", erroObrigacao);
+
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: "Erro ao buscar obrigação",
+        erro: erroObrigacao.message,
+      });
+    }
+
+    if (resultadoObrigacao.length === 0) {
+      return res.status(404).json({
+        sucesso: false,
+        mensagem: "Obrigação não encontrada",
+      });
+    }
+
+    const sqlEmpresas = `
+        SELECT
+          ec.id_cliente,
+          ec.razao_social,
+
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM envio_documento ed
+              WHERE ed.id_cliente = ctd.id_cliente
+                AND ed.id_tipo_documento = ctd.id_tipo_documento
+                AND ed.mes_referencia = ?
+                AND ed.status = 'ENVIADO'
+            )
+            THEN 'ENVIADO'
+            ELSE 'PENDENTE'
+          END AS status,
+
+          (
+            SELECT MAX(ed2.data_envio)
+            FROM envio_documento ed2
+            WHERE ed2.id_cliente = ctd.id_cliente
+              AND ed2.id_tipo_documento = ctd.id_tipo_documento
+              AND ed2.mes_referencia = ?
+              AND ed2.status = 'ENVIADO'
+          ) AS data_envio
+
+        FROM cliente_tipo_documento ctd
+
+        INNER JOIN empresa_cliente ec
+          ON ec.id_cliente = ctd.id_cliente
+
+        WHERE ctd.id_tipo_documento = ?
+          AND ctd.ativo = 1
+
+        ORDER BY ec.razao_social
+      `;
+
+    db.query(
+      sqlEmpresas,
+      [mesReferencia, mesReferencia, id],
+      (erroEmpresas, empresas) => {
+        if (erroEmpresas) {
+          console.error("Erro ao buscar empresas da obrigação:", erroEmpresas);
+
+          return res.status(500).json({
+            sucesso: false,
+            mensagem: "Erro ao buscar empresas da obrigação",
+            erro: erroEmpresas.message,
+          });
+        }
+
+        const enviados = empresas.filter(
+          (empresa) => empresa.status === "ENVIADO",
+        ).length;
+
+        const pendentes = empresas.filter(
+          (empresa) => empresa.status === "PENDENTE",
+        ).length;
+
+        return res.json({
+          sucesso: true,
+          obrigacao: resultadoObrigacao[0],
+          resumo: {
+            total: empresas.length,
+            enviados,
+            pendentes,
+          },
+          empresas,
+        });
+      },
+    );
+  });
+});
+
 app.get("/dashboard/empresas-sem-vinculo", autenticarToken, (req, res) => {
   const sql = `
       SELECT

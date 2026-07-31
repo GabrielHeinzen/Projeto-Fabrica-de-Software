@@ -23,6 +23,9 @@ export default function Dashboard({
   const [detalhesEmpresa, setDetalhesEmpresa] = useState(null);
   const [carregandoDetalhes, setCarregandoDetalhes] = useState(false);
   const [erroDetalhes, setErroDetalhes] = useState(null);
+  const [detalhesObrigacao, setDetalhesObrigacao] = useState(null);
+  const [carregandoObrigacao, setCarregandoObrigacao] = useState(false);
+  const [erroObrigacao, setErroObrigacao] = useState(null);
 
   useEffect(() => {
     const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
@@ -196,19 +199,60 @@ export default function Dashboard({
     }
   };
 
-  const abrirModalObrigacao = (obrigacao) => {
+  const abrirModalObrigacao = async (obrigacao) => {
     setModalDetalhe({
       tipo: "obrigacao",
       titulo: obrigacao.nome,
       dados: obrigacao,
     });
+
+    setDetalhesObrigacao(null);
+    setErroObrigacao(null);
+    setCarregandoObrigacao(true);
+
+    try {
+      const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
+
+      const token = authUser?.token;
+
+      const resposta = await fetch(
+        `${API_URL}/dashboard/obrigacao/${obrigacao.id_tipo_documento}/empresas?competencia=${competencia}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!resposta.ok) {
+        const erroResposta = await resposta.text();
+
+        throw new Error(
+          `Erro ao carregar empresas: ${resposta.status} - ${erroResposta}`,
+        );
+      }
+
+      const dados = await resposta.json();
+
+      setDetalhesObrigacao(dados);
+    } catch (erro) {
+      console.error("Erro ao carregar detalhes da obrigação:", erro);
+      setErroObrigacao(erro.message);
+    } finally {
+      setCarregandoObrigacao(false);
+    }
   };
 
   const fecharModal = () => {
     setModalDetalhe(null);
+
     setDetalhesEmpresa(null);
     setErroDetalhes(null);
     setCarregandoDetalhes(false);
+
+    setDetalhesObrigacao(null);
+    setErroObrigacao(null);
+    setCarregandoObrigacao(false);
   };
 
   return (
@@ -576,14 +620,22 @@ export default function Dashboard({
                     <div>
                       <span>Enviados</span>
                       <strong className="db-modal-numero db-modal-numero--env">
-                        {Number(modalDetalhe.dados.enviados ?? 0)}
+                        {Number(
+                          detalhesObrigacao?.resumo?.enviados ??
+                            modalDetalhe.dados.enviados ??
+                            0,
+                        )}{" "}
                       </strong>
                     </div>
 
                     <div>
                       <span>Pendentes</span>
                       <strong className="db-modal-numero db-modal-numero--pend">
-                        {Number(modalDetalhe.dados.pendentes ?? 0)}
+                        {Number(
+                          detalhesObrigacao?.resumo?.pendentes ??
+                            modalDetalhe.dados.pendentes ??
+                            0,
+                        )}{" "}
                       </strong>
                     </div>
                   </div>
@@ -671,9 +723,62 @@ export default function Dashboard({
                     </div>
                   </div>
 
-                  <p className="db-modal-aviso">
-                    A lista de empresas desta obrigação será carregada aqui.
-                  </p>
+                  {carregandoObrigacao ? (
+                    <div className="db-modal-carregando">
+                      <div className="db-spinner" />
+                      <p>Carregando empresas...</p>
+                    </div>
+                  ) : erroObrigacao ? (
+                    <div className="db-modal-erro">
+                      <strong>Não foi possível carregar as empresas.</strong>
+                      <span>{erroObrigacao}</span>
+                    </div>
+                  ) : detalhesObrigacao?.empresas?.length > 0 ? (
+                    <div className="db-modal-lista-documentos">
+                      {detalhesObrigacao.empresas.map((empresa) => (
+                        <div
+                          key={empresa.id_cliente}
+                          className={`db-modal-documento ${
+                            empresa.status === "ENVIADO"
+                              ? "db-modal-documento--enviado"
+                              : "db-modal-documento--pendente"
+                          }`}
+                        >
+                          <div>
+                            <strong>{empresa.razao_social}</strong>
+
+                            {empresa.status === "ENVIADO" &&
+                            empresa.data_envio ? (
+                              <span>
+                                Enviado em{" "}
+                                {new Date(
+                                  empresa.data_envio,
+                                ).toLocaleDateString("pt-BR")}
+                              </span>
+                            ) : (
+                              <span>Aguardando envio</span>
+                            )}
+                          </div>
+
+                          <span
+                            className={`db-modal-status ${
+                              empresa.status === "ENVIADO"
+                                ? "db-modal-status--enviado"
+                                : "db-modal-status--pendente"
+                            }`}
+                          >
+                            {empresa.status === "ENVIADO"
+                              ? "Enviado"
+                              : "Pendente"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="db-modal-aviso">
+                      Nenhuma empresa está vinculada a esta obrigação.
+                    </p>
+                  )}
                 </>
               )}
             </div>
