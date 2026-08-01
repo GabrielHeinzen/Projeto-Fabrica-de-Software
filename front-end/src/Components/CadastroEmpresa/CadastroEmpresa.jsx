@@ -1,29 +1,82 @@
-import { useState } from 'react';
-import { useToast } from '../Toast/ToastProvider';
-import logoIcon from '../../assets/IconeContabilidade.jpeg';
-import './CadastroEmpresa.css';
+import { useEffect, useState } from "react";
+import { useToast } from "../Toast/ToastProvider";
+import logoIcon from "../../assets/IconeContabilidade.jpeg";
+import "./CadastroEmpresa.css";
 
 // Estado inicial separado para facilitar o reset do formulário após envio
 const initialForm = {
-  razaoSocial: '',
-  cnpj: '',
-  regimeTributario: '',
-  possuiFuncionarios: '',
-  possuiNotasVenda: '',
-  prestaServicos: ''
+  razaoSocial: "",
+  cnpj: "",
+  regimeTributario: "",
+  possuiFuncionarios: "",
+  possuiNotasVenda: "",
+  prestaServicos: "",
 };
 
-function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
+function CadastroEmpresa({ userName = "Usuario", onLogout, onNavigate }) {
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false); // evita envios duplicados
+  const [documentos, setDocumentos] = useState([]);
+  const [documentosSelecionados, setDocumentosSelecionados] = useState([]);
+  const [carregandoDocumentos, setCarregandoDocumentos] = useState(true);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+    const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
+
+    const token = authUser?.token;
+
+    fetch(`${apiBaseUrl}/documentos`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(async (resposta) => {
+        if (!resposta.ok) {
+          const erroResposta = await resposta.text();
+
+          throw new Error(
+            `Erro ao carregar documentos: ${resposta.status} - ${erroResposta}`,
+          );
+        }
+
+        return resposta.json();
+      })
+      .then((dados) => {
+        setDocumentos(Array.isArray(dados) ? dados : []);
+      })
+      .catch((erro) => {
+        console.error("Erro ao carregar documentos:", erro);
+
+        showToast("Não foi possível carregar os documentos.", "error", {
+          title: "Erro",
+        });
+      })
+      .finally(() => {
+        setCarregandoDocumentos(false);
+      });
+  }, [showToast]);
 
   // Retorna um handler genérico para atualizar qualquer campo do formulário
   const handleChange = (field) => (event) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: event.target.value
+      [field]: event.target.value,
     }));
+  };
+
+  const alternarDocumento = (idDocumento) => {
+    setDocumentosSelecionados((documentosAtuais) => {
+      const jaSelecionado = documentosAtuais.includes(idDocumento);
+
+      if (jaSelecionado) {
+        return documentosAtuais.filter((id) => id !== idDocumento);
+      }
+
+      return [...documentosAtuais, idDocumento];
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -34,44 +87,45 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
       return;
     }
 
-
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
     setIsSubmitting(true);
 
     try {
       const resposta = await fetch(`${apiBaseUrl}/empresa`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           cnpj: formData.cnpj,
           razao_social: formData.razaoSocial,
           regime_tributario: formData.regimeTributario,
           // Converte 'sim'/'nao' para booleano antes de enviar à API
-          possui_funcionarios: formData.possuiFuncionarios === 'sim',
-          possui_notas_venda: formData.possuiNotasVenda === 'sim',
-          presta_servicos: formData.prestaServicos === 'sim'
-        })
+          possui_funcionarios: formData.possuiFuncionarios === "sim",
+          possui_notas_venda: formData.possuiNotasVenda === "sim",
+          presta_servicos: formData.prestaServicos === "sim",
+          documentos: documentosSelecionados,
+        }),
       });
 
       const dados = await resposta.json();
 
       if (resposta.ok && dados.sucesso) {
-        showToast('Empresa cadastrada com sucesso.', 'success', {
-          title: 'Sucesso'
+        showToast("Empresa cadastrada com sucesso.", "success", {
+          title: "Sucesso",
         });
         setFormData(initialForm); // limpa o formulário após sucesso
+        setDocumentosSelecionados([]);
       } else {
-        showToast(dados.mensagem || 'Erro ao cadastrar empresa', 'error', {
-          title: 'Erro'
+        showToast(dados.mensagem || "Erro ao cadastrar empresa", "error", {
+          title: "Erro",
         });
       }
     } catch (erro) {
       console.log(erro);
-      showToast('Erro ao conectar com backend', 'error', {
-        title: 'Erro'
+      showToast("Erro ao conectar com backend", "error", {
+        title: "Erro",
       });
     } finally {
       setIsSubmitting(false);
@@ -92,14 +146,17 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
         </div>
 
         <nav className="empresa-nav">
-          <button type="button" className="empresa-nav-item" 
-          onClick={() => onNavigate && onNavigate('dashboard')}
-          >
-            Dashboard</button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('empresas')}
+            onClick={() => onNavigate && onNavigate("dashboard")}
+          >
+            Dashboard
+          </button>
+          <button
+            type="button"
+            className="empresa-nav-item"
+            onClick={() => onNavigate && onNavigate("empresas")}
           >
             Minhas Empresas
           </button>
@@ -107,28 +164,28 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('usuarios')}
+            onClick={() => onNavigate && onNavigate("usuarios")}
           >
             Usuarios
           </button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('documentos')}
+            onClick={() => onNavigate && onNavigate("documentos")}
           >
             Documentos
           </button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('anexo')}
+            onClick={() => onNavigate && onNavigate("anexo")}
           >
             Anexo de Documentos
           </button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('recebidos')}
+            onClick={() => onNavigate && onNavigate("recebidos")}
           >
             Documentos Recebidos
           </button>
@@ -141,7 +198,11 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
-              <button type="button" className="empresa-logout" onClick={onLogout}>
+              <button
+                type="button"
+                className="empresa-logout"
+                onClick={onLogout}
+              >
                 Sair
               </button>
             )}
@@ -172,7 +233,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
                 type="text"
                 placeholder="Digite a razao social da empresa"
                 value={formData.razaoSocial}
-                onChange={handleChange('razaoSocial')}
+                onChange={handleChange("razaoSocial")}
                 required
               />
             </label>
@@ -184,7 +245,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
                 type="text"
                 placeholder="00.000.000/0000-00"
                 value={formData.cnpj}
-                onChange={handleChange('cnpj')}
+                onChange={handleChange("cnpj")}
                 maxLength={18}
                 required
               />
@@ -195,7 +256,7 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
               <select
                 id="regime-tributario"
                 value={formData.regimeTributario}
-                onChange={handleChange('regimeTributario')}
+                onChange={handleChange("regimeTributario")}
                 required
               >
                 <option value="" disabled>
@@ -212,29 +273,31 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
               <span>Possui funcionarios? *</span>
               <div className="empresa-toggle-options">
                 <label
-                  className={`empresa-toggle-option ${formData.possuiFuncionarios === 'sim' ? 'is-selected' : ''
-                    }`}
+                  className={`empresa-toggle-option ${
+                    formData.possuiFuncionarios === "sim" ? "is-selected" : ""
+                  }`}
                 >
                   <input
                     type="radio"
                     name="possuiFuncionarios"
                     value="sim"
-                    checked={formData.possuiFuncionarios === 'sim'}
-                    onChange={handleChange('possuiFuncionarios')}
+                    checked={formData.possuiFuncionarios === "sim"}
+                    onChange={handleChange("possuiFuncionarios")}
                     required
                   />
                   Sim
                 </label>
                 <label
-                  className={`empresa-toggle-option ${formData.possuiFuncionarios === 'nao' ? 'is-selected' : ''
-                    }`}
+                  className={`empresa-toggle-option ${
+                    formData.possuiFuncionarios === "nao" ? "is-selected" : ""
+                  }`}
                 >
                   <input
                     type="radio"
                     name="possuiFuncionarios"
                     value="nao"
-                    checked={formData.possuiFuncionarios === 'nao'}
-                    onChange={handleChange('possuiFuncionarios')}
+                    checked={formData.possuiFuncionarios === "nao"}
+                    onChange={handleChange("possuiFuncionarios")}
                   />
                   Nao
                 </label>
@@ -245,29 +308,31 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
               <span>Possui notas de vendas? *</span>
               <div className="empresa-toggle-options">
                 <label
-                  className={`empresa-toggle-option ${formData.possuiNotasVenda === 'sim' ? 'is-selected' : ''
-                    }`}
+                  className={`empresa-toggle-option ${
+                    formData.possuiNotasVenda === "sim" ? "is-selected" : ""
+                  }`}
                 >
                   <input
                     type="radio"
                     name="possuiNotasVenda"
                     value="sim"
-                    checked={formData.possuiNotasVenda === 'sim'}
-                    onChange={handleChange('possuiNotasVenda')}
+                    checked={formData.possuiNotasVenda === "sim"}
+                    onChange={handleChange("possuiNotasVenda")}
                     required
                   />
                   Sim
                 </label>
                 <label
-                  className={`empresa-toggle-option ${formData.possuiNotasVenda === 'nao' ? 'is-selected' : ''
-                    }`}
+                  className={`empresa-toggle-option ${
+                    formData.possuiNotasVenda === "nao" ? "is-selected" : ""
+                  }`}
                 >
                   <input
                     type="radio"
                     name="possuiNotasVenda"
                     value="nao"
-                    checked={formData.possuiNotasVenda === 'nao'}
-                    onChange={handleChange('possuiNotasVenda')}
+                    checked={formData.possuiNotasVenda === "nao"}
+                    onChange={handleChange("possuiNotasVenda")}
                   />
                   Nao
                 </label>
@@ -278,42 +343,111 @@ function CadastroEmpresa({ userName = 'Usuario', onLogout, onNavigate }) {
               <span>Presta servicos? *</span>
               <div className="empresa-toggle-options">
                 <label
-                  className={`empresa-toggle-option ${formData.prestaServicos === 'sim' ? 'is-selected' : ''
-                    }`}
+                  className={`empresa-toggle-option ${
+                    formData.prestaServicos === "sim" ? "is-selected" : ""
+                  }`}
                 >
                   <input
                     type="radio"
                     name="prestaServicos"
                     value="sim"
-                    checked={formData.prestaServicos === 'sim'}
-                    onChange={handleChange('prestaServicos')}
+                    checked={formData.prestaServicos === "sim"}
+                    onChange={handleChange("prestaServicos")}
                     required
                   />
                   Sim
                 </label>
                 <label
-                  className={`empresa-toggle-option ${formData.prestaServicos === 'nao' ? 'is-selected' : ''
-                    }`}
+                  className={`empresa-toggle-option ${
+                    formData.prestaServicos === "nao" ? "is-selected" : ""
+                  }`}
                 >
                   <input
                     type="radio"
                     name="prestaServicos"
                     value="nao"
-                    checked={formData.prestaServicos === 'nao'}
-                    onChange={handleChange('prestaServicos')}
+                    checked={formData.prestaServicos === "nao"}
+                    onChange={handleChange("prestaServicos")}
                   />
                   Nao
                 </label>
               </div>
+              <div className="empresa-vinculos">
+                <div className="empresa-vinculos-header">
+                  <div>
+                    <h3>Documentos da empresa</h3>
+
+                    <p>
+                      Selecione as obrigações que deverão ser controladas para
+                      esta empresa.
+                    </p>
+                  </div>
+
+                  <span className="empresa-vinculos-contador">
+                    {documentosSelecionados.length} selecionado(s)
+                  </span>
+                </div>
+
+                {carregandoDocumentos ? (
+                  <p className="empresa-vinculos-mensagem">
+                    Carregando documentos...
+                  </p>
+                ) : documentos.length === 0 ? (
+                  <p className="empresa-vinculos-mensagem">
+                    Nenhum documento cadastrado no sistema.
+                  </p>
+                ) : (
+                  <div className="empresa-vinculos-lista">
+                    {documentos.map((documento) => {
+                      const selecionado = documentosSelecionados.includes(
+                        documento.id,
+                      );
+
+                      return (
+                        <label
+                          key={documento.id}
+                          className={`empresa-vinculo-item ${
+                            selecionado ? "is-selected" : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selecionado}
+                            onChange={() => alternarDocumento(documento.id)}
+                          />
+
+                          <div>
+                            <strong>{documento.nome}</strong>
+
+                            <span>
+                              Periodicidade: {documento.periodicidade}
+                            </span>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <p className="empresa-vinculos-aviso">
+                  A seleção é opcional. Sem documentos vinculados, a empresa não
+                  será considerada no controle de obrigações do dashboard.
+                </p>
+              </div>
             </div>
             <div className="empresa-actions">
-              <button type="submit" className="empresa-primary" disabled={isSubmitting}>
-                {isSubmitting ? 'Salvando...' : 'Salvar e continuar'}
+              <button
+                type="submit"
+                className="empresa-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Salvando..." : "Salvar e continuar"}
               </button>
-              <button type="button" className="empresa-secondary">Cancelar</button>
+              <button type="button" className="empresa-secondary">
+                Cancelar
+              </button>
             </div>
           </form>
-
         </div>
       </div>
     </div>
