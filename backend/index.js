@@ -424,6 +424,7 @@ app.post("/empresa", (req, res) => {
     possui_funcionarios,
     possui_notas_venda,
     presta_servicos,
+    documentos,
   } = req.body;
 
   if (!cnpj || !razao_social || !regime_tributario) {
@@ -454,16 +455,64 @@ app.post("/empresa", (req, res) => {
     (err, result) => {
       if (err) {
         console.error(err);
+
         return res.status(500).json({
           sucesso: false,
           mensagem: "Erro ao cadastrar empresa",
         });
       }
 
-      res.json({
-        sucesso: true,
-        mensagem: "Empresa cadastrada com sucesso",
-        id_empresa: result.insertId,
+      const idCliente = result.insertId;
+
+      const documentosNormalizados = Array.isArray(documentos)
+        ? [...new Set(documentos.map(Number))]
+            .filter((idDocumento) => Number.isInteger(idDocumento))
+            .filter((idDocumento) => idDocumento > 0)
+        : [];
+
+      if (documentosNormalizados.length === 0) {
+        return res.status(201).json({
+          sucesso: true,
+          mensagem: "Empresa cadastrada sem documentos vinculados",
+          id_empresa: idCliente,
+          documentos_vinculados: 0,
+        });
+      }
+
+      const valoresVinculos = documentosNormalizados.map((idDocumento) => [
+        idCliente,
+        idDocumento,
+        1,
+      ]);
+
+      const sqlVinculos = `
+    INSERT INTO cliente_tipo_documento
+    (
+      id_cliente,
+      id_tipo_documento,
+      ativo
+    )
+    VALUES ?
+  `;
+
+      db.query(sqlVinculos, [valoresVinculos], (erroVinculos) => {
+        if (erroVinculos) {
+          console.error("Erro ao vincular documentos à empresa:", erroVinculos);
+
+          return res.status(500).json({
+            sucesso: false,
+            mensagem:
+              "A empresa foi cadastrada, mas ocorreu um erro ao vincular os documentos",
+            id_empresa: idCliente,
+          });
+        }
+
+        return res.status(201).json({
+          sucesso: true,
+          mensagem: "Empresa e documentos cadastrados com sucesso",
+          id_empresa: idCliente,
+          documentos_vinculados: documentosNormalizados.length,
+        });
       });
     },
   );
