@@ -372,68 +372,66 @@ function CadastroEmpresa({ userName = "Usuario", onLogout, onNavigate }) {
                   Nao
                 </label>
               </div>
-              <div className="empresa-vinculos">
-                <div className="empresa-vinculos-header">
-                  <div>
-                    <h3>Documentos da empresa</h3>
+            </div>
+            <div className="empresa-vinculos">
+              <div className="empresa-vinculos-header">
+                <div>
+                  <h3>Documentos da empresa</h3>
 
-                    <p>
-                      Selecione as obrigações que deverão ser controladas para
-                      esta empresa.
-                    </p>
-                  </div>
-
-                  <span className="empresa-vinculos-contador">
-                    {documentosSelecionados.length} selecionado(s)
-                  </span>
+                  <p>
+                    Selecione as obrigações que deverão ser controladas para
+                    esta empresa.
+                  </p>
                 </div>
 
-                {carregandoDocumentos ? (
-                  <p className="empresa-vinculos-mensagem">
-                    Carregando documentos...
-                  </p>
-                ) : documentos.length === 0 ? (
-                  <p className="empresa-vinculos-mensagem">
-                    Nenhum documento cadastrado no sistema.
-                  </p>
-                ) : (
-                  <div className="empresa-vinculos-lista">
-                    {documentos.map((documento) => {
-                      const selecionado = documentosSelecionados.includes(
-                        documento.id,
-                      );
-
-                      return (
-                        <label
-                          key={documento.id}
-                          className={`empresa-vinculo-item ${
-                            selecionado ? "is-selected" : ""
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selecionado}
-                            onChange={() => alternarDocumento(documento.id)}
-                          />
-
-                          <div>
-                            <strong>{documento.nome}</strong>
-
-                            <span>
-                              Periodicidade: {documento.periodicidade}
-                            </span>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <p className="empresa-vinculos-aviso">
-                  A seleção é opcional. Sem documentos vinculados, a empresa não
-                  será considerada no controle de obrigações do dashboard.
-                </p>
+                <span className="empresa-vinculos-contador">
+                  {documentosSelecionados.length} selecionado(s)
+                </span>
               </div>
+
+              {carregandoDocumentos ? (
+                <p className="empresa-vinculos-mensagem">
+                  Carregando documentos...
+                </p>
+              ) : documentos.length === 0 ? (
+                <p className="empresa-vinculos-mensagem">
+                  Nenhum documento cadastrado no sistema.
+                </p>
+              ) : (
+                <div className="empresa-vinculos-lista">
+                  {documentos.map((documento) => {
+                    const selecionado = documentosSelecionados.includes(
+                      documento.id,
+                    );
+
+                    return (
+                      <label
+                        key={documento.id}
+                        className={`empresa-vinculo-item ${
+                          selecionado ? "is-selected" : ""
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selecionado}
+                          onChange={() => alternarDocumento(documento.id)}
+                        />
+
+                        <div>
+                          <strong>{documento.nome}</strong>
+
+                          <span>Periodicidade: {documento.periodicidade}</span>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="empresa-vinculos-aviso">
+                A seleção é opcional. Sem documentos vinculados, a empresa não
+                será considerada no controle de obrigações do dashboard.
+              </p>
             </div>
             <div className="empresa-actions">
               <button
