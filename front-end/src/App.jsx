@@ -1,6 +1,7 @@
 import './App.css'
 import { useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { ToastProvider } from './Components/Toast/ToastProvider';
 import MinhasEmpresas from './Components/MinhasEmpresas/MinhasEmpresas';
 import Usuarios from './Components/Usuarios/Usuarios';
@@ -74,6 +75,7 @@ function App() {
 
   return (
     <ToastProvider>
+      <Analytics />
       <div className={`app-root ${isAuthed ? 'app-root--authed' : 'app-root--login'}`}>
         <Routes>
           <Route
