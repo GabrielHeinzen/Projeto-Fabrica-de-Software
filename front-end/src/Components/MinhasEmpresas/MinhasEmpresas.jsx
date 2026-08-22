@@ -118,10 +118,18 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
       const apiBaseUrl =
         import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+      const authUser = JSON.parse(localStorage.getItem("authUser") || "null");
+
+      const token = authUser?.token;
+
       setCarregandoDocumentos(true);
 
       try {
-        const resposta = await fetch(`${apiBaseUrl}/documentos`);
+        const resposta = await fetch(`${apiBaseUrl}/documentos`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!resposta.ok) {
           throw new Error("Erro ao carregar documentos");
