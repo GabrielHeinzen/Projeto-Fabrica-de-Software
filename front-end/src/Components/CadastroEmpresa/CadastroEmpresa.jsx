@@ -132,6 +132,10 @@ function CadastroEmpresa({ userName = "Usuario", onLogout, onNavigate }) {
     }
   };
 
+  console.log("CadastroEmpresa renderizou");
+  console.log("Documentos:", documentos);
+  console.log("Carregando documentos:", carregandoDocumentos);
+
   return (
     <div className="empresa-page">
       <aside className="empresa-sidebar">
