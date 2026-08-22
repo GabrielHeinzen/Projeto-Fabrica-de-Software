@@ -1027,13 +1027,14 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
                   </label>
                 </div>
               </div>
-
               <div className="empresa-toggle-group">
                 <span>Presta serviços? *</span>
 
                 <div className="empresa-toggle-options">
                   <label
-                    className={`empresa-toggle-option ${cadastroForm.prestaServicos === "sim" ? "is-selected" : ""}`}
+                    className={`empresa-toggle-option ${
+                      cadastroForm.prestaServicos === "sim" ? "is-selected" : ""
+                    }`}
                   >
                     <input
                       type="radio"
@@ -1051,7 +1052,9 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
                   </label>
 
                   <label
-                    className={`empresa-toggle-option ${cadastroForm.prestaServicos === "nao" ? "is-selected" : ""}`}
+                    className={`empresa-toggle-option ${
+                      cadastroForm.prestaServicos === "nao" ? "is-selected" : ""
+                    }`}
                   >
                     <input
                       type="radio"
@@ -1068,6 +1071,73 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
                     Não
                   </label>
                 </div>
+              </div>
+
+              <div className="empresa-vinculos">
+                <div className="empresa-vinculos-header">
+                  <div>
+                    <h3>Documentos da empresa</h3>
+
+                    <p>
+                      Selecione as obrigações que deverão ser controladas para
+                      esta empresa.
+                    </p>
+                  </div>
+
+                  <span className="empresa-vinculos-contador">
+                    {documentosSelecionados.length} selecionado(s)
+                  </span>
+                </div>
+
+                {carregandoDocumentos ? (
+                  <p className="empresa-vinculos-mensagem">
+                    Carregando documentos...
+                  </p>
+                ) : documentos.length === 0 ? (
+                  <p className="empresa-vinculos-mensagem">
+                    Nenhum documento cadastrado no sistema.
+                  </p>
+                ) : (
+                  <div className="empresa-vinculos-lista">
+                    {documentos.map((documento) => {
+                      const idDocumento =
+                        documento.id_tipo_documento ?? documento.id;
+
+                      const selecionado =
+                        documentosSelecionados.includes(idDocumento);
+
+                      return (
+                        <label
+                          key={idDocumento}
+                          className={`empresa-vinculo-item ${
+                            selecionado ? "is-selected" : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selecionado}
+                            onChange={() => alternarDocumento(idDocumento)}
+                          />
+
+                          <div>
+                            <strong>{documento.nome}</strong>
+
+                            {documento.periodicidade && (
+                              <span>
+                                Periodicidade: {documento.periodicidade}
+                              </span>
+                            )}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <p className="empresa-vinculos-aviso">
+                  A seleção é opcional. Sem documentos vinculados, a empresa não
+                  será considerada no controle de obrigações do dashboard.
+                </p>
               </div>
             </div>
 
