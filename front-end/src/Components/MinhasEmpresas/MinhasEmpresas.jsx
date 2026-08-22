@@ -1,44 +1,43 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import logoIcon from '../../assets/IconeContabilidade.jpeg';
-import '../CadastroEmpresa/CadastroEmpresa.css';
-import './MinhasEmpresas.css';
-import { useToast } from '../Toast/ToastProvider';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import logoIcon from "../../assets/IconeContabilidade.jpeg";
+import "../CadastroEmpresa/CadastroEmpresa.css";
+import "./MinhasEmpresas.css";
+import { useToast } from "../Toast/ToastProvider";
 
 // Mapa de labels amigáveis para os regimes tributários
 const regimeLabels = {
-  simples: 'Simples Nacional',
-  presumido: 'Lucro Presumido',
-  real: 'Lucro Real',
-  mei: 'MEI'
+  simples: "Simples Nacional",
+  presumido: "Lucro Presumido",
+  real: "Lucro Real",
+  mei: "MEI",
 };
 const initialCadastroForm = {
-  razaoSocial: '',
-  cnpj: '',
-  regimeTributario: '',
-  possuiFuncionarios: '',
-  possuiNotasVenda: '',
-  prestaServicos: ''
+  razaoSocial: "",
+  cnpj: "",
+  regimeTributario: "",
+  possuiFuncionarios: "",
+  possuiNotasVenda: "",
+  prestaServicos: "",
 };
 // Normaliza o campo booleano que pode vir como true, 1, '1' ou 'true' do banco
-const parseFlag = (value) => value === true || value === 1 || value === '1' || value === 'true';
+const parseFlag = (value) =>
+  value === true || value === 1 || value === "1" || value === "true";
 // Suporta APIs que retornam id_cliente ou id
 const getEmpresaId = (empresa) => empresa.id_cliente ?? empresa.id;
 // Monta o objeto do formulário de edição a partir dos dados da empresa
 const buildEditForm = (empresa) => ({
-  cnpj: empresa.cnpj || '',
-  razao_social: empresa.razao_social || '',
-  regime_tributario: empresa.regime_tributario || '',
-  possui_funcionarios: parseFlag(empresa.possui_funcionarios) ? 'sim' : 'nao',
-  possui_notas_venda: parseFlag(empresa.possui_notas_venda) ? 'sim' : 'nao',
-  presta_servicos: parseFlag(empresa.presta_servicos) ? 'sim' : 'nao'
+  cnpj: empresa.cnpj || "",
+  razao_social: empresa.razao_social || "",
+  regime_tributario: empresa.regime_tributario || "",
+  possui_funcionarios: parseFlag(empresa.possui_funcionarios) ? "sim" : "nao",
+  possui_notas_venda: parseFlag(empresa.possui_notas_venda) ? "sim" : "nao",
+  presta_servicos: parseFlag(empresa.presta_servicos) ? "sim" : "nao",
 });
 
-
-
-function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
+function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
   const [empresas, setEmpresas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(null);
   const [savingId, setSavingId] = useState(null);
@@ -48,40 +47,47 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const [showCadastroModal, setShowCadastroModal] = useState(false);
   const [cadastroForm, setCadastroForm] = useState(initialCadastroForm);
   const [isCreating, setIsCreating] = useState(false);
+  const [documentos, setDocumentos] = useState([]);
+  const [documentosSelecionados, setDocumentosSelecionados] = useState([]);
+  const [carregandoDocumentos, setCarregandoDocumentos] = useState(false);
 
   // useCallback evita loop infinito no useEffect que depende desta função
-  const carregarEmpresas = useCallback(async (mostrarToast = false) => {
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const carregarEmpresas = useCallback(
+    async (mostrarToast = false) => {
+      const apiBaseUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-    setIsLoading(true);
-    setErro('');
+      setIsLoading(true);
+      setErro("");
 
-    try {
-      const resposta = await fetch(`${apiBaseUrl}/empresa`);
+      try {
+        const resposta = await fetch(`${apiBaseUrl}/empresa`);
 
-      if (!resposta.ok) {
-        throw new Error('Falha ao carregar as empresas');
+        if (!resposta.ok) {
+          throw new Error("Falha ao carregar as empresas");
+        }
+
+        const dados = await resposta.json();
+        setEmpresas(Array.isArray(dados) ? dados : []);
+        if (mostrarToast) {
+          showToast("Lista atualizada com sucesso.", "success", {
+            title: "Sucesso",
+          });
+        }
+      } catch (err) {
+        console.log(err);
+        setErro("Nao foi possivel carregar as empresas agora.");
+        if (mostrarToast) {
+          showToast("Nao foi possivel carregar as empresas agora.", "error", {
+            title: "Erro",
+          });
+        }
+      } finally {
+        setIsLoading(false);
       }
-
-      const dados = await resposta.json();
-      setEmpresas(Array.isArray(dados) ? dados : []);
-      if (mostrarToast) {
-        showToast('Lista atualizada com sucesso.', 'success', {
-          title: 'Sucesso'
-        });
-      }
-    } catch (err) {
-      console.log(err);
-      setErro('Nao foi possivel carregar as empresas agora.');
-      if (mostrarToast) {
-        showToast('Nao foi possivel carregar as empresas agora.', 'error', {
-          title: 'Erro'
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [showToast]);
+    },
+    [showToast],
+  );
 
   useEffect(() => {
     carregarEmpresas();
@@ -89,27 +95,62 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   // useMemo recalcula o resumo apenas quando a lista de empresas muda
   const resumo = useMemo(() => {
     const total = empresas.length;
-    const comFuncionarios = empresas.filter((empresa) => parseFlag(empresa.possui_funcionarios)).length;
-    const comNotas = empresas.filter((empresa) => parseFlag(empresa.possui_notas_venda)).length;
-    const comServicos = empresas.filter((empresa) => parseFlag(empresa.presta_servicos)).length;
+    const comFuncionarios = empresas.filter((empresa) =>
+      parseFlag(empresa.possui_funcionarios),
+    ).length;
+    const comNotas = empresas.filter((empresa) =>
+      parseFlag(empresa.possui_notas_venda),
+    ).length;
+    const comServicos = empresas.filter((empresa) =>
+      parseFlag(empresa.presta_servicos),
+    ).length;
 
     return {
       total,
       comFuncionarios,
       comNotas,
-      comServicos
+      comServicos,
     };
   }, [empresas]);
 
-  const formatRegime = (value) => regimeLabels[value] || value || 'Nao informado';
-  const formatSimNao = (value) => (parseFlag(value) ? 'Sim' : 'Nao');
+  useEffect(() => {
+    const carregarDocumentos = async () => {
+      const apiBaseUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+      setCarregandoDocumentos(true);
+
+      try {
+        const resposta = await fetch(`${apiBaseUrl}/documentos`);
+
+        if (!resposta.ok) {
+          throw new Error("Erro ao carregar documentos");
+        }
+
+        const dados = await resposta.json();
+
+        setDocumentos(Array.isArray(dados) ? dados : []);
+      } catch (err) {
+        console.log("Erro ao carregar documentos:", err);
+        setDocumentos([]);
+      } finally {
+        setCarregandoDocumentos(false);
+      }
+    };
+
+    carregarDocumentos();
+  }, []);
+
+  const formatRegime = (value) =>
+    regimeLabels[value] || value || "Nao informado";
+  const formatSimNao = (value) => (parseFlag(value) ? "Sim" : "Nao");
   // Abre o formulário inline de edição para a empresa clicada
   const handleEditStart = (empresa) => {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
-      showToast('Empresa sem identificador.', 'warning', {
-        title: 'Atencao'
+      showToast("Empresa sem identificador.", "warning", {
+        title: "Atencao",
       });
       return;
     }
@@ -126,7 +167,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
   const handleEditChange = (field) => (event) => {
     setEditForm((prev) => ({
       ...prev,
-      [field]: event.target.value
+      [field]: event.target.value,
     }));
   };
 
@@ -135,69 +176,77 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       return;
     }
 
-    if (!editForm.cnpj || !editForm.razao_social || !editForm.regime_tributario) {
-      showToast('Preencha os campos obrigatorios.', 'warning', {
-        title: 'Atencao'
+    if (
+      !editForm.cnpj ||
+      !editForm.razao_social ||
+      !editForm.regime_tributario
+    ) {
+      showToast("Preencha os campos obrigatorios.", "warning", {
+        title: "Atencao",
       });
       return;
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
     // Preserva o id_contador original da empresa ao salvar
-    const empresaAtual = empresas.find((item) => getEmpresaId(item) === empresaId);
+    const empresaAtual = empresas.find(
+      (item) => getEmpresaId(item) === empresaId,
+    );
     const idContadorAtual = empresaAtual?.id_contador ?? null;
 
     setSavingId(empresaId);
 
     try {
       const resposta = await fetch(`${apiBaseUrl}/empresa/${empresaId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           cnpj: editForm.cnpj,
           razao_social: editForm.razao_social,
           regime_tributario: editForm.regime_tributario,
           // Converte 'sim'/'nao' de volta para booleano
-          possui_funcionarios: editForm.possui_funcionarios === 'sim',
-          possui_notas_venda: editForm.possui_notas_venda === 'sim',
-          presta_servicos: editForm.presta_servicos === 'sim',
-          id_contador: idContadorAtual
-        })
+          possui_funcionarios: editForm.possui_funcionarios === "sim",
+          possui_notas_venda: editForm.possui_notas_venda === "sim",
+          presta_servicos: editForm.presta_servicos === "sim",
+          id_contador: idContadorAtual,
+        }),
       });
 
       const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok || !dados.sucesso) {
-        showToast(dados.mensagem || 'Erro ao atualizar empresa', 'error', {
-          title: 'Erro'
+        showToast(dados.mensagem || "Erro ao atualizar empresa", "error", {
+          title: "Erro",
         });
         return;
       }
 
-      setEmpresas((prev) => prev.map((empresa) => (
-        getEmpresaId(empresa) === empresaId
-          ? {
-            ...empresa,
-            cnpj: editForm.cnpj,
-            razao_social: editForm.razao_social,
-            regime_tributario: editForm.regime_tributario,
-            possui_funcionarios: editForm.possui_funcionarios === 'sim',
-            possui_notas_venda: editForm.possui_notas_venda === 'sim',
-            presta_servicos: editForm.presta_servicos === 'sim'
-          }
-          : empresa
-      )));
+      setEmpresas((prev) =>
+        prev.map((empresa) =>
+          getEmpresaId(empresa) === empresaId
+            ? {
+                ...empresa,
+                cnpj: editForm.cnpj,
+                razao_social: editForm.razao_social,
+                regime_tributario: editForm.regime_tributario,
+                possui_funcionarios: editForm.possui_funcionarios === "sim",
+                possui_notas_venda: editForm.possui_notas_venda === "sim",
+                presta_servicos: editForm.presta_servicos === "sim",
+              }
+            : empresa,
+        ),
+      );
 
       handleEditCancel();
-      showToast('Empresa atualizada com sucesso.', 'success', {
-        title: 'Sucesso'
+      showToast("Empresa atualizada com sucesso.", "success", {
+        title: "Sucesso",
       });
     } catch (err) {
       console.log(err);
-      showToast('Erro ao conectar com backend', 'error', {
-        title: 'Erro'
+      showToast("Erro ao conectar com backend", "error", {
+        title: "Erro",
       });
     } finally {
       setSavingId(null);
@@ -209,8 +258,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
-      showToast('Empresa sem identificador.', 'warning', {
-        title: 'Atencao'
+      showToast("Empresa sem identificador.", "warning", {
+        title: "Atencao",
       });
       return;
     }
@@ -230,45 +279,47 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
-      showToast('Empresa sem identificador.', 'warning', {
-        title: 'Atencao'
+      showToast("Empresa sem identificador.", "warning", {
+        title: "Atencao",
       });
       return false;
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
     setDeletingId(empresaId);
 
     try {
       const resposta = await fetch(`${apiBaseUrl}/empresa/${empresaId}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
 
       const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok || !dados.sucesso) {
-        showToast(dados.mensagem || 'Erro ao excluir empresa', 'error', {
-          title: 'Erro'
+        showToast(dados.mensagem || "Erro ao excluir empresa", "error", {
+          title: "Erro",
         });
         return false;
       }
 
       // Remove da lista local e fecha o formulário de edição se estiver aberto
-      setEmpresas((prev) => prev.filter((item) => getEmpresaId(item) !== empresaId));
+      setEmpresas((prev) =>
+        prev.filter((item) => getEmpresaId(item) !== empresaId),
+      );
 
       if (editingId === empresaId) {
         handleEditCancel();
       }
 
-      showToast('Empresa excluida com sucesso.', 'success', {
-        title: 'Sucesso'
+      showToast("Empresa excluida com sucesso.", "success", {
+        title: "Sucesso",
       });
       return true;
     } catch (err) {
       console.log(err);
-      showToast('Erro ao conectar com backend', 'error', {
-        title: 'Erro'
+      showToast("Erro ao conectar com backend", "error", {
+        title: "Erro",
       });
       return false;
     } finally {
@@ -288,6 +339,17 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       setEmpresaParaExcluir(null);
     }
   };
+
+  const alternarDocumento = (idDocumento) => {
+    setDocumentosSelecionados((anteriores) => {
+      if (anteriores.includes(idDocumento)) {
+        return anteriores.filter((id) => id !== idDocumento);
+      }
+
+      return [...anteriores, idDocumento];
+    });
+  };
+
   const handleCreateEmpresa = async () => {
     if (
       !cadastroForm.razaoSocial ||
@@ -297,53 +359,54 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
       !cadastroForm.possuiNotasVenda ||
       !cadastroForm.prestaServicos
     ) {
-      showToast('Preencha todos os campos obrigatórios.', 'warning', {
-        title: 'Atenção'
+      showToast("Preencha todos os campos obrigatórios.", "warning", {
+        title: "Atenção",
       });
       return;
     }
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
     setIsCreating(true);
 
     try {
       const resposta = await fetch(`${apiBaseUrl}/empresa`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           cnpj: cadastroForm.cnpj,
           razao_social: cadastroForm.razaoSocial,
           regime_tributario: cadastroForm.regimeTributario,
-          possui_funcionarios: cadastroForm.possuiFuncionarios === 'sim',
-          possui_notas_venda: cadastroForm.possuiNotasVenda === 'sim',
-          presta_servicos: cadastroForm.prestaServicos === 'sim'
-        })
+          possui_funcionarios: cadastroForm.possuiFuncionarios === "sim",
+          possui_notas_venda: cadastroForm.possuiNotasVenda === "sim",
+          presta_servicos: cadastroForm.prestaServicos === "sim",
+          documentos: documentosSelecionados,
+        }),
       });
 
       const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok || !dados.sucesso) {
-        showToast(dados.mensagem || 'Erro ao cadastrar empresa.', 'error', {
-          title: 'Erro'
+        showToast(dados.mensagem || "Erro ao cadastrar empresa.", "error", {
+          title: "Erro",
         });
         return;
       }
 
-      showToast('Empresa cadastrada com sucesso.', 'success', {
-        title: 'Sucesso'
+      showToast("Empresa cadastrada com sucesso.", "success", {
+        title: "Sucesso",
       });
 
       setCadastroForm(initialCadastroForm);
+      setDocumentosSelecionados([]);
       setShowCadastroModal(false);
       carregarEmpresas();
-
     } catch (erro) {
       console.log(erro);
-      showToast('Erro ao conectar com backend.', 'error', {
-        title: 'Erro'
+      showToast("Erro ao conectar com backend.", "error", {
+        title: "Erro",
       });
     } finally {
       setIsCreating(false);
@@ -367,7 +430,10 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('dashboard')}>Dashboard</button>
+            onClick={() => onNavigate && onNavigate("dashboard")}
+          >
+            Dashboard
+          </button>
           <button type="button" className="empresa-nav-item is-active">
             Minhas Empresas
           </button>
@@ -375,28 +441,28 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('usuarios')}
+            onClick={() => onNavigate && onNavigate("usuarios")}
           >
             Usuarios
           </button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('documentos')}
+            onClick={() => onNavigate && onNavigate("documentos")}
           >
             Documentos
           </button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('anexo')}
+            onClick={() => onNavigate && onNavigate("anexo")}
           >
             Anexo de Documentos
           </button>
           <button
             type="button"
             className="empresa-nav-item"
-            onClick={() => onNavigate && onNavigate('recebidos')}
+            onClick={() => onNavigate && onNavigate("recebidos")}
           >
             Documentos Recebidos
           </button>
@@ -409,7 +475,11 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           <div className="empresa-user">
             <span className="empresa-user-name">{userName}</span>
             {onLogout && (
-              <button type="button" className="empresa-logout" onClick={onLogout}>
+              <button
+                type="button"
+                className="empresa-logout"
+                onClick={onLogout}
+              >
                 Sair
               </button>
             )}
@@ -420,7 +490,10 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
           <div>
             <span className="empresa-kicker">Empresas cadastradas</span>
             <h1>Minhas Empresas</h1>
-            <p>Visualize as empresas cadastradas no sistema e acompanhe o perfil de cada uma.</p>
+            <p>
+              Visualize as empresas cadastradas no sistema e acompanhe o perfil
+              de cada uma.
+            </p>
           </div>
           <div className="empresa-hero-badge">
             <span>Total cadastradas</span>
@@ -435,9 +508,11 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
               <h2>Empresas cadastradas</h2>
               <div className="empresa-card-actions">
                 <span className="empresa-badge">{resumo.total} empresas</span>
-                <button type="button"
+                <button
+                  type="button"
                   className="empresa-primary"
-                  onClick={() => setShowCadastroModal(true)}>
+                  onClick={() => setShowCadastroModal(true)}
+                >
                   + Cadastrar Empresa
                 </button>
                 <button
@@ -446,7 +521,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   onClick={() => carregarEmpresas(true)}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Atualizando...' : 'Atualizar lista'}
+                  {isLoading ? "Atualizando..." : "Atualizar lista"}
                 </button>
               </div>
             </div>
@@ -456,7 +531,9 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
             ) : erro ? (
               <div className="empresa-empty empresa-empty--error">{erro}</div>
             ) : empresas.length === 0 ? (
-              <div className="empresa-empty">Nenhuma empresa cadastrada ainda.</div>
+              <div className="empresa-empty">
+                Nenhuma empresa cadastrada ainda.
+              </div>
             ) : (
               <ul className="empresa-list">
                 {empresas.map((empresa) => {
@@ -464,18 +541,25 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   const isEditing = editingId === empresaId;
                   const isSaving = savingId === empresaId;
                   const isDeleting = deletingId === empresaId;
-                  const editDisabled = Boolean(editingId && editingId !== empresaId);
+                  const editDisabled = Boolean(
+                    editingId && editingId !== empresaId,
+                  );
 
                   return (
                     <li
-                      key={empresaId || `${empresa.cnpj}-${empresa.razao_social}`}
+                      key={
+                        empresaId || `${empresa.cnpj}-${empresa.razao_social}`
+                      }
                       className="empresa-list-item"
                     >
                       <div className="empresa-list-header">
                         <div>
-                          <strong>{empresa.razao_social || 'Razao social nao informada'}</strong>
+                          <strong>
+                            {empresa.razao_social ||
+                              "Razao social nao informada"}
+                          </strong>
                           <span className="empresa-list-subtitle">
-                            CNPJ: {empresa.cnpj || 'Nao informado'}
+                            CNPJ: {empresa.cnpj || "Nao informado"}
                           </span>
                         </div>
                         <div className="empresa-list-actions">
@@ -488,7 +572,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                             onClick={() => handleEditStart(empresa)}
                             disabled={editDisabled || isEditing || isDeleting}
                           >
-                            {isEditing ? 'Editando' : 'Editar'}
+                            {isEditing ? "Editando" : "Editar"}
                           </button>
                           <button
                             type="button"
@@ -496,29 +580,37 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                             onClick={() => handleDeleteRequest(empresa)}
                             disabled={isDeleting || isSaving}
                           >
-                            {isDeleting ? 'Excluindo...' : 'Excluir'}
+                            {isDeleting ? "Excluindo..." : "Excluir"}
                           </button>
                         </div>
                       </div>
 
                       <div className="empresa-list-footer">
-                        <span className={`empresa-pill ${parseFlag(empresa.possui_funcionarios)
-                          ? 'empresa-pill--ok'
-                          : 'empresa-pill--warn'
+                        <span
+                          className={`empresa-pill ${
+                            parseFlag(empresa.possui_funcionarios)
+                              ? "empresa-pill--ok"
+                              : "empresa-pill--warn"
                           }`}
                         >
-                          Funcionarios: {formatSimNao(empresa.possui_funcionarios)}
+                          Funcionarios:{" "}
+                          {formatSimNao(empresa.possui_funcionarios)}
                         </span>
-                        <span className={`empresa-pill ${parseFlag(empresa.possui_notas_venda)
-                          ? 'empresa-pill--ok'
-                          : 'empresa-pill--warn'
+                        <span
+                          className={`empresa-pill ${
+                            parseFlag(empresa.possui_notas_venda)
+                              ? "empresa-pill--ok"
+                              : "empresa-pill--warn"
                           }`}
                         >
-                          Notas de venda: {formatSimNao(empresa.possui_notas_venda)}
+                          Notas de venda:{" "}
+                          {formatSimNao(empresa.possui_notas_venda)}
                         </span>
-                        <span className={`empresa-pill ${parseFlag(empresa.presta_servicos)
-                          ? 'empresa-pill--ok'
-                          : 'empresa-pill--warn'
+                        <span
+                          className={`empresa-pill ${
+                            parseFlag(empresa.presta_servicos)
+                              ? "empresa-pill--ok"
+                              : "empresa-pill--warn"
                           }`}
                         >
                           Servicos: {formatSimNao(empresa.presta_servicos)}
@@ -533,7 +625,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                               <input
                                 type="text"
                                 value={editForm.razao_social}
-                                onChange={handleEditChange('razao_social')}
+                                onChange={handleEditChange("razao_social")}
                                 required
                               />
                             </label>
@@ -543,7 +635,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                               <input
                                 type="text"
                                 value={editForm.cnpj}
-                                onChange={handleEditChange('cnpj')}
+                                onChange={handleEditChange("cnpj")}
                                 maxLength={18}
                                 required
                               />
@@ -553,46 +645,57 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                               <span>Regime Tributario *</span>
                               <select
                                 value={editForm.regime_tributario}
-                                onChange={handleEditChange('regime_tributario')}
+                                onChange={handleEditChange("regime_tributario")}
                                 required
                               >
                                 <option value="" disabled>
                                   Selecione o regime
                                 </option>
-                                <option value="simples">Simples Nacional</option>
-                                <option value="presumido">Lucro Presumido</option>
+                                <option value="simples">
+                                  Simples Nacional
+                                </option>
+                                <option value="presumido">
+                                  Lucro Presumido
+                                </option>
                                 <option value="real">Lucro Real</option>
                                 <option value="mei">MEI</option>
                               </select>
                             </label>
-
                           </div>
 
                           <div className="empresa-toggle-group">
                             <span>Possui funcionarios? *</span>
                             <div className="empresa-toggle-options">
                               <label
-                                className={`empresa-toggle-option ${editForm.possui_funcionarios === 'sim' ? 'is-selected' : ''}`}
+                                className={`empresa-toggle-option ${editForm.possui_funcionarios === "sim" ? "is-selected" : ""}`}
                               >
                                 <input
                                   type="radio"
                                   name={`edit-funcionarios-${empresaId}`}
                                   value="sim"
-                                  checked={editForm.possui_funcionarios === 'sim'}
-                                  onChange={handleEditChange('possui_funcionarios')}
+                                  checked={
+                                    editForm.possui_funcionarios === "sim"
+                                  }
+                                  onChange={handleEditChange(
+                                    "possui_funcionarios",
+                                  )}
                                   required
                                 />
                                 Sim
                               </label>
                               <label
-                                className={`empresa-toggle-option ${editForm.possui_funcionarios === 'nao' ? 'is-selected' : ''}`}
+                                className={`empresa-toggle-option ${editForm.possui_funcionarios === "nao" ? "is-selected" : ""}`}
                               >
                                 <input
                                   type="radio"
                                   name={`edit-funcionarios-${empresaId}`}
                                   value="nao"
-                                  checked={editForm.possui_funcionarios === 'nao'}
-                                  onChange={handleEditChange('possui_funcionarios')}
+                                  checked={
+                                    editForm.possui_funcionarios === "nao"
+                                  }
+                                  onChange={handleEditChange(
+                                    "possui_funcionarios",
+                                  )}
                                 />
                                 Nao
                               </label>
@@ -603,27 +706,35 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                             <span>Possui notas de venda? *</span>
                             <div className="empresa-toggle-options">
                               <label
-                                className={`empresa-toggle-option ${editForm.possui_notas_venda === 'sim' ? 'is-selected' : ''}`}
+                                className={`empresa-toggle-option ${editForm.possui_notas_venda === "sim" ? "is-selected" : ""}`}
                               >
                                 <input
                                   type="radio"
                                   name={`edit-notas-${empresaId}`}
                                   value="sim"
-                                  checked={editForm.possui_notas_venda === 'sim'}
-                                  onChange={handleEditChange('possui_notas_venda')}
+                                  checked={
+                                    editForm.possui_notas_venda === "sim"
+                                  }
+                                  onChange={handleEditChange(
+                                    "possui_notas_venda",
+                                  )}
                                   required
                                 />
                                 Sim
                               </label>
                               <label
-                                className={`empresa-toggle-option ${editForm.possui_notas_venda === 'nao' ? 'is-selected' : ''}`}
+                                className={`empresa-toggle-option ${editForm.possui_notas_venda === "nao" ? "is-selected" : ""}`}
                               >
                                 <input
                                   type="radio"
                                   name={`edit-notas-${empresaId}`}
                                   value="nao"
-                                  checked={editForm.possui_notas_venda === 'nao'}
-                                  onChange={handleEditChange('possui_notas_venda')}
+                                  checked={
+                                    editForm.possui_notas_venda === "nao"
+                                  }
+                                  onChange={handleEditChange(
+                                    "possui_notas_venda",
+                                  )}
                                 />
                                 Nao
                               </label>
@@ -634,27 +745,27 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                             <span>Presta servicos? *</span>
                             <div className="empresa-toggle-options">
                               <label
-                                className={`empresa-toggle-option ${editForm.presta_servicos === 'sim' ? 'is-selected' : ''}`}
+                                className={`empresa-toggle-option ${editForm.presta_servicos === "sim" ? "is-selected" : ""}`}
                               >
                                 <input
                                   type="radio"
                                   name={`edit-servicos-${empresaId}`}
                                   value="sim"
-                                  checked={editForm.presta_servicos === 'sim'}
-                                  onChange={handleEditChange('presta_servicos')}
+                                  checked={editForm.presta_servicos === "sim"}
+                                  onChange={handleEditChange("presta_servicos")}
                                   required
                                 />
                                 Sim
                               </label>
                               <label
-                                className={`empresa-toggle-option ${editForm.presta_servicos === 'nao' ? 'is-selected' : ''}`}
+                                className={`empresa-toggle-option ${editForm.presta_servicos === "nao" ? "is-selected" : ""}`}
                               >
                                 <input
                                   type="radio"
                                   name={`edit-servicos-${empresaId}`}
                                   value="nao"
-                                  checked={editForm.presta_servicos === 'nao'}
-                                  onChange={handleEditChange('presta_servicos')}
+                                  checked={editForm.presta_servicos === "nao"}
+                                  onChange={handleEditChange("presta_servicos")}
                                 />
                                 Nao
                               </label>
@@ -668,7 +779,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                               onClick={() => handleUpdate(empresaId)}
                               disabled={isSaving}
                             >
-                              {isSaving ? 'Salvando...' : 'Salvar alteracoes'}
+                              {isSaving ? "Salvando..." : "Salvar alteracoes"}
                             </button>
                             <button
                               type="button"
@@ -713,7 +824,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
             </div>
 
             <div className="empresa-note">
-              Estes dados refletem os cadastros enviados pelo modulo de Cadastro Empresa.
+              Estes dados refletem os cadastros enviados pelo modulo de Cadastro
+              Empresa.
             </div>
           </section>
         </div>
@@ -725,14 +837,16 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
             onClick={handleDeleteCancel}
           />
           <div className="empresa-modal__content" role="document">
-            <div className="empresa-modal__icon" aria-hidden="true">!</div>
+            <div className="empresa-modal__icon" aria-hidden="true">
+              !
+            </div>
             <div className="empresa-modal__text">
               <span className="empresa-modal__title">Confirmar exclusao</span>
               <span className="empresa-modal__message">
                 Deseja realmente excluir esta empresa?
               </span>
               <span className="empresa-modal__empresa">
-                {empresaParaExcluir.razao_social || 'Empresa selecionada'}
+                {empresaParaExcluir.razao_social || "Empresa selecionada"}
               </span>
             </div>
             <div className="empresa-modal__actions">
@@ -750,7 +864,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                 onClick={handleDeleteConfirm}
                 disabled={Boolean(deletingId)}
               >
-                {deletingId ? 'Excluindo...' : 'Excluir'}
+                {deletingId ? "Excluindo..." : "Excluir"}
               </button>
             </div>
           </div>
@@ -763,11 +877,13 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
             onClick={() => setShowCadastroModal(false)}
           />
 
-          <div className="empresa-modal__content empresa-modal__content--form" role="document">
+          <div
+            className="empresa-modal__content empresa-modal__content--form"
+            role="document"
+          >
             <h2>Cadastrar Empresa</h2>
 
             <div className="empresa-edit-grid">
-
               <label className="empresa-field">
                 <span>Razão Social *</span>
 
@@ -777,7 +893,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   onChange={(e) =>
                     setCadastroForm({
                       ...cadastroForm,
-                      razaoSocial: e.target.value
+                      razaoSocial: e.target.value,
                     })
                   }
                 />
@@ -792,7 +908,7 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   onChange={(e) =>
                     setCadastroForm({
                       ...cadastroForm,
-                      cnpj: e.target.value
+                      cnpj: e.target.value,
                     })
                   }
                 />
@@ -806,54 +922,57 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                   onChange={(e) =>
                     setCadastroForm({
                       ...cadastroForm,
-                      regimeTributario: e.target.value
+                      regimeTributario: e.target.value,
                     })
                   }
                 >
-                  <option value="">
-                    Selecione
-                  </option>
+                  <option value="">Selecione</option>
 
-                  <option value="simples">
-                    Simples Nacional
-                  </option>
+                  <option value="simples">Simples Nacional</option>
 
-                  <option value="presumido">
-                    Lucro Presumido
-                  </option>
+                  <option value="presumido">Lucro Presumido</option>
 
-                  <option value="real">
-                    Lucro Real
-                  </option>
+                  <option value="real">Lucro Real</option>
 
-                  <option value="mei">
-                    MEI
-                  </option>
-
+                  <option value="mei">MEI</option>
                 </select>
               </label>
               <div className="empresa-toggle-group">
                 <span>Possui funcionários? *</span>
 
                 <div className="empresa-toggle-options">
-                  <label className={`empresa-toggle-option ${cadastroForm.possuiFuncionarios === 'sim' ? 'is-selected' : ''}`}>
+                  <label
+                    className={`empresa-toggle-option ${cadastroForm.possuiFuncionarios === "sim" ? "is-selected" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="cadastroFuncionarios"
                       value="sim"
-                      checked={cadastroForm.possuiFuncionarios === 'sim'}
-                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiFuncionarios: e.target.value })}
+                      checked={cadastroForm.possuiFuncionarios === "sim"}
+                      onChange={(e) =>
+                        setCadastroForm({
+                          ...cadastroForm,
+                          possuiFuncionarios: e.target.value,
+                        })
+                      }
                     />
                     Sim
                   </label>
 
-                  <label className={`empresa-toggle-option ${cadastroForm.possuiFuncionarios === 'nao' ? 'is-selected' : ''}`}>
+                  <label
+                    className={`empresa-toggle-option ${cadastroForm.possuiFuncionarios === "nao" ? "is-selected" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="cadastroFuncionarios"
                       value="nao"
-                      checked={cadastroForm.possuiFuncionarios === 'nao'}
-                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiFuncionarios: e.target.value })}
+                      checked={cadastroForm.possuiFuncionarios === "nao"}
+                      onChange={(e) =>
+                        setCadastroForm({
+                          ...cadastroForm,
+                          possuiFuncionarios: e.target.value,
+                        })
+                      }
                     />
                     Não
                   </label>
@@ -863,24 +982,38 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                 <span>Possui notas de venda? *</span>
 
                 <div className="empresa-toggle-options">
-                  <label className={`empresa-toggle-option ${cadastroForm.possuiNotasVenda === 'sim' ? 'is-selected' : ''}`}>
+                  <label
+                    className={`empresa-toggle-option ${cadastroForm.possuiNotasVenda === "sim" ? "is-selected" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="cadastroNotasVenda"
                       value="sim"
-                      checked={cadastroForm.possuiNotasVenda === 'sim'}
-                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiNotasVenda: e.target.value })}
+                      checked={cadastroForm.possuiNotasVenda === "sim"}
+                      onChange={(e) =>
+                        setCadastroForm({
+                          ...cadastroForm,
+                          possuiNotasVenda: e.target.value,
+                        })
+                      }
                     />
                     Sim
                   </label>
 
-                  <label className={`empresa-toggle-option ${cadastroForm.possuiNotasVenda === 'nao' ? 'is-selected' : ''}`}>
+                  <label
+                    className={`empresa-toggle-option ${cadastroForm.possuiNotasVenda === "nao" ? "is-selected" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="cadastroNotasVenda"
                       value="nao"
-                      checked={cadastroForm.possuiNotasVenda === 'nao'}
-                      onChange={(e) => setCadastroForm({ ...cadastroForm, possuiNotasVenda: e.target.value })}
+                      checked={cadastroForm.possuiNotasVenda === "nao"}
+                      onChange={(e) =>
+                        setCadastroForm({
+                          ...cadastroForm,
+                          possuiNotasVenda: e.target.value,
+                        })
+                      }
                     />
                     Não
                   </label>
@@ -891,34 +1024,46 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                 <span>Presta serviços? *</span>
 
                 <div className="empresa-toggle-options">
-                  <label className={`empresa-toggle-option ${cadastroForm.prestaServicos === 'sim' ? 'is-selected' : ''}`}>
+                  <label
+                    className={`empresa-toggle-option ${cadastroForm.prestaServicos === "sim" ? "is-selected" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="cadastroPrestaServicos"
                       value="sim"
-                      checked={cadastroForm.prestaServicos === 'sim'}
-                      onChange={(e) => setCadastroForm({ ...cadastroForm, prestaServicos: e.target.value })}
+                      checked={cadastroForm.prestaServicos === "sim"}
+                      onChange={(e) =>
+                        setCadastroForm({
+                          ...cadastroForm,
+                          prestaServicos: e.target.value,
+                        })
+                      }
                     />
                     Sim
                   </label>
 
-                  <label className={`empresa-toggle-option ${cadastroForm.prestaServicos === 'nao' ? 'is-selected' : ''}`}>
+                  <label
+                    className={`empresa-toggle-option ${cadastroForm.prestaServicos === "nao" ? "is-selected" : ""}`}
+                  >
                     <input
                       type="radio"
                       name="cadastroPrestaServicos"
                       value="nao"
-                      checked={cadastroForm.prestaServicos === 'nao'}
-                      onChange={(e) => setCadastroForm({ ...cadastroForm, prestaServicos: e.target.value })}
+                      checked={cadastroForm.prestaServicos === "nao"}
+                      onChange={(e) =>
+                        setCadastroForm({
+                          ...cadastroForm,
+                          prestaServicos: e.target.value,
+                        })
+                      }
                     />
                     Não
                   </label>
                 </div>
               </div>
-
             </div>
 
             <div className="empresa-modal__actions empresa-modal__actions--cadastro">
-
               <button
                 type="button"
                 className="empresa-secondary"
@@ -933,9 +1078,8 @@ function MinhasEmpresas({ userName = 'Usuario', onLogout, onNavigate }) {
                 onClick={handleCreateEmpresa}
                 disabled={isCreating}
               >
-                {isCreating ? 'Salvando...' : 'Salvar Empresa'}
+                {isCreating ? "Salvando..." : "Salvar Empresa"}
               </button>
-
             </div>
           </div>
         </div>
