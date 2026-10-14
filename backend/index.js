@@ -562,6 +562,7 @@ app.delete("/empresa/:id", (req, res) => {
   });
 });
 
+
 app.put("/empresa/:id", (req, res) => {
   const { id } = req.params;
 
@@ -572,6 +573,7 @@ app.put("/empresa/:id", (req, res) => {
     possui_funcionarios,
     possui_notas_venda,
     presta_servicos,
+    documentos,
   } = req.body;
 
   if (!cnpj || !razao_social || !regime_tributario) {
@@ -581,52 +583,151 @@ app.put("/empresa/:id", (req, res) => {
     });
   }
 
-  const sql = `
-    UPDATE empresa_cliente
-    SET 
-      cnpj = ?,
-      razao_social = ?,
-      regime_tributario = ?,
-      possui_funcionarios = ?,
-      possui_notas_venda = ?,
-      presta_servicos = ?
-    WHERE id_cliente = ?
-  `;
+  if (documentos !== undefined &&
+    (!Array.isArray(documentos) ||
+      documentos.some((valor) =>
+        !Number.isSafeInteger(valor) || valor <= 0
+      ))) {
+    return res.status(400).json({
+      sucesso: false,
+      mensagem: "Lista de documentos inválida",
+    });
+  }
 
-  db.query(
-    sql,
-    [
-      cnpj,
-      razao_social,
-      regime_tributario,
-      possui_funcionarios,
-      possui_notas_venda,
-      presta_servicos,
-      id,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error(err);
+  const idsDocumentos = documentos === undefined
+    ? undefined
+    : [...new Set(documentos)];
+
+  db.getConnection((erroConexao, connection) => {
+    if (erroConexao) {
+      console.error(erroConexao);
+      return res.status(500).json({
+        sucesso: false,
+        mensagem: "Erro ao conectar ao banco",
+      });
+    }
+
+    const falhar = (erro) => {
+      console.error("Erro ao atualizar empresa:", erro);
+
+      connection.rollback(() => {
+        connection.release();
+        res.status(500).json({
+          sucesso: false,
+          mensagem: "Erro ao atualizar empresa e documentos",
+        });
+      });
+    };
+
+    connection.beginTransaction((erroTransacao) => {
+      if (erroTransacao) {
+        connection.release();
         return res.status(500).json({
           sucesso: false,
-          mensagem: "Erro ao atualizar empresa",
+          mensagem: "Erro ao iniciar atualização",
         });
       }
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          sucesso: false,
-          mensagem: "Empresa não encontrada",
-        });
-      }
+      const sqlEmpresa = `
+        UPDATE empresa_cliente
+        SET
+          cnpj = ?,
+          razao_social = ?,
+          regime_tributario = ?,
+          possui_funcionarios = ?,
+          possui_notas_venda = ?,
+          presta_servicos = ?
+        WHERE id_cliente = ?
+      `;
 
-      res.json({
-        sucesso: true,
-        mensagem: "Empresa atualizada com sucesso",
-      });
-    },
-  );
+      connection.query(
+        sqlEmpresa,
+        [
+          cnpj,
+          razao_social,
+          regime_tributario,
+          possui_funcionarios,
+          possui_notas_venda,
+          presta_servicos,
+          id,
+        ],
+        (erroEmpresa, resultado) => {
+          if (erroEmpresa) return falhar(erroEmpresa);
+
+          if (resultado.affectedRows === 0) {
+            return connection.rollback(() => {
+              connection.release();
+              res.status(404).json({
+                sucesso: false,
+                mensagem: "Empresa não encontrada",
+              });
+            });
+          }
+
+          const confirmar = () => {
+            connection.commit((erroCommit) => {
+              if (erroCommit) return falhar(erroCommit);
+
+              connection.release();
+
+              res.json({
+                sucesso: true,
+                mensagem: "Empresa atualizada com sucesso",
+              });
+            });
+          };
+
+          // Se o campo não foi enviado, mantém os vínculos atuais.
+          if (idsDocumentos === undefined) {
+            return confirmar();
+          }
+
+          // Desativa os vínculos anteriores.
+          connection.query(
+            `UPDATE cliente_tipo_documento
+             SET ativo = 0
+             WHERE id_cliente = ?`,
+            [id],
+            (erroDesativacao) => {
+              if (erroDesativacao) return falhar(erroDesativacao);
+
+              // Array vazio significa remover todos os vínculos.
+              if (idsDocumentos.length === 0) {
+                return confirmar();
+              }
+
+              // Reativa os existentes e insere os novos.
+              const sqlVinculo = `
+                INSERT INTO cliente_tipo_documento
+                  (id_cliente, id_tipo_documento, ativo)
+                VALUES (?, ?, 1)
+                ON DUPLICATE KEY UPDATE ativo = 1
+              `;
+
+              const inserirProximo = (indice) => {
+                if (indice >= idsDocumentos.length) {
+                  return confirmar();
+                }
+
+                connection.query(
+                  sqlVinculo,
+                  [id, idsDocumentos[indice]],
+                  (erroVinculo) => {
+                    if (erroVinculo) return falhar(erroVinculo);
+                    inserirProximo(indice + 1);
+                  }
+                );
+              };
+
+              inserirProximo(0);
+            }
+          );
+        }
+      );
+    });
+  });
 });
+
 
 // Importa a função responsável pelo cálculo das datas
 // de vencimento conforme a periodicidade definida.

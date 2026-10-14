@@ -197,7 +197,7 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
       const ids = dados.map((documento) =>
         Number(documento.id_tipo_documento)
       );
-      
+
       console.log("IDs selecionados para edição:", ids);
 
       setDocumentosEditSelecionados(ids);
@@ -263,6 +263,7 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
           possui_notas_venda: editForm.possui_notas_venda === "sim",
           presta_servicos: editForm.presta_servicos === "sim",
           id_contador: idContadorAtual,
+          documentos: documentosEditSelecionados,
         }),
       });
 
