@@ -50,7 +50,7 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
   const [documentos, setDocumentos] = useState([]);
   const [documentosSelecionados, setDocumentosSelecionados] = useState([]);
   const [carregandoDocumentos, setCarregandoDocumentos] = useState(false);
-
+  const [documentosEditSelecionados, setDocumentosEditSelecionados] = useState([]);
   // useCallback evita loop infinito no useEffect que depende desta função
   const carregarEmpresas = useCallback(
     async (mostrarToast = false) => {
@@ -158,13 +158,53 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
 
     if (!empresaId) {
       showToast("Empresa sem identificador.", "warning", {
-        title: "Atencao",
+        title: "Atenção",
       });
       return;
     }
 
     setEditingId(empresaId);
     setEditForm(buildEditForm(empresa));
+    setDocumentosEditSelecionados([]);
+
+    try {
+      const apiBaseUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+      const authUser = JSON.parse(
+        localStorage.getItem("authUser") || "null"
+      );
+
+      const resposta = await fetch(
+        `${apiBaseUrl}/empresa/${empresaId}/documentos-vinculados`,
+        {
+          headers: {
+            Authorization: `Bearer ${authUser?.token}`,
+          },
+        }
+      );
+
+      if (!resposta.ok) {
+        throw new Error(
+          `Erro ao carregar vínculos: ${resposta.status}`
+        );
+      }
+
+      const dados = await resposta.json();
+
+      const ids = dados.map((documento) =>
+        Number(documento.id_tipo_documento)
+      );
+
+      setDocumentosEditSelecionados(ids);
+
+    } catch (erro) {
+      console.error("Erro ao carregar documentos vinculados:", erro);
+
+      showToast("Não foi possível carregar os documentos vinculados.", "error", {
+        title: "Erro",
+      });
+    }
   };
 
   const handleEditCancel = () => {
@@ -235,14 +275,14 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
         prev.map((empresa) =>
           getEmpresaId(empresa) === empresaId
             ? {
-                ...empresa,
-                cnpj: editForm.cnpj,
-                razao_social: editForm.razao_social,
-                regime_tributario: editForm.regime_tributario,
-                possui_funcionarios: editForm.possui_funcionarios === "sim",
-                possui_notas_venda: editForm.possui_notas_venda === "sim",
-                presta_servicos: editForm.presta_servicos === "sim",
-              }
+              ...empresa,
+              cnpj: editForm.cnpj,
+              razao_social: editForm.razao_social,
+              regime_tributario: editForm.regime_tributario,
+              possui_funcionarios: editForm.possui_funcionarios === "sim",
+              possui_notas_venda: editForm.possui_notas_venda === "sim",
+              presta_servicos: editForm.presta_servicos === "sim",
+            }
             : empresa,
         ),
       );
@@ -595,31 +635,28 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
 
                       <div className="empresa-list-footer">
                         <span
-                          className={`empresa-pill ${
-                            parseFlag(empresa.possui_funcionarios)
-                              ? "empresa-pill--ok"
-                              : "empresa-pill--warn"
-                          }`}
+                          className={`empresa-pill ${parseFlag(empresa.possui_funcionarios)
+                            ? "empresa-pill--ok"
+                            : "empresa-pill--warn"
+                            }`}
                         >
                           Funcionarios:{" "}
                           {formatSimNao(empresa.possui_funcionarios)}
                         </span>
                         <span
-                          className={`empresa-pill ${
-                            parseFlag(empresa.possui_notas_venda)
-                              ? "empresa-pill--ok"
-                              : "empresa-pill--warn"
-                          }`}
+                          className={`empresa-pill ${parseFlag(empresa.possui_notas_venda)
+                            ? "empresa-pill--ok"
+                            : "empresa-pill--warn"
+                            }`}
                         >
                           Notas de venda:{" "}
                           {formatSimNao(empresa.possui_notas_venda)}
                         </span>
                         <span
-                          className={`empresa-pill ${
-                            parseFlag(empresa.presta_servicos)
-                              ? "empresa-pill--ok"
-                              : "empresa-pill--warn"
-                          }`}
+                          className={`empresa-pill ${parseFlag(empresa.presta_servicos)
+                            ? "empresa-pill--ok"
+                            : "empresa-pill--warn"
+                            }`}
                         >
                           Servicos: {formatSimNao(empresa.presta_servicos)}
                         </span>
@@ -1032,9 +1069,8 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
 
                 <div className="empresa-toggle-options">
                   <label
-                    className={`empresa-toggle-option ${
-                      cadastroForm.prestaServicos === "sim" ? "is-selected" : ""
-                    }`}
+                    className={`empresa-toggle-option ${cadastroForm.prestaServicos === "sim" ? "is-selected" : ""
+                      }`}
                   >
                     <input
                       type="radio"
@@ -1052,9 +1088,8 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
                   </label>
 
                   <label
-                    className={`empresa-toggle-option ${
-                      cadastroForm.prestaServicos === "nao" ? "is-selected" : ""
-                    }`}
+                    className={`empresa-toggle-option ${cadastroForm.prestaServicos === "nao" ? "is-selected" : ""
+                      }`}
                   >
                     <input
                       type="radio"
@@ -1109,9 +1144,8 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
                       return (
                         <label
                           key={idDocumento}
-                          className={`empresa-vinculo-item ${
-                            selecionado ? "is-selected" : ""
-                          }`}
+                          className={`empresa-vinculo-item ${selecionado ? "is-selected" : ""
+                            }`}
                         >
                           <input
                             type="checkbox"
