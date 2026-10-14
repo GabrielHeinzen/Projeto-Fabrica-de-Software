@@ -153,7 +153,7 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
     regimeLabels[value] || value || "Nao informado";
   const formatSimNao = (value) => (parseFlag(value) ? "Sim" : "Nao");
   // Abre o formulário inline de edição para a empresa clicada
-  const handleEditStart = (empresa) => {
+  const handleEditStart = async (empresa) => {
     const empresaId = getEmpresaId(empresa);
 
     if (!empresaId) {
