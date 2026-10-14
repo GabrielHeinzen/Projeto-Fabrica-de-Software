@@ -191,10 +191,14 @@ function MinhasEmpresas({ userName = "Usuario", onLogout, onNavigate }) {
       }
 
       const dados = await resposta.json();
+      console.log("ID da empresa:", empresaId);
+      console.log("Documentos retornados pelo backend:", dados);
 
       const ids = dados.map((documento) =>
         Number(documento.id_tipo_documento)
       );
+      
+      console.log("IDs selecionados para edição:", ids);
 
       setDocumentosEditSelecionados(ids);
 
