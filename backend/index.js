@@ -466,8 +466,8 @@ app.post("/empresa", (req, res) => {
 
       const documentosNormalizados = Array.isArray(documentos)
         ? [...new Set(documentos.map(Number))]
-            .filter((idDocumento) => Number.isInteger(idDocumento))
-            .filter((idDocumento) => idDocumento > 0)
+          .filter((idDocumento) => Number.isInteger(idDocumento))
+          .filter((idDocumento) => idDocumento > 0)
         : [];
 
       if (documentosNormalizados.length === 0) {
@@ -1623,6 +1623,36 @@ app.get(
     }
   },
 );
+
+// Consulta os documentos obrigatórios vinculados a uma empresa
+app.get("/empresa/:id/documentos-vinculados", autenticarToken, (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT
+      ctd.id_tipo_documento,
+      td.nome,
+      td.periodicidade
+    FROM cliente_tipo_documento AS ctd
+    INNER JOIN tipo_documento AS td
+      ON td.id_tipo_documento = ctd.id_tipo_documento
+    WHERE ctd.id_cliente = ?
+      AND ctd.ativo = 1
+    ORDER BY td.nome ASC
+  `;
+
+  db.query(sql, [id], (erro, resultados) => {
+    if (erro) {
+      console.error("Erro ao consultar documentos vinculados:", erro);
+
+      return res.status(500).json({
+        erro: "Erro ao consultar documentos vinculados."
+      });
+    }
+
+    return res.json(resultados);
+  });
+});
 
 // Inicializa o servidor da API na porta configurada,
 // permitindo o acesso às rotas da aplicação.
